@@ -1,218 +1,428 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>QDIM-6 选号研究台（双色球/大乐透）</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>QDIM-6 选号研究台</title>
 <style>
-  :root{
-    --bg:#0b1020; --card:#111827; --line:#1f2937;
-    --text:#e5e7eb; --muted:#94a3b8; --pri:#38bdf8; --ok:#34d399; --warn:#fbbf24;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);
-    font:14px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-    padding:16px}
-  .wrap{max-width:580px;margin:0 auto}
-  h1{font-size:20px;margin:0 0 4px;color:var(--pri)}
-  .sub{color:var(--muted);font-size:12px;margin-bottom:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-  label{display:block;color:var(--muted);margin:10px 0 4px;font-size:13px}
-  select,input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);
-    background:#0f172a;color:var(--text);font-size:14px}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  button{flex:1;min-width:120px;margin-top:12px;padding:11px 14px;border:0;border-radius:12px;
-    font-weight:600;cursor:pointer}
-  .primary{background:var(--pri);color:#06283d}
-  .ghost{background:#334155;color:#e5e7eb}
-  .danger{background:#7f1d1d;color:#fee2e2}
-  .pool-label{margin:10px 0 4px;color:var(--muted);font-size:13px}
-  .pool{background:#0f172a;border:1px solid var(--line);border-radius:10px;padding:10px;word-break:break-all}
-  .note{color:var(--muted);font-size:12px;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
-  .hidden{display:none}
-  .loading{color:var(--pri);font-style:italic}
-  .err{color:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0a0f1e;color:#e0e6f0;min-height:100vh;display:flex;justify-content:center;padding:12px}
+.container{max-width:520px;width:100%}
+h1{font-size:20px;text-align:center;padding:14px 0 4px;color:#f0c060;letter-spacing:1px}
+.sub{text-align:center;font-size:11px;color:#8899bb;margin-bottom:12px}
+.card{background:#141b2b;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #253040}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label{font-size:13px;color:#99aac5;white-space:nowrap}
+select,input[type=text]{background:#1e283a;border:1px solid #334155;color:#e0e6f0;border-radius:6px;padding:8px 10px;font-size:14px;flex:1;min-width:80px}
+.btn-group{display:flex;gap:8px;margin-top:10px}
+.btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-primary{background:#d4a030;color:#0a0f1e}
+.btn-secondary{background:#2a3a55;color:#c0cee8}
+.btn-danger{background:#4a2a2a;color:#f0a0a0}
+.btn:active{opacity:.7}
+.layer-title{font-size:13px;color:#b0c4de;margin:10px 0 4px;font-weight:600}
+.nums{display:flex;flex-wrap:wrap;gap:4px;min-height:28px}
+.num-ball{display:inline-flex;width:32px;height:32px;border-radius:50%;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.red{background:#c0392b}
+.blue{background:#2980b9}
+.gold{background:#d4a030;color:#0a0f1e}
+.recommend{background:#1e3040;border-radius:8px;padding:10px;margin:6px 0}
+.recommend-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.recommend-label{font-size:12px;color:#8899bb}
+.footnote{font-size:11px;color:#667799;text-align:center;margin-top:14px;line-height:1.6}
+.highlight{border-left:3px solid #d4a030;padding-left:8px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>☯ QDIM-6 选号研究台</h1>
-  <div class="sub">V6.1 容差版 · 双色球/大乐透 · 数据由 GitHub Actions 每日自动更新</div>
+<div class="container">
 
-  <div class="card">
+<h1>☯ QDIM-6 选号研究台</h1>
+<div class="sub">V6.2 固定局版 · 同彩种同期号结果不变 · 数据由 GitHub Actions 每日自动更新</div>
+
+<div class="card">
+  <div class="row">
     <label>彩种</label>
-    <select id="game">
-      <option value="ssq">双色球（红球01-33 / 蓝球01-16，周二四日开奖）</option>
-      <option value="dlt">大乐透（前区01-35 / 后区01-12，周一三六开奖）</option>
+    <select id="lotteryType">
+      <option value="ssq">双色球（红01-33 / 蓝01-16）</option>
+      <option value="dlt">大乐透（前01-35 / 后01-12）</option>
     </select>
-
-    <label>期号（自动按彩种生成，也可改）</label>
-    <input id="issue" type="text" />
-
-    <div class="row">
-      <button class="primary" onclick="gen()">⚡ 起局推算</button>
-      <button class="ghost" onclick="showLast()">📜 上一期开奖</button>
-      <button class="danger" onclick="clearAll()">清空</button>
-    </div>
-    <div class="note">
-      QDIM-6 模型：A主层(吉用神本位) + B关系层(同宫+9/同尾/对宫冲) + C反相层(凶门实出/空亡回补) → Z综合池 → 推荐3注。<br>
-      ⚠️ 本页为前端加权随机近似，不是官方开奖，也不提高中奖概率。
-    </div>
   </div>
-
-  <div class="card hidden" id="out">
-    <div class="pool-label">期号 / 彩种</div>
-    <div class="pool" id="outMeta"></div>
-
-    <div class="pool-label">A 主层（吉用神本位）</div>
-    <div class="pool" id="poolA"></div>
-
-    <div class="pool-label">B 关系层（同宫+9 / 同尾 / 对宫冲）</div>
-    <div class="pool" id="poolB"></div>
-
-    <div class="pool-label">C 反相层（凶门得令 / 玄武偏财 / 空亡实出）</div>
-    <div class="pool" id="poolC"></div>
-
-    <div class="pool-label">推荐 3 注（仅研究用）</div>
-    <div class="pool" id="rec"></div>
-
-    <div class="pool-label">上一期官方开奖（自动更新数据）</div>
-    <div class="pool" id="last"></div>
+  <div class="row" style="margin-top:8px">
+    <label>期号</label>
+    <input type="text" id="issueInput" placeholder="自动生成，也可手动改">
   </div>
-
-  <div class="note">
-    📌 数据来源：GitHub Actions 每日定时抓取中国福利彩票网(cwl.gov.cn) 和中国体育彩票网(lottery.gov.cn) 公开开奖公告。<br>
-    ⚠️ 彩票随机、独立同分布；本工具仅作排盘/统计/娱乐研究，不代买、不包中、不引导倍投。
+  <div class="btn-group">
+    <button class="btn btn-primary" id="calcBtn">⚡ 起局推算</button>
+    <button class="btn btn-secondary" id="lastBtn">📜 上一期开奖</button>
+    <button class="btn btn-danger" id="clearBtn">清空</button>
+  </div>
+  <div style="font-size:11px;color:#7788aa;margin-top:8px;text-align:center">
+    QDIM-6 固定局模型：同彩种+同期号→固定盘→固定推荐。不随机抽样。
   </div>
 </div>
 
+<!-- 结果显示区 -->
+<div id="resultArea"></div>
+
+<div class="footnote">
+  📌 数据来源：GitHub Actions 每日定时抓取 cwl.gov.cn 和 lottery.gov.cn 公开开奖公告。<br>
+  ⚠️ 彩票随机、独立同分布；本工具仅作排盘/统计/娱乐研究，不代买、不包中、不引导倍投。
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
 <script>
-/* ========== 工具函数 ========== */
-function pad(n){ return n<10 ? '0'+n : ''+n; }
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; }
-function range(s,e){ const r=[]; for(let i=s;i<=e;i++) r.push(pad(i)); return r; }
-function pick(arr,n){ return shuffle(arr).slice(0,n).sort((x,y)=>+x-(+y)); }
+// ============================================================
+// 1. 基础工具
+// ============================================================
+function pad2(n){return n<10?'0'+n:''+n}
 
-/* ========== 存储最新数据（从 data.json 加载） ========== */
-let DATA = null;
+// 固定种子随机数 [0,1) — 用 seedrandom
+function createRng(seed){
+  const r = new Math.seedrandom(seed);
+  return function(){ return r(); };
+}
 
-/* ========== 期号自动生成 ========== */
-function currentIssue(game){
-  if(DATA && DATA[game] && DATA[game].latest){
-    return DATA[game].latest.issue;
+// 从 [min,max] 中按种子取一个整数（确定性）
+function seededInt(rng, min, max){
+  return Math.floor(rng() * (max - min + 1)) + min;
+}
+
+// 从数组 arr 中随机取 count 个（确定性，不重复）
+function sampleFixed(arr, count, rng){
+  const copy = [...arr];
+  const result = [];
+  for(let i=0; i<count && copy.length>0; i++){
+    const idx = Math.floor(rng() * copy.length);
+    result.push(copy[idx]);
+    copy.splice(idx,1);
   }
-  return game === 'ssq' ? '2026119' : '26119';
-}
-function fillIssue(){
-  document.getElementById('issue').value = currentIssue(document.getElementById('game').value);
-}
-function onGameChange(){
-  fillIssue();
-  showLast();
+  return result;
 }
 
-/* ========== 加载 data.json ========== */
-async function loadData(){
-  try{
-    const resp = await fetch('./data.json?_t='+Date.now());
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    DATA = await resp.json();
-  }catch(e){
-    console.warn('加载 data.json 失败，使用内置备用数据:', e.message);
-    DATA = {
-      ssq: { latest: { issue:'2026119', date:'2026-10-18', red:['12','22','23','25','27','30'], blue:'04' } },
-      dlt: { latest: { issue:'26119',   date:'2026-10-19', front:['03','06','20','24','32'], back:['04','07'] } }
-    };
-  }
-  fillIssue();
-  showLast();
-}
-
-/* ========== QDIM-6 模型核心 ========== */
-function qdim6_ssq(){
-  const reds = range(1,33), blues = range(1,16);
-  const A_red = pick(reds,6), A_blue = pick(blues,1);
-  const B_red = pick(reds,6), B_blue = pick(blues,1);
-  const C_red = pick(reds,6), C_blue = pick(blues,1);
-  const pool = [...new Set([...A_red,...B_red,...C_red])].sort((x,y)=>+x-(+y));
-  const recs = [];
-  for(let i=0;i<3;i++){
-    const r = pick(pool,6), b = pick(blues,1);
-    recs.push(r.join(' ') + ' + ' + b);
-  }
+// ============================================================
+// 2. 固定起局参数（QDIM-6 规则：用彩种+期号生成固定盘）
+// ============================================================
+function generateQiMenParams(lottery, issue){
+  // 用种子生成一个固定哈希
+  const seedStr = lottery + '_' + issue;
+  const rng = createRng(seedStr);
+  
+  // 阴阳遁：0=阳遁,1=阴遁（按种子固定）
+  const yinYang = seededInt(rng, 0, 1); // 0阳1阴
+  
+  // 局数 1~9
+  const ju = seededInt(rng, 1, 9);
+  
+  // 值符（九星之一 1~9）
+  const zhiFu = seededInt(rng, 1, 9);
+  
+  // 值使（八门之一 1~8）
+  const zhiShi = seededInt(rng, 1, 8);
+  
+  // 空亡（两个地支序号 0~11）
+  const kongWang1 = seededInt(rng, 0, 11);
+  let kongWang2 = seededInt(rng, 0, 11);
+  while(kongWang2 === kongWang1) kongWang2 = seededInt(rng, 0, 11);
+  
+  // 用神宫（1~9宫）
+  const yongShenGong = seededInt(rng, 1, 9);
+  
   return {
-    A: A_red.join(' ') + ' + ' + A_blue,
-    B: B_red.join(' ') + ' + ' + B_blue,
-    C: C_red.join(' ') + ' + ' + C_blue,
-    recs
+    yinYang, // 0阳1阴
+    ju,
+    zhiFu,
+    zhiShi,
+    kongWang: [kongWang1, kongWang2],
+    yongShenGong,
+    seedStr
   };
 }
 
-function qdim6_dlt(){
-  const fronts = range(1,35), backs = range(1,12);
-  const A_f = pick(fronts,5), A_b = pick(backs,2);
-  const B_f = pick(fronts,5), B_b = pick(backs,2);
-  const C_f = pick(fronts,5), C_b = pick(backs,2);
-  const pool = [...new Set([...A_f,...B_f,...C_f])].sort((x,y)=>+x-(+y));
-  const recs = [];
-  for(let i=0;i<3;i++){
-    const f = pick(pool,5), b = pick(backs,2);
-    recs.push(f.join(' ') + ' + ' + b.join(' '));
+// ============================================================
+// 3. 从固定盘推导 A/B/C 层号码
+// ============================================================
+function deriveLayers(params, lottery){
+  const rng = createRng(params.seedStr + '_layers');
+  
+  // 红球/前区范围
+  let redMin=1, redMax=33, blueMin=1, blueMax=16;
+  if(lottery === 'dlt'){
+    redMin=1; redMax=35; blueMin=1; blueMax=12;
   }
+  
+  // ---- A 主层（吉用神本位）----
+  // 用神宫映射到号码区间
+  const gong = params.yongShenGong; // 1~9
+  // 每个宫对应约 3~4 个红球
+  const aPool = [];
+  const aBase = (gong-1) * 4 + 1;
+  for(let i=0; i<4; i++){
+    const num = aBase + i;
+    if(num >= redMin && num <= redMax) aPool.push(num);
+  }
+  // 取 4 个（不足则取全部）
+  const aRed = aPool.slice(0, Math.min(4, aPool.length));
+  
+  // A 层蓝球：用神宫 mod 蓝球范围
+  const aBlue = ((params.yongShenGong * 7) % (blueMax - blueMin + 1)) + blueMin;
+  
+  // ---- B 关系层（同宫+9 / 同尾 / 对宫冲）----
+  const bPool = [];
+  // 同宫+9
+  for(const n of aRed){
+    const cand = n + 9;
+    if(cand >= redMin && cand <= redMax && !bPool.includes(cand)) bPool.push(cand);
+  }
+  // 同尾
+  for(const n of aRed){
+    const tail = n % 10;
+    for(let t=redMin; t<=redMax; t++){
+      if(t % 10 === tail && !bPool.includes(t) && !aRed.includes(t)){
+        bPool.push(t);
+      }
+    }
+  }
+  // 对宫冲（n+17 或 n-17）
+  for(const n of aRed){
+    const cand1 = n + 17;
+    if(cand1 >= redMin && cand1 <= redMax && !bPool.includes(cand1)) bPool.push(cand1);
+    const cand2 = n - 17;
+    if(cand2 >= redMin && cand2 <= redMax && !bPool.includes(cand2)) bPool.push(cand2);
+  }
+  // 取最多6个
+  const bRed = sampleFixed(bPool, Math.min(6, bPool.length), rng);
+  
+  // B 层蓝球：值符映射
+  const bBlue = ((params.zhiFu * 5) % (blueMax - blueMin + 1)) + blueMin;
+  
+  // ---- C 反相层（凶门得令 / 空亡实出）----
+  const cPool = [];
+  // 空亡宫映射号码
+  for(const kw of params.kongWang){
+    const base = kw * 3 + 1;
+    for(let i=0; i<3; i++){
+      const num = base + i;
+      if(num >= redMin && num <= redMax && !cPool.includes(num)) cPool.push(num);
+    }
+  }
+  // 凶门（值使奇数门为凶）
+  if(params.zhiShi % 2 === 1){
+    for(let i=0; i<3; i++){
+      const num = seededInt(rng, redMin, redMax);
+      if(!cPool.includes(num)) cPool.push(num);
+    }
+  }
+  const cRed = sampleFixed(cPool, Math.min(5, cPool.length), rng);
+  
+  // C 层蓝球：空亡映射
+  const cBlue = ((params.kongWang[0] + params.kongWang[1]) % (blueMax - blueMin + 1)) + blueMin;
+  
+  // ---- Z 综合池：取前3注（确定性排序）----
+  // 生成候选组合
+  const candidates = [];
+  // 从A+B+C红球中取6个红球（双色球）或5个（大乐透）
+  const allRed = [...new Set([...aRed, ...bRed, ...cRed])].sort((a,b)=>a-b);
+  const needRed = (lottery==='ssq') ? 6 : 5;
+  
+  // 用种子生成足够多的候选
+  const combRng = createRng(params.seedStr + '_zpool');
+  const usedCombos = new Set();
+  for(let attempt=0; attempt<200; attempt++){
+    if(candidates.length >= 10) break; // 最多10个候选
+    const picked = sampleFixed(allRed, needRed, combRng);
+    if(picked.length < needRed) continue;
+    const key = picked.sort((a,b)=>a-b).join(',');
+    if(usedCombos.has(key)) continue;
+    usedCombos.add(key);
+    
+    // 蓝球：从A/B/C蓝球中选一个
+    const bluePool = [aBlue, bBlue, cBlue];
+    const blue = bluePool[Math.floor(combRng() * bluePool.length)];
+    
+    // 评分：越靠近A层越高
+    let score = 0;
+    for(const n of picked){
+      if(aRed.includes(n)) score += 3;
+      else if(bRed.includes(n)) score += 2;
+      else score += 1;
+    }
+    if(blue === aBlue) score += 2;
+    else if(blue === bBlue) score += 1;
+    
+    candidates.push({red:picked.sort((a,b)=>a-b), blue, score});
+  }
+  
+  // 按评分降序取前3
+  candidates.sort((a,b)=>b.score - a.score);
+  const top3 = candidates.slice(0, 3);
+  
   return {
-    A: A_f.join(' ') + ' + ' + A_b.join(' '),
-    B: B_f.join(' ') + ' + ' + B_b.join(' '),
-    C: C_f.join(' ') + ' + ' + C_b.join(' '),
-    recs
+    params,
+    aRed: aRed.sort((a,b)=>a-b),
+    aBlue,
+    bRed: bRed.sort((a,b)=>a-b),
+    bBlue,
+    cRed: cRed.sort((a,b)=>a-b),
+    cBlue,
+    top3,
+    allRed: allRed.sort((a,b)=>a-b)
   };
 }
 
-/* ========== 按钮动作 ========== */
-function gen(){
-  const game = document.getElementById('game').value;
-  const issue = document.getElementById('issue').value || currentIssue(game);
-  const r = game === 'ssq' ? qdim6_ssq() : qdim6_dlt();
-
-  document.getElementById('out').classList.remove('hidden');
-  document.getElementById('outMeta').textContent =
-    (game==='ssq'?'双色球':'大乐透') + ' · 期号 ' + issue + '（前端模拟）';
-
-  document.getElementById('poolA').textContent = r.A;
-  document.getElementById('poolB').textContent = r.B;
-  document.getElementById('poolC').textContent = r.C;
-  document.getElementById('rec').innerHTML =
-    r.recs.map((x,i)=>`注${i+1}：${x}`).join('<br>');
-
-  showLast();
-}
-
-function showLast(){
-  const game = document.getElementById('game').value;
-  const L = DATA && DATA[game] && DATA[game].latest;
-  if(!L){
-    document.getElementById('last').textContent = '暂无数据（等待 Actions 首次抓取）';
-    return;
+// ============================================================
+// 4. 渲染结果
+// ============================================================
+function renderResult(result, lottery){
+  const area = document.getElementById('resultArea');
+  const isDLT = (lottery === 'dlt');
+  const redLabel = isDLT ? '前区' : '红球';
+  const blueLabel = isDLT ? '后区' : '蓝球';
+  
+  let html = '';
+  
+  // 盘参数
+  const p = result.params;
+  const yinYangStr = p.yinYang===0 ? '阳遁' : '阴遁';
+  html += `<div class="card highlight">
+    <div style="font-size:12px;color:#8899bb;margin-bottom:6px">
+      🧭 起局参数：${yinYangStr}${p.ju}局 · 值符${['天蓬','天芮','天冲','天辅','天禽','天心','天柱','天任','天英'][p.zhiFu-1]} · 
+      值使${['休门','死门','伤门','杜门','开门','惊门','生门','景门'][p.zhiShi-1]} · 
+      空亡${['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][p.kongWang[0]]}${['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][p.kongWang[1]]} · 
+      用神宫${p.yongShenGong}宫
+    </div>
+  </div>`;
+  
+  // A 主层
+  html += `<div class="card">
+    <div class="layer-title">☰ A 主层（吉用神本位）— 用神宫${p.yongShenGong}宫</div>
+    <div class="nums">`;
+  for(const n of result.aRed){
+    html += `<span class="num-ball red">${pad2(n)}</span>`;
   }
-  let txt = `第 ${L.issue} 期（${L.date}）：`;
-  txt += game==='ssq'
-    ? `红球 ${L.red.join(' ')} ＋ 蓝球 ${L.blue}`
-    : `前区 ${L.front.join(' ')} ＋ 后区 ${L.back.join(' ')}`;
-  document.getElementById('last').textContent = txt;
-  document.getElementById('out').classList.remove('hidden');
+  html += `<span class="num-ball blue">${pad2(result.aBlue)}</span>`;
+  html += `</div></div>`;
+  
+  // B 关系层
+  html += `<div class="card">
+    <div class="layer-title">☲ B 关系层（同宫+9 / 同尾 / 对宫冲）</div>
+    <div class="nums">`;
+  for(const n of result.bRed){
+    html += `<span class="num-ball red">${pad2(n)}</span>`;
+  }
+  html += `<span class="num-ball blue">${pad2(result.bBlue)}</span>`;
+  html += `</div></div>`;
+  
+  // C 反相层
+  html += `<div class="card">
+    <div class="layer-title">☵ C 反相层（凶门得令 / 空亡实出）</div>
+    <div class="nums">`;
+  for(const n of result.cRed){
+    html += `<span class="num-ball red">${pad2(n)}</span>`;
+  }
+  html += `<span class="num-ball blue">${pad2(result.cBlue)}</span>`;
+  html += `</div></div>`;
+  
+  // 推荐 3 注
+  html += `<div class="card">
+    <div class="layer-title">⭐ 推荐 3 注（仅研究用）</div>`;
+  for(let i=0; i<result.top3.length; i++){
+    const t = result.top3[i];
+    const redStr = t.red.map(n=>pad2(n)).join(' ');
+    html += `<div class="recommend">
+      <div class="recommend-row">
+        <span class="recommend-label">第${i+1}注</span>
+        <span style="font-size:12px;color:#667799">评分 ${t.score}</span>
+      </div>
+      <div style="font-size:16px;font-weight:700;margin-top:4px">
+        <span style="color:#e74c3c">${redStr}</span>
+        <span style="color:#3498db;margin-left:6px">+ ${pad2(t.blue)}</span>
+      </div>
+    </div>`;
+  }
+  html += `</div>`;
+  
+  area.innerHTML = html;
 }
 
-function clearAll(){
-  ['poolA','poolB','poolC','rec','last','outMeta'].forEach(id=>{
-    document.getElementById(id).textContent='';
+// ============================================================
+// 5. 主逻辑
+// ============================================================
+function getAutoIssue(lottery){
+  const now = new Date();
+  const y = now.getFullYear();
+  // 简单估算：一年约150期
+  const dayOfYear = Math.floor((now - new Date(y,0,0)) / 86400000);
+  const issueNum = Math.floor(dayOfYear * 0.42) + 1;
+  return `${y}${pad2(issueNum)}`;
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  const typeSelect = document.getElementById('lotteryType');
+  const issueInput = document.getElementById('issueInput');
+  const calcBtn = document.getElementById('calcBtn');
+  const lastBtn = document.getElementById('lastBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const area = document.getElementById('resultArea');
+  
+  // 初始化期号
+  issueInput.value = getAutoIssue(typeSelect.value);
+  
+  // 彩种切换时更新期号
+  typeSelect.addEventListener('change', function(){
+    issueInput.value = getAutoIssue(this.value);
   });
-  document.getElementById('out').classList.add('hidden');
-  fillIssue();
-}
-
-/* ========== 初始化 ========== */
-window.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('game').addEventListener('change', onGameChange);
-  loadData();
+  
+  // 起局推算
+  calcBtn.addEventListener('click', function(){
+    const lottery = typeSelect.value;
+    let issue = issueInput.value.trim();
+    if(!issue){
+      issue = getAutoIssue(lottery);
+      issueInput.value = issue;
+    }
+    
+    // 生成固定局
+    const params = generateQiMenParams(lottery, issue);
+    const result = deriveLayers(params, lottery);
+    renderResult(result, lottery);
+  });
+  
+  // 清空
+  clearBtn.addEventListener('click', function(){
+    area.innerHTML = '';
+  });
+  
+  // 上一期开奖（显示data.json中的数据）
+  lastBtn.addEventListener('click', async function(){
+    try{
+      const resp = await fetch('./data.json?t='+Date.now());
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      const data = await resp.json();
+      const lottery = typeSelect.value;
+      const latest = data[lottery]?.latest;
+      if(!latest || !latest.red || latest.red.length===0){
+        area.innerHTML = `<div class="card" style="color:#aab;text-align:center">暂无开奖数据，等待 GitHub Actions 自动更新。</div>`;
+        return;
+      }
+      const isDLT = (lottery==='dlt');
+      const label = isDLT ? '前区' : '红球';
+      const blueLabel = isDLT ? '后区' : '蓝球';
+      const redStr = latest.red.map(n=>pad2(n)).join(' ');
+      area.innerHTML = `<div class="card highlight">
+        <div style="font-size:13px;color:#8899bb">📜 第 ${latest.issue} 期（${latest.date||''}）</div>
+        <div style="font-size:18px;font-weight:700;margin-top:6px">
+          <span style="color:#e74c3c">${redStr}</span>
+          <span style="color:#3498db;margin-left:8px">+ ${pad2(latest.blue)}</span>
+        </div>
+        <div style="font-size:11px;color:#667799;margin-top:4px">数据来源：GitHub Actions 自动抓取</div>
+      </div>`;
+    } catch(e){
+      area.innerHTML = `<div class="card" style="color:#aab;text-align:center">读取开奖数据失败：${e.message}</div>`;
+    }
+  });
+  
 });
 </script>
 </body>
