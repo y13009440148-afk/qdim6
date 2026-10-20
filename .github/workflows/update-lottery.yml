@@ -1,0 +1,137 @@
+name: 每日自动更新开奖数据
+
+on:
+  schedule:
+    # 每天北京时间 21:30（UTC 13:30）跑一次，覆盖当天开奖
+    - cron: '30 13 * * *'
+  workflow_dispatch:   # 允许手动触发
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 抓取并更新开奖数据
+        run: |
+          cat > fetch_lottery.mjs << 'EOF'
+          import fs from 'fs';
+          import path from 'path';
+
+          const DATA_FILE = './data.json';
+          
+          // 加载已有数据，如果没有则新建
+          let data = {};
+          try{
+            data = JSON.parse(fs.readFileSync(DATA_FILE,'utf8'));
+          }catch(e){
+            data = { ssq:{}, dlt:{} };
+          }
+
+          // 获取当前日期（北京时间）
+          const now = new Date();
+          const bjOffset = 8 * 60 * 60 * 1000;
+          const bj = new Date(now.getTime() + bjOffset);
+          const todayStr = bj.toISOString().split('T')[0]; // YYYY-MM-DD
+
+          // 辅助：解析期号（双色球：YYYYXXX，大乐透：YYXXX）
+          function parseIssue(game, raw){
+            if(!raw) return null;
+            const m = raw.match(/\d+/);
+            return m ? m[0] : null;
+          }
+
+          // 抓取函数（通用）
+          async function fetchLottery(type, url, parser){
+            try{
+              const resp = await fetch(url, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (compatible; QDIM6Bot/1.0)' },
+                signal: AbortSignal.timeout(15000)
+              });
+              if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+              const text = await resp.text();
+              return parser(text, type);
+            }catch(e){
+              console.warn(`抓取 ${type} 失败:`, e.message);
+              return null;
+            }
+          }
+
+          // 双色球抓取（中国福利彩票网公开接口）
+          async function fetchSSQ(){
+            const url = 'https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1';
+            return fetchLottery('ssq', url, (text)=>{
+              const json = JSON.parse(text);
+              if(json && json.length > 0){
+                const item = json[0];
+                return {
+                  issue: item.code || '',
+                  date: item.date || '',
+                  red: (item.red || '').split(',').filter(Boolean).map(x=>x.padStart(2,'0')),
+                  blue: (item.blue || '').padStart(2,'0')
+                };
+              }
+              return null;
+            });
+          }
+
+          // 大乐透抓取（中国体育彩票网公开接口）
+          async function fetchDLT(){
+            const url = 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=85&provinceId=0&pageSize=1&is498=1&pageNo=1';
+            return fetchLottery('dlt', url, (text)=>{
+              const json = JSON.parse(text);
+              const list = json?.value?.list;
+              if(list && list.length > 0){
+                const item = list[0];
+                return {
+                  issue: item.lotteryNum || '',
+                  date: item.lotteryDate || '',
+                  front: (item.lotteryDrawResult || '').split(' ').slice(0,5).map(x=>x.padStart(2,'0')),
+                  back: (item.lotteryDrawResult || '').split(' ').slice(5,7).map(x=>x.padStart(2,'0'))
+                };
+              }
+              return null;
+            });
+          }
+
+          // 更新数据
+          async function update(){
+            const ssq = await fetchSSQ();
+            if(ssq && ssq.issue && ssq.red.length===6){
+              data.ssq.latest = ssq;
+              console.log('双色球更新成功:', ssq.issue, ssq.date);
+            }else{
+              console.log('双色球本次未更新（可能非开奖日或接口暂未返回）');
+            }
+
+            const dlt = await fetchDLT();
+            if(dlt && dlt.issue && dlt.front.length===5){
+              data.dlt.latest = dlt;
+              console.log('大乐透更新成功:', dlt.issue, dlt.date);
+            }else{
+              console.log('大乐透本次未更新（可能非开奖日或接口暂未返回）');
+            }
+
+            // 写入更新时间
+            data._updated = todayStr;
+
+            fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+            console.log('data.json 已更新');
+          }
+
+          await update();
+          EOF
+          node fetch_lottery.mjs
+
+      - name: 提交更新到仓库
+        run: |
+          git config user.name "QDIM6 Auto Update Bot"
+          git config user.email "bot@qdim6.example.com"
+          git add data.json
+          git diff --quiet && git diff --staged --quiet || \
+            (git commit -m "🤖 自动更新开奖数据 $(date '+%Y-%m-%d %H:%M')" && git push)
