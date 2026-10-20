@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -37,7 +38,7 @@ select,input[type=text]{background:#1e283a;border:1px solid #334155;color:#e0e6f
 <div class="container">
 
 <h1>☯ QDIM-6 选号研究台</h1>
-<div class="sub">V6.2 固定局版 · 同彩种同期号结果不变 · 数据由 GitHub Actions 每日自动更新</div>
+<div class="sub">V6.3 固定局版 · 同彩种同期号结果不变 · A层九宫扩池 · 大乐透严格5+2</div>
 
 <div class="card">
   <div class="row">
@@ -78,18 +79,15 @@ select,input[type=text]{background:#1e283a;border:1px solid #334155;color:#e0e6f
 // ============================================================
 function pad2(n){return n<10?'0'+n:''+n}
 
-// 固定种子随机数 [0,1) — 用 seedrandom
 function createRng(seed){
   const r = new Math.seedrandom(seed);
   return function(){ return r(); };
 }
 
-// 从 [min,max] 中按种子取一个整数（确定性）
 function seededInt(rng, min, max){
   return Math.floor(rng() * (max - min + 1)) + min;
 }
 
-// 从数组 arr 中随机取 count 个（确定性，不重复）
 function sampleFixed(arr, count, rng){
   const copy = [...arr];
   const result = [];
@@ -102,104 +100,93 @@ function sampleFixed(arr, count, rng){
 }
 
 // ============================================================
-// 2. 固定起局参数（QDIM-6 规则：用彩种+期号生成固定盘）
+// 2. 九宫数映射表（每个宫对应的数字，用于扩A层）
+// ============================================================
+const PALACE_NUMS = {
+  1: [1, 6, 11, 16, 21, 26, 31],
+  2: [2, 5, 8, 10, 15, 20, 25, 30, 35],
+  3: [3, 4, 8, 13, 18, 23, 28, 33],
+  4: [3, 4, 5, 8, 14, 19, 24, 29, 34],
+  5: [5, 10, 15, 20, 25, 30, 35],
+  6: [1, 4, 6, 9, 16, 21, 26, 31],
+  7: [2, 4, 7, 9, 17, 22, 27, 32],
+  8: [5, 7, 8, 10, 18, 23, 28, 33],
+  9: [2, 3, 7, 9, 19, 24, 29, 34]
+};
+
+// ============================================================
+// 3. 固定起局参数
 // ============================================================
 function generateQiMenParams(lottery, issue){
-  // 用种子生成一个固定哈希
   const seedStr = lottery + '_' + issue;
   const rng = createRng(seedStr);
   
-  // 阴阳遁：0=阳遁,1=阴遁（按种子固定）
-  const yinYang = seededInt(rng, 0, 1); // 0阳1阴
-  
-  // 局数 1~9
+  const yinYang = seededInt(rng, 0, 1);
   const ju = seededInt(rng, 1, 9);
-  
-  // 值符（九星之一 1~9）
   const zhiFu = seededInt(rng, 1, 9);
-  
-  // 值使（八门之一 1~8）
   const zhiShi = seededInt(rng, 1, 8);
   
-  // 空亡（两个地支序号 0~11）
-  const kongWang1 = seededInt(rng, 0, 11);
+  let kongWang1 = seededInt(rng, 0, 11);
   let kongWang2 = seededInt(rng, 0, 11);
   while(kongWang2 === kongWang1) kongWang2 = seededInt(rng, 0, 11);
   
-  // 用神宫（1~9宫）
   const yongShenGong = seededInt(rng, 1, 9);
   
-  return {
-    yinYang, // 0阳1阴
-    ju,
-    zhiFu,
-    zhiShi,
-    kongWang: [kongWang1, kongWang2],
-    yongShenGong,
-    seedStr
-  };
+  return { yinYang, ju, zhiFu, zhiShi, kongWang: [kongWang1, kongWang2], yongShenGong, seedStr };
 }
 
 // ============================================================
-// 3. 从固定盘推导 A/B/C 层号码
+// 4. 从固定盘推导 A/B/C 层号码（A层已扩池）
 // ============================================================
 function deriveLayers(params, lottery){
   const rng = createRng(params.seedStr + '_layers');
   
-  // 红球/前区范围
   let redMin=1, redMax=33, blueMin=1, blueMax=16;
   if(lottery === 'dlt'){
     redMin=1; redMax=35; blueMin=1; blueMax=12;
   }
   
-  // ---- A 主层（吉用神本位）----
-  // 用神宫映射到号码区间
-  const gong = params.yongShenGong; // 1~9
-  // 每个宫对应约 3~4 个红球
-  const aPool = [];
-  const aBase = (gong-1) * 4 + 1;
-  for(let i=0; i<4; i++){
-    const num = aBase + i;
-    if(num >= redMin && num <= redMax) aPool.push(num);
+  // ---- A 主层（吉用神本位）- 九宫扩池 ----
+  const gong = params.yongShenGong;
+  // 从九宫数映射表中获取该宫的所有数字，并限制在红球/前区范围内
+  const aPool = (PALACE_NUMS[gong] || []).filter(n => n >= redMin && n <= redMax);
+  // 如果不足8个，补充同尾数
+  while(aPool.length < 8){
+    const last = aPool[aPool.length-1] || gong;
+    const next = last + 10;
+    if(next <= redMax && !aPool.includes(next)) aPool.push(next);
+    else break;
   }
-  // 取 4 个（不足则取全部）
-  const aRed = aPool.slice(0, Math.min(4, aPool.length));
+  // 取前8个作为A层红球/前区
+  const aRed = aPool.slice(0, Math.min(8, aPool.length));
   
-  // A 层蓝球：用神宫 mod 蓝球范围
+  // A 层蓝球：用神宫映射
   const aBlue = ((params.yongShenGong * 7) % (blueMax - blueMin + 1)) + blueMin;
   
   // ---- B 关系层（同宫+9 / 同尾 / 对宫冲）----
   const bPool = [];
-  // 同宫+9
   for(const n of aRed){
     const cand = n + 9;
-    if(cand >= redMin && cand <= redMax && !bPool.includes(cand)) bPool.push(cand);
+    if(cand >= redMin && cand <= redMax && !bPool.includes(cand) && !aRed.includes(cand)) bPool.push(cand);
   }
-  // 同尾
   for(const n of aRed){
     const tail = n % 10;
     for(let t=redMin; t<=redMax; t++){
-      if(t % 10 === tail && !bPool.includes(t) && !aRed.includes(t)){
-        bPool.push(t);
-      }
+      if(t % 10 === tail && !bPool.includes(t) && !aRed.includes(t)) bPool.push(t);
     }
   }
-  // 对宫冲（n+17 或 n-17）
   for(const n of aRed){
     const cand1 = n + 17;
-    if(cand1 >= redMin && cand1 <= redMax && !bPool.includes(cand1)) bPool.push(cand1);
+    if(cand1 >= redMin && cand1 <= redMax && !bPool.includes(cand1) && !aRed.includes(cand1)) bPool.push(cand1);
     const cand2 = n - 17;
-    if(cand2 >= redMin && cand2 <= redMax && !bPool.includes(cand2)) bPool.push(cand2);
+    if(cand2 >= redMin && cand2 <= redMax && !bPool.includes(cand2) && !aRed.includes(cand2)) bPool.push(cand2);
   }
-  // 取最多6个
-  const bRed = sampleFixed(bPool, Math.min(6, bPool.length), rng);
+  const bRed = sampleFixed([...new Set(bPool)], Math.min(8, bPool.length), rng);
   
-  // B 层蓝球：值符映射
   const bBlue = ((params.zhiFu * 5) % (blueMax - blueMin + 1)) + blueMin;
   
   // ---- C 反相层（凶门得令 / 空亡实出）----
   const cPool = [];
-  // 空亡宫映射号码
   for(const kw of params.kongWang){
     const base = kw * 3 + 1;
     for(let i=0; i<3; i++){
@@ -207,54 +194,88 @@ function deriveLayers(params, lottery){
       if(num >= redMin && num <= redMax && !cPool.includes(num)) cPool.push(num);
     }
   }
-  // 凶门（值使奇数门为凶）
   if(params.zhiShi % 2 === 1){
     for(let i=0; i<3; i++){
       const num = seededInt(rng, redMin, redMax);
       if(!cPool.includes(num)) cPool.push(num);
     }
   }
-  const cRed = sampleFixed(cPool, Math.min(5, cPool.length), rng);
+  const cRed = sampleFixed([...new Set(cPool)], Math.min(5, cPool.length), rng);
   
-  // C 层蓝球：空亡映射
   const cBlue = ((params.kongWang[0] + params.kongWang[1]) % (blueMax - blueMin + 1)) + blueMin;
   
-  // ---- Z 综合池：取前3注（确定性排序）----
-  // 生成候选组合
-  const candidates = [];
-  // 从A+B+C红球中取6个红球（双色球）或5个（大乐透）
+  // ---- Z 综合池：生成推荐注 ----
   const allRed = [...new Set([...aRed, ...bRed, ...cRed])].sort((a,b)=>a-b);
-  const needRed = (lottery==='ssq') ? 6 : 5;
   
-  // 用种子生成足够多的候选
+  let needRed, needBlue;
+  if(lottery === 'ssq'){
+    needRed = 6;
+    needBlue = 1;
+  } else {
+    needRed = 5;
+    needBlue = 2; // 大乐透后区需要2个
+  }
+  
+  // 生成后区候选池（大乐透专用）
+  let backPool = [];
+  if(lottery === 'dlt'){
+    backPool = [...new Set([
+      aBlue, bBlue, cBlue,
+      ...aRed.filter(n=>n>=1&&n<=12),
+      ...bRed.filter(n=>n>=1&&n<=12),
+      ...cRed.filter(n=>n>=1&&n<=12)
+    ])].filter(n=>n>=1&&n<=12).sort((a,b)=>a-b);
+    // 确保至少2个
+    while(backPool.length < 2){
+      const extra = seededInt(rng, 1, 12);
+      if(!backPool.includes(extra)) backPool.push(extra);
+    }
+  }
+  
   const combRng = createRng(params.seedStr + '_zpool');
   const usedCombos = new Set();
-  for(let attempt=0; attempt<200; attempt++){
-    if(candidates.length >= 10) break; // 最多10个候选
+  const candidates = [];
+  
+  for(let attempt=0; attempt<500; attempt++){
+    if(candidates.length >= 10) break;
+    
     const picked = sampleFixed(allRed, needRed, combRng);
     if(picked.length < needRed) continue;
-    const key = picked.sort((a,b)=>a-b).join(',');
+    const sortedPick = picked.sort((a,b)=>a-b);
+    let key;
+    let blues;
+    
+    if(lottery === 'ssq'){
+      const bluePool = [aBlue, bBlue, cBlue];
+      const blue = bluePool[Math.floor(combRng() * bluePool.length)];
+      blues = [blue];
+      key = sortedPick.join(',') + '|' + blue;
+    } else {
+      // 大乐透：从后区池取2个不同的
+      const shuffledBack = sampleFixed(backPool, backPool.length, combRng);
+      const twoBlues = shuffledBack.slice(0, 2).sort((a,b)=>a-b);
+      if(twoBlues.length < 2) continue;
+      blues = twoBlues;
+      key = sortedPick.join(',') + '|' + twoBlues.join(',');
+    }
+    
     if(usedCombos.has(key)) continue;
     usedCombos.add(key);
     
-    // 蓝球：从A/B/C蓝球中选一个
-    const bluePool = [aBlue, bBlue, cBlue];
-    const blue = bluePool[Math.floor(combRng() * bluePool.length)];
-    
-    // 评分：越靠近A层越高
     let score = 0;
-    for(const n of picked){
+    for(const n of sortedPick){
       if(aRed.includes(n)) score += 3;
       else if(bRed.includes(n)) score += 2;
       else score += 1;
     }
-    if(blue === aBlue) score += 2;
-    else if(blue === bBlue) score += 1;
+    for(const b of blues){
+      if(b === aBlue) score += 2;
+      else if(b === bBlue) score += 1;
+    }
     
-    candidates.push({red:picked.sort((a,b)=>a-b), blue, score});
+    candidates.push({red: sortedPick, blue: blues, score});
   }
   
-  // 按评分降序取前3
   candidates.sort((a,b)=>b.score - a.score);
   const top3 = candidates.slice(0, 3);
   
@@ -272,7 +293,7 @@ function deriveLayers(params, lottery){
 }
 
 // ============================================================
-// 4. 渲染结果
+// 5. 渲染结果
 // ============================================================
 function renderResult(result, lottery){
   const area = document.getElementById('resultArea');
@@ -282,27 +303,30 @@ function renderResult(result, lottery){
   
   let html = '';
   
-  // 盘参数
   const p = result.params;
   const yinYangStr = p.yinYang===0 ? '阳遁' : '阴遁';
+  const starNames = ['天蓬','天芮','天冲','天辅','天禽','天心','天柱','天任','天英'];
+  const gateNames = ['休门','死门','伤门','杜门','开门','惊门','生门','景门'];
+  const diZhi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  
   html += `<div class="card highlight">
     <div style="font-size:12px;color:#8899bb;margin-bottom:6px">
-      🧭 起局参数：${yinYangStr}${p.ju}局 · 值符${['天蓬','天芮','天冲','天辅','天禽','天心','天柱','天任','天英'][p.zhiFu-1]} · 
-      值使${['休门','死门','伤门','杜门','开门','惊门','生门','景门'][p.zhiShi-1]} · 
-      空亡${['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][p.kongWang[0]]}${['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][p.kongWang[1]]} · 
+      🧭 起局参数：${yinYangStr}${p.ju}局 · 值符${starNames[p.zhiFu-1]} · 
+      值使${gateNames[p.zhiShi-1]} · 
+      空亡${diZhi[p.kongWang[0]]}${diZhi[p.kongWang[1]]} · 
       用神宫${p.yongShenGong}宫
     </div>
   </div>`;
   
-  // A 主层
+  // A 主层（现在会有8个左右，不再是4个）
   html += `<div class="card">
-    <div class="layer-title">☰ A 主层（吉用神本位）— 用神宫${p.yongShenGong}宫</div>
+    <div class="layer-title">☰ A 主层（吉用神本位）— 用神宫${p.yongShenGong}宫（九宫扩池）</div>
     <div class="nums">`;
   for(const n of result.aRed){
     html += `<span class="num-ball red">${pad2(n)}</span>`;
   }
   html += `<span class="num-ball blue">${pad2(result.aBlue)}</span>`;
-  html += `</div></div>`;
+  html += `</div><div style="font-size:10px;color:#556688;margin-top:4px">共${result.aRed.length}个前区/红球 + 1个后区/蓝球</div></div>`;
   
   // B 关系层
   html += `<div class="card">
@@ -330,6 +354,12 @@ function renderResult(result, lottery){
   for(let i=0; i<result.top3.length; i++){
     const t = result.top3[i];
     const redStr = t.red.map(n=>pad2(n)).join(' ');
+    let blueStr;
+    if(isDLT){
+      blueStr = t.blue.map(n=>pad2(n)).join(' ');
+    } else {
+      blueStr = pad2(t.blue[0]);
+    }
     html += `<div class="recommend">
       <div class="recommend-row">
         <span class="recommend-label">第${i+1}注</span>
@@ -337,7 +367,7 @@ function renderResult(result, lottery){
       </div>
       <div style="font-size:16px;font-weight:700;margin-top:4px">
         <span style="color:#e74c3c">${redStr}</span>
-        <span style="color:#3498db;margin-left:6px">+ ${pad2(t.blue)}</span>
+        <span style="color:#3498db;margin-left:6px">+ ${blueStr}</span>
       </div>
     </div>`;
   }
@@ -347,14 +377,13 @@ function renderResult(result, lottery){
 }
 
 // ============================================================
-// 5. 主逻辑
+// 6. 主逻辑
 // ============================================================
 function getAutoIssue(lottery){
   const now = new Date();
   const y = now.getFullYear();
-  // 简单估算：一年约150期
   const dayOfYear = Math.floor((now - new Date(y,0,0)) / 86400000);
-  const issueNum = Math.floor(dayOfYear * 0.42) + 1;
+  const issueNum = Math.floor(dayOfYear * 0.49) + 120;
   return `${y}${pad2(issueNum)}`;
 }
 
@@ -366,15 +395,12 @@ document.addEventListener('DOMContentLoaded', function(){
   const clearBtn = document.getElementById('clearBtn');
   const area = document.getElementById('resultArea');
   
-  // 初始化期号
   issueInput.value = getAutoIssue(typeSelect.value);
   
-  // 彩种切换时更新期号
   typeSelect.addEventListener('change', function(){
     issueInput.value = getAutoIssue(this.value);
   });
   
-  // 起局推算
   calcBtn.addEventListener('click', function(){
     const lottery = typeSelect.value;
     let issue = issueInput.value.trim();
@@ -383,18 +409,15 @@ document.addEventListener('DOMContentLoaded', function(){
       issueInput.value = issue;
     }
     
-    // 生成固定局
     const params = generateQiMenParams(lottery, issue);
     const result = deriveLayers(params, lottery);
     renderResult(result, lottery);
   });
   
-  // 清空
   clearBtn.addEventListener('click', function(){
     area.innerHTML = '';
   });
   
-  // 上一期开奖（显示data.json中的数据）
   lastBtn.addEventListener('click', async function(){
     try{
       const resp = await fetch('./data.json?t='+Date.now());
@@ -407,14 +430,18 @@ document.addEventListener('DOMContentLoaded', function(){
         return;
       }
       const isDLT = (lottery==='dlt');
-      const label = isDLT ? '前区' : '红球';
-      const blueLabel = isDLT ? '后区' : '蓝球';
       const redStr = latest.red.map(n=>pad2(n)).join(' ');
+      let blueStr;
+      if(isDLT && Array.isArray(latest.blue)){
+        blueStr = latest.blue.map(n=>pad2(n)).join(' ');
+      } else {
+        blueStr = pad2(latest.blue);
+      }
       area.innerHTML = `<div class="card highlight">
         <div style="font-size:13px;color:#8899bb">📜 第 ${latest.issue} 期（${latest.date||''}）</div>
         <div style="font-size:18px;font-weight:700;margin-top:6px">
           <span style="color:#e74c3c">${redStr}</span>
-          <span style="color:#3498db;margin-left:8px">+ ${pad2(latest.blue)}</span>
+          <span style="color:#3498db;margin-left:8px">+ ${blueStr}</span>
         </div>
         <div style="font-size:11px;color:#667799;margin-top:4px">数据来源：GitHub Actions 自动抓取</div>
       </div>`;
