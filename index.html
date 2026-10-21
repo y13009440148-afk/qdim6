@@ -145,18 +145,14 @@
   张委铭《精准杀号》· 褚天一《擒号秘技》· 奇门初池取数 · 3注精选 · 批量生成 · 分布统计<br>
   <span style="color:#ff8866;">⚠ 仅供规则演示与学习研究，不构成投注建议，请理性购彩。</span>
 </div>
-
 <div class="btn-group">
-  <button onclick="runDemo('ssq')">🎯 双色球选号</button>
-  <button onclick="runDemo('dlt')">🏹 大乐透选号</button>
+  <button onclick="runDemo('ssq')">🎯 双色球选号（3注）</button>
+  <button onclick="runDemo('dlt')">🏹 大乐透选号（3注）</button>
+  <button onclick="runDemoMore('ssq', 5)">🎲 双色球×5注</button>
+  <button onclick="runDemoMore('dlt', 5)">🎲 大乐透×5注</button>
   <button onclick="showPanOnly()">🧭 仅看奇门盘</button>
-  <button onclick="runBatch('ssq', 10)">📊 双色球×10注</button>
-  <button onclick="runBatch('dlt', 10)">📊 大乐透×10注</button>
-  <button onclick="runBatch('ssq', 50)">📈 双色球×50注</button>
-  <button onclick="runBatch('dlt', 50)">📈 大乐透×50注</button>
-  <button onclick="runBatch('ssq', 200)">🔥 双色球×200注</button>
-  <button onclick="runBatch('dlt', 200)">🔥 大乐透×200注</button>
 </div>
+
 
 <pre id="output">正在初始化奇门引擎……</pre>
 
@@ -1145,8 +1141,9 @@ function showPanOnly() {
   document.getElementById("output").textContent = s;
 }
 
-// 批量生成
-function runBatch(lotType, count) {
+
+// 生成指定注数（3~5注）
+function runDemoMore(lotType, count) {
   var now = new Date();
   var dayOfWeek = now.getDay();
   var hours = now.getHours();
@@ -1170,21 +1167,6 @@ function runBatch(lotType, count) {
 
   var tickets = generateMultiTickets(currentPan, lotType, count, lastFront, lastBack);
   var output = renderOutput(currentPan, lotType, tickets);
-
-  // 追加分布统计
-  var allFront = [];
-  tickets.forEach(function(t) { allFront = allFront.concat(t.front); });
-  var freq = {};
-  allFront.forEach(function(n) { freq[n] = (freq[n] || 0) + 1; });
-  var sorted = Object.keys(freq).map(Number).sort(function(a, b) { return a - b; });
-  var statLines = "\n【前区号码分布统计】\n";
-  sorted.forEach(function(n) {
-    var bar = "";
-    for (var i = 0; i < freq[n]; i++) bar += "█";
-    statLines += n.toString().padStart(2) + " : " + bar + " (" + freq[n] + "次)\n";
-  });
-  output += statLines;
-
   document.getElementById("output").textContent = output;
 }
 
