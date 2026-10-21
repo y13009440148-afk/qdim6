@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>奇门遁甲V9·双色球/大乐透选号系统</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>奇门遁甲V9 - 双色球/大乐透 终极选号系统</title>
 <style>
 * {
     margin: 0;
@@ -12,233 +12,242 @@
 }
 body {
     font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-    background: #0b0e1a;
-    color: #cfd8e6;
+    background: #0a0e1a;
+    color: #e5e7eb;
     min-height: 100vh;
     overflow-x: hidden;
 }
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 16px;
-}
 .header {
-    background: linear-gradient(135deg, #141b33, #1a2340);
-    padding: 16px 24px;
-    border-radius: 12px;
-    margin-bottom: 16px;
+    background: linear-gradient(135deg, #1a1040, #0d1b3e);
+    padding: 14px 20px;
+    border-bottom: 2px solid #f5c542;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    border: 1px solid #2a3560;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 20px rgba(245, 197, 66, 0.15);
 }
 .header h1 {
-    font-size: 22px;
+    font-size: 24px;
     color: #f5c542;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(245,197,66,.3);
+    text-shadow: 0 0 12px rgba(245, 197, 66, 0.5);
+    letter-spacing: 3px;
+    font-weight: 900;
 }
-.header .sub {
+.header .sub-title {
     font-size: 12px;
     color: #8899bb;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+.header .ver {
+    font-size: 11px;
+    color: #667799;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid #334466;
 }
 .btn-group {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
+    margin-top: 6px;
 }
 .btn {
-    padding: 8px 18px;
+    padding: 8px 14px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all .2s;
-    letter-spacing: .5px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
 }
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+.btn:active {
+    transform: scale(0.96);
 }
-.btn-ssq {
+.btn-primary {
+    background: linear-gradient(135deg, #f5c542, #d4a017);
+    color: #0a0e1a;
+    box-shadow: 0 2px 10px rgba(245, 197, 66, 0.3);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 197, 66, 0.4);
+}
+.btn-danger {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: #fff;
+    box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
 }
-.btn-dlt {
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+.btn-info {
     background: linear-gradient(135deg, #3498db, #2980b9);
     color: #fff;
+    box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
 }
-.btn-pan {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+.btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+.btn-success {
+    background: linear-gradient(135deg, #27ae60, #1e8449);
     color: #fff;
+    box-shadow: 0 2px 10px rgba(39, 174, 96, 0.3);
 }
-.btn-clear {
-    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-    color: #fff;
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
 }
-.btn-export {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    color: #fff;
-}
-.btn-inject {
+.btn-warning {
     background: linear-gradient(135deg, #e67e22, #d35400);
     color: #fff;
+    box-shadow: 0 2px 10px rgba(230, 126, 34, 0.3);
 }
-.input-area {
-    background: #111827;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 14px;
-    border: 1px solid #1f2937;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.4);
 }
-.input-area label {
-    font-size: 13px;
-    color: #9ca3af;
+.btn-purple {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
 }
-.input-area input {
-    background: #1f2937;
-    border: 1px solid #374151;
-    color: #e5e7eb;
-    padding: 6px 12px;
-    border-radius: 5px;
-    font-size: 13px;
-    width: 160px;
+.btn-purple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
-.input-area input:focus {
-    outline: none;
+.btn-outline {
+    background: transparent;
+    border: 1px solid #556688;
+    color: #aabbdd;
+}
+.btn-outline:hover {
     border-color: #f5c542;
+    color: #f5c542;
+    background: rgba(245, 197, 66, 0.05);
 }
-.stat-bar {
-    background: #0f1424;
-    border-radius: 8px;
-    padding: 8px 14px;
-    margin-bottom: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    font-size: 12px;
-    color: #8899bb;
-    border: 1px solid #1a2340;
-}
-.main-grid {
+.main-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 12px 16px;
     display: grid;
-    grid-template-columns: 1fr 460px;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 12px;
 }
-@media (max-width: 980px) {
-    .main-grid {
-        grid-template-columns: 1fr;
+@media (min-width: 992px) {
+    .main-container {
+        grid-template-columns: 320px 1fr;
     }
 }
-.output-panel {
-    background: #0f1424;
-    border-radius: 10px;
+.left-panel {
+    background: #111827;
+    border-radius: 12px;
     padding: 16px;
-    border: 1px solid #1a2340;
-    min-height: 400px;
+    border: 1px solid #1f2937;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
-.gong-panel {
-    background: #0f1424;
-    border-radius: 10px;
+.right-panel {
+    background: #111827;
+    border-radius: 12px;
     padding: 16px;
-    border: 1px solid #1a2340;
+    border: 1px solid #1f2937;
+    min-height: 500px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+.panel-title {
+    font-size: 14px;
+    color: #f5c542;
+    font-weight: 700;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1f2937;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .gong-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 5px;
 }
 .gong-cell {
-    background: #131b32;
+    background: #0d1424;
     border-radius: 6px;
-    padding: 8px 6px;
+    padding: 6px 4px;
     text-align: center;
-    border: 1px solid #1e2a4a;
+    border: 1px solid #1a2540;
+    font-size: 12px;
+    transition: all 0.2s;
     position: relative;
-    transition: all .2s;
 }
 .gong-cell:hover {
     border-color: #f5c542;
-    background: #182040;
+    box-shadow: 0 0 12px rgba(245, 197, 66, 0.1);
 }
-.g-num {
-    position: absolute;
-    top: 2px;
-    left: 5px;
+.gong-cell .g-num {
     font-size: 10px;
-    color: #667799;
-    font-weight: 700;
+    color: #556688;
+    font-weight: 600;
 }
-.g-main {
-    font-size: 16px;
-    font-weight: 700;
+.gong-cell .g-main {
+    font-size: 18px;
+    font-weight: 800;
     color: #f5c542;
-    margin: 4px 0 2px;
+    margin: 1px 0;
+    text-shadow: 0 0 6px rgba(245, 197, 66, 0.3);
 }
-.g-sub {
+.gong-cell .g-sub {
     font-size: 10px;
     color: #7788aa;
     line-height: 1.4;
 }
 .g-tag {
     display: inline-block;
-    font-size: 9px;
     padding: 1px 4px;
     border-radius: 3px;
+    font-size: 9px;
     margin: 1px;
+    font-weight: 700;
 }
 .tag-zf {
-    background: #2a3555;
-    color: #aabbdd;
+    background: #8b4513;
+    color: #ffd700;
 }
 .tag-qi {
-    background: #1a4530;
-    color: #6fcf97;
-}
-.tag-kong {
-    background: #442222;
-    color: #e74c3c;
-}
-.tag-ma {
-    background: #443322;
-    color: #f39c12;
-}
-.tag-mu {
-    background: #332244;
-    color: #bb86fc;
+    background: #00695c;
+    color: #80cbc4;
 }
 .tag-ji {
-    background: #442233;
-    color: #ff6b6b;
+    background: #1b5e20;
+    color: #a5d6a7;
 }
-.tag-po {
-    background: #334433;
-    color: #55cc88;
+.tag-ma {
+    background: #4a148c;
+    color: #ce93d8;
 }
-.hl-gold {
-    color: #f5c542;
-    font-weight: 700;
-    font-size: 15px;
-    margin: 6px 0;
+.tag-kong {
+    background: #311b92;
+    color: #b39ddb;
 }
-.hl-green {
-    color: #6fcf97;
+.tag-mu {
+    background: #b71c1c;
+    color: #ef9a9a;
 }
-.hl-blue {
-    color: #5dade2;
-}
-.hl-red {
-    color: #e74c3c;
-}
-.hl-gray {
-    color: #8899bb;
+.output-area {
+    line-height: 1.8;
+    word-break: break-word;
+    font-size: 13px;
 }
 .info-line {
     font-size: 12px;
@@ -246,144 +255,753 @@ body {
     margin: 3px 0;
     line-height: 1.6;
 }
-.footer {
-    text-align: center;
-    padding: 20px 0 10px;
-    font-size: 11px;
-    color: #445566;
+.hl-gold {
+    color: #f5c542;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 8px 0 4px;
+    letter-spacing: 1px;
+}
+.hl-green {
+    color: #4ade80;
+}
+.hl-blue {
+    color: #60a5fa;
+}
+.hl-red {
+    color: #f87171;
+}
+.hl-purple {
+    color: #a78bfa;
+}
+.result-card {
+    background: #131b32;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    border-left: 4px solid #f5c542;
+    transition: all 0.2s;
+}
+.result-card:hover {
+    background: #182040;
+    transform: translateX(2px);
 }
 .log-area {
-    background: #080b16;
+    background: #050810;
     border-radius: 6px;
-    padding: 8px 12px;
-    margin-top: 10px;
-    font-size: 11px;
-    color: #556677;
-    max-height: 150px;
+    padding: 8px;
+    height: 160px;
     overflow-y: auto;
+    font-size: 11px;
+    color: #6688aa;
+    line-height: 1.6;
+    margin-top: 10px;
+    border: 1px solid #1a2540;
     font-family: 'Courier New', monospace;
-    border: 1px solid #141b33;
+}
+.log-area::-webkit-scrollbar {
+    width: 4px;
+}
+.log-area::-webkit-scrollbar-thumb {
+    background: #334466;
+    border-radius: 2px;
+}
+.stat-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: #aabbcc;
+    padding: 6px 0;
+    border-bottom: 1px solid #1f2937;
+    margin-bottom: 8px;
+}
+.stat-bar span {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.input-row {
+    display: flex;
+    gap: 5px;
+    margin: 6px 0;
+    flex-wrap: wrap;
+}
+.input-row input {
+    flex: 1;
+    min-width: 70px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #334466;
+    background: #0d1424;
+    color: #e5e7eb;
+    font-size: 12px;
+    outline: none;
+    transition: border 0.2s;
+}
+.input-row input:focus {
+    border-color: #f5c542;
+    box-shadow: 0 0 8px rgba(245, 197, 66, 0.15);
+}
+.footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 11px;
+    color: #445566;
+    border-top: 1px solid #1a2540;
+    margin-top: 20px;
+}
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+}
+@keyframes dots {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
+}
+.tooltip {
+    position: relative;
+    cursor: help;
+}
+.tooltip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a2540;
+    color: #e5e7eb;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 99;
+    border: 1px solid #334466;
 }
 </style>
 </head>
 <body>
-<div class="container">
+<body>
 <div class="header">
 <div>
-<h1>⚡ 奇门遁甲V9</h1>
-<div class="sub">双色球·大乐透·真实奇门排盘·张委铭杀号·褚天一擒号</div>
+<h1>⚔ 奇门遁甲V9</h1>
+<div class="sub-title">双色球 · 大乐透 · 终极真实计算版</div>
+<div class="ver">v9.0.0 | 九宫全息 | 双重缩水</div>
 </div>
 <div class="btn-group">
-<button class="btn btn-ssq" onclick="runLottery('ssq',5)">🎯 双色球 5注</button>
-<button class="btn btn-dlt" onclick="runLottery('dlt',5)">🎯 大乐透 5注</button>
-<button class="btn btn-pan" onclick="showPanOnly()">📊 查看排盘</button>
-<button class="btn btn-inject" onclick="setRealLastData()">📥 注入真实上期</button>
-<button class="btn btn-export" onclick="exportResult()">💾 导出结果</button>
-<button class="btn btn-clear" onclick="clearOutput()">🗑️ 清空</button>
+<button class="btn btn-primary" onclick="runLottery('ssq',3)">🎯 双色球3注</button>
+<button class="btn btn-primary" onclick="runLottery('ssq',5)">🎯 双色球5注</button>
+<button class="btn btn-primary" onclick="runLottery('dlt',3)">🎯 大乐透3注</button>
+<button class="btn btn-primary" onclick="runLottery('dlt',5)">🎯 大乐透5注</button>
+<button class="btn btn-info" onclick="showPanDetail()">📊 排盘详情</button>
+<button class="btn btn-warning" onclick="setRealLastData()">💉 注入上期</button>
+<button class="btn btn-success" onclick="exportResult()">📥 导出</button>
+<button class="btn btn-purple" onclick="showWeightAnalysis()">⚖ 权重分析</button>
+<button class="btn btn-outline" onclick="clearOutput()">🗑 清空</button>
 </div>
 </div>
-<div class="input-area">
-<label>上期前区：</label>
-<input type="text" id="lastFrontInput" placeholder="如 05 12 18 23 29 31">
-<label>上期后区：</label>
-<input type="text" id="lastBackInput" placeholder="如 07">
-<button class="btn btn-inject" onclick="applyManualLastData()" style="padding:6px 14px;font-size:12px">手动注入</button>
-<span style="font-size:11px;color:#667799">| 双色球前6后1，大乐透前5后2</span>
+<div class="main-container">
+<div class="left-panel">
+<div class="panel-title">
+<span>🏛 九宫排盘</span>
+<span id="panStatus" style="font-size:10px;color:#667799;">等待起盘</span>
 </div>
-<div class="stat-bar" id="statBar"></div>
-<div class="main-grid">
-<div class="output-panel" id="mainOutput">
-<div class="hl-gold">═══ 奇门遁甲V9 加载中 ═══</div>
-<div class="info-line">正在初始化排盘...</div>
+<div class="stat-bar" id="statBar">
+<span>等待选号...</span>
 </div>
-<div class="gong-panel">
-<div style="display:flex;justify-content:space-between;margin-bottom:8px">
-<span style="font-size:13px;color:#f5c542;font-weight:600">九宫八卦盘</span>
-<span style="font-size:10px;color:#667799">地盘·天盘·八门·八神</span>
-</div>
-<div class="gong-grid" id="gongContainer"></div>
+<div id="gongContainer" class="gong-grid"></div>
+<div style="margin-top:8px;">
+<div class="panel-title" style="font-size:12px;margin-bottom:4px;">📋 上期数据快捷注入</div>
+<div class="input-row">
+<input id="lastFrontInput" placeholder="前区 如 05 12 18 23 29 31">
+<input id="lastBackInput" placeholder="后区 如 07">
+<button class="btn btn-info" style="padding:5px 10px;font-size:11px;" onclick="applyManualLastData()">注入</button>
 </div>
 </div>
-<div class="log-area" id="logArea">[系统] 奇门遁甲V9 启动完毕</div>
-<div class="footer">奇门遁甲V9 · 基于真实奇门排盘算法 · 仅供娱乐参考</div>
+<div class="log-area" id="logArea">
+[系统] 奇门遁甲V9 终极版加载中...
+</div>
+</div>
+<div class="right-panel">
+<div class="panel-title">
+<span>📜 选号结果</span>
+<span id="resultCount" style="font-size:11px;color:#667799;"></span>
+</div>
+<div class="output-area" id="mainOutput">
+<div class="hl-gold">═══ 欢迎使用奇门遁甲V9 终极版 ═══</div>
+<div class="info-line">本系统基于真实奇门排盘算法</div>
+<div class="info-line">九宫取数 → 奇门总池 → 双重缩水过滤</div>
+<div class="info-line">操作步骤：</div>
+<div class="info-line">① 点击【注入上期】输入上期开奖号码</div>
+<div class="info-line">② 点击彩种按钮开始选号</div>
+<div class="info-line">③ 查看排盘详情和权重分析</div>
+<div class="hl-gold">══════════════════════</div>
+</div>
+</div>
+</div>
+<div class="footer">
+奇门遁甲V9 终极版 · 九宫全息取数 · 张委铭杀号 + 褚天一擒号 · 仅供研究参考 · 理性购彩
 </div>
 <script>
-var VERSION = "9.0";
+var VERSION = "9.0.0";
+var BUILD_DATE = "2026-10-21";
 var LOG_BUFFER = [];
 
 function log(m) {
-    var e = "[" + new Date().toLocaleTimeString() + "] " + m;
+    var now = new Date();
+    var timeStr = padZero(now.getHours()) + ":" + padZero(now.getMinutes()) + ":" + padZero(now.getSeconds());
+    var e = "[" + timeStr + "] " + m;
     LOG_BUFFER.push(e);
-    if (LOG_BUFFER.length > 300) {
+    if (LOG_BUFFER.length > 500) {
         LOG_BUFFER.shift();
     }
     var l = document.getElementById("logArea");
     if (l) {
-        l.innerHTML = LOG_BUFFER.slice(-40).join("<br>");
+        l.innerHTML = LOG_BUFFER.slice(-60).join("<br>");
         l.scrollTop = l.scrollHeight;
     }
 }
 
 var TIAN_GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+var TIAN_GAN_WUXING = {
+    "甲": "木",
+    "乙": "木",
+    "丙": "火",
+    "丁": "火",
+    "戊": "土",
+    "己": "土",
+    "庚": "金",
+    "辛": "金",
+    "壬": "水",
+    "癸": "水"
+};
 var DI_ZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+var DI_ZHI_WUXING = {
+    "子": "水",
+    "丑": "土",
+    "寅": "木",
+    "卯": "木",
+    "辰": "土",
+    "巳": "火",
+    "午": "火",
+    "未": "土",
+    "申": "金",
+    "酉": "金",
+    "戌": "土",
+    "亥": "水"
+};
+var WU_XING_SHENG = {
+    "木": "火",
+    "火": "土",
+    "土": "金",
+    "金": "水",
+    "水": "木"
+};
+var WU_XING_KE = {
+    "木": "土",
+    "土": "水",
+    "水": "火",
+    "火": "金",
+    "金": "木"
+};
+var GONG_WUXING = {
+    0: "土",
+    1: "木",
+    2: "土",
+    3: "木",
+    4: "土",
+    5: "火",
+    6: "火",
+    7: "金",
+    8: "水"
+};
+var GONG_FANGWEI = {
+    0: "北",
+    1: "东北",
+    2: "东",
+    3: "东南",
+    4: "中",
+    5: "南",
+    6: "西南",
+    7: "西",
+    8: "西北"
+};
+var GONG_LUOSHU = {
+    0: 1,
+    1: 8,
+    2: 3,
+    3: 4,
+    4: 5,
+    5: 9,
+    6: 2,
+    7: 7,
+    8: 6
+};
 var SIXTY_JIAZI = [];
 for (var _ij = 0; _ij < 60; _ij++) {
     SIXTY_JIAZI.push(TIAN_GAN[_ij % 10] + DI_ZHI[_ij % 12]);
 }
 var LIU_YI_ORDER = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"];
 var JIU_XING = ["天蓬", "天芮", "天冲", "天辅", "天禽", "天心", "天柱", "天任", "天英"];
+var JIU_XING_WUXING = {
+    "天蓬": "水",
+    "天芮": "土",
+    "天冲": "木",
+    "天辅": "木",
+    "天禽": "土",
+    "天心": "金",
+    "天柱": "金",
+    "天任": "土",
+    "天英": "火"
+};
 var BA_MEN = ["休", "死", "伤", "杜", "开", "惊", "生", "景"];
+var BA_MEN_WUXING = {
+    "休": "水",
+    "死": "土",
+    "伤": "木",
+    "杜": "木",
+    "开": "金",
+    "惊": "金",
+    "生": "土",
+    "景": "火"
+};
+var BA_MEN_JIXIONG = {
+    "休": "吉",
+    "生": "吉",
+    "开": "吉",
+    "景": "平",
+    "杜": "平",
+    "死": "凶",
+    "惊": "凶",
+    "伤": "凶"
+};
 var BA_SHEN = ["值符", "腾蛇", "太阴", "六合", "白虎", "玄武", "九地", "九天"];
-var DIZHI_TO_IDX = {子:0, 丑:1, 寅:2, 卯:3, 辰:4, 巳:5, 午:6, 未:7, 申:8, 酉:9, 戌:10, 亥:11};
-var XUN_KONG_MAP = {甲子:"戌亥", 甲戌:"申酉", 甲申:"午未", 甲午:"辰巳", 甲辰:"寅卯", 甲寅:"子丑"};
-var MA_XING_MAP = {寅:"申", 巳:"亥", 申:"寅", 亥:"巳"};
-var RU_MU_MAP = {乙:2, 丙:7, 丁:8, 戊:1, 己:9, 庚:3, 辛:4, 壬:5, 癸:6};
-var JI_XING_MAP = {戊:3, 己:2, 庚:8, 辛:7, 壬:4, 癸:9};
-var MEN_PO_MAP = {休:1, 生:3, 伤:2, 杜:4, 景:9, 死:8, 惊:7, 开:6};
-
-var JIE_QI_TABLE = [
-    ["立春", 2, 4],
-    ["雨水", 2, 19],
-    ["惊蛰", 3, 6],
-    ["春分", 3, 21],
-    ["清明", 4, 5],
-    ["谷雨", 4, 20],
-    ["立夏", 5, 6],
-    ["小满", 5, 21],
-    ["芒种", 6, 6],
-    ["夏至", 6, 21],
-    ["小暑", 7, 7],
-    ["大暑", 7, 23],
-    ["立秋", 8, 7],
-    ["处暑", 8, 23],
-    ["白露", 9, 8],
-    ["秋分", 9, 23],
-    ["寒露", 10, 8],
-    ["霜降", 10, 23],
-    ["立冬", 11, 7],
-    ["小雪", 11, 22],
-    ["大雪", 12, 7],
-    ["冬至", 12, 22],
-    ["小寒", 1, 6],
-    ["大寒", 1, 20]
-];
-
-var YIN_DUN_JIE_QI = ["夏至", "小暑", "大暑", "立秋", "处暑", "白露", "秋分", "寒露", "霜降", "立冬", "小雪", "大雪"];
-
-function isYinSeason(q) {
-    return YIN_DUN_JIE_QI.indexOf(q) !== -1;
+var BA_SHEN_JIXIONG = {
+    "值符": "吉",
+    "腾蛇": "凶",
+    "太阴": "吉",
+    "六合": "吉",
+    "白虎": "凶",
+    "玄武": "凶",
+    "九地": "平",
+    "九天": "吉"
+};
+var DIZHI_TO_IDX = {
+    "子": 0,
+    "丑": 1,
+    "寅": 2,
+    "卯": 3,
+    "辰": 4,
+    "巳": 5,
+    "午": 6,
+    "未": 7,
+    "申": 8,
+    "酉": 9,
+    "戌": 10,
+    "亥": 11
+};
+var IDX_TO_DIZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+var XUN_KONG_MAP = {
+    "甲子": "戌亥",
+    "甲戌": "申酉",
+    "甲申": "午未",
+    "甲午": "辰巳",
+    "甲辰": "寅卯",
+    "甲寅": "子丑"
+};
+var MA_XING_MAP = {
+    "寅": "申",
+    "巳": "亥",
+    "申": "寅",
+    "亥": "巳"
+};
+var XING_MAP = {
+    "子": "卯",
+    "卯": "子",
+    "午": "酉",
+    "酉": "午",
+    "寅": "巳",
+    "巳": "寅",
+    "申": "亥",
+    "亥": "申"
+};
+var HE_MAP = {
+    "子": "丑",
+    "丑": "子",
+    "寅": "亥",
+    "亥": "寅",
+    "卯": "戌",
+    "戌": "卯",
+    "辰": "酉",
+    "酉": "辰",
+    "巳": "申",
+    "申": "巳",
+    "午": "未",
+    "未": "午"
+};
+var HAI_MAP = {
+    "子": "未",
+    "未": "子",
+    "丑": "午",
+    "午": "丑",
+    "寅": "巳",
+    "巳": "寅",
+    "卯": "辰",
+    "辰": "卯",
+    "申": "亥",
+    "亥": "申",
+    "酉": "戌",
+    "戌": "酉"
+};
+var RU_MU_MAP = {
+    "乙": 2,
+    "丙": 7,
+    "丁": 8,
+    "戊": 1,
+    "己": 9,
+    "庚": 3,
+    "辛": 4,
+    "壬": 5,
+    "癸": 6
+};
+var JI_XING_MAP = {
+    "戊": 3,
+    "己": 2,
+    "庚": 8,
+    "辛": 7,
+    "壬": 4,
+    "癸": 9
+};
+var MEN_PO_MAP = {
+    "休": 1,
+    "生": 3,
+    "伤": 2,
+    "杜": 4,
+    "景": 9,
+    "死": 8,
+    "惊": 7,
+    "开": 6
+};
+var GONG_MEN_PEI = {
+    0: "休",
+    1: "死",
+    2: "伤",
+    3: "杜",
+    4: "景",
+    5: "死",
+    6: "惊",
+    7: "生",
+    8: "开"
+};
+function padZero(n) {
+    return n < 10 ? "0" + n : "" + n;
 }
 
-var JU_SHU_MAP = {
-    冬至:[1,7,4], 小寒:[2,8,5], 大寒:[3,9,6],
-    立春:[8,5,2], 雨水:[9,6,3], 惊蛰:[1,7,4],
-    春分:[3,9,6], 清明:[4,1,7], 谷雨:[5,2,8],
-    立夏:[4,1,7], 小满:[5,2,8], 芒种:[6,3,9],
-    夏至:[9,3,6], 小暑:[8,2,5], 大暑:[7,1,4],
-    立秋:[2,5,8], 处暑:[1,4,7], 白露:[9,3,6],
-    秋分:[7,1,4], 寒露:[6,9,3], 霜降:[5,8,2],
-    立冬:[6,9,3], 小雪:[5,8,2], 大雪:[4,7,1]
-};
+function formatDate(d) {
+    return d.getFullYear() + "-" + padZero(d.getMonth() + 1) + "-" + padZero(d.getDate());
+}
+
+function getDayOfYear(d) {
+    var start = new Date(d.getFullYear(), 0, 0);
+    var diff = d - start;
+    return Math.floor(diff / 86400000);
+}
+
+function mod360(n) {
+    return ((n % 360) + 360) % 360;
+}
+
+function jieQiFromDate(d) {
+    var y = d.getFullYear();
+    var doy = getDayOfYear(d);
+    var table = [
+        [15, "小寒"],
+        [30, "大寒"],
+        [45, "立春"],
+        [60, "雨水"],
+        [75, "惊蛰"],
+        [90, "春分"],
+        [105, "清明"],
+        [121, "谷雨"],
+        [136, "立夏"],
+        [151, "小满"],
+        [166, "芒种"],
+        [181, "夏至"],
+        [196, "小暑"],
+        [211, "大暑"],
+        [226, "立秋"],
+        [241, "处暑"],
+        [256, "白露"],
+        [271, "秋分"],
+        [286, "寒露"],
+        [301, "霜降"],
+        [316, "立冬"],
+        [331, "小雪"],
+        [346, "大雪"],
+        [361, "冬至"]
+    ];
+    var prevJQ = "冬至";
+    for (var i = 0; i < table.length; i++) {
+        if (doy < table[i][0]) {
+            break;
+        }
+        prevJQ = table[i][1];
+    }
+    return prevJQ;
+}
+
+function isYangDun(jq) {
+    var yangList = ["冬至", "小寒", "大寒", "立春", "雨水", "惊蛰", "春分", "清明", "谷雨", "立夏", "小满", "芒种"];
+    return yangList.indexOf(jq) !== -1;
+}
+
+function getJuNumber(jq) {
+    var map = {
+        "冬至": 1,
+        "小寒": 2,
+        "大寒": 3,
+        "立春": 8,
+        "雨水": 9,
+        "惊蛰": 1,
+        "春分": 3,
+        "清明": 4,
+        "谷雨": 5,
+        "立夏": 4,
+        "小满": 5,
+        "芒种": 6,
+        "夏至": 9,
+        "小暑": 8,
+        "大暑": 7,
+        "立秋": 2,
+        "处暑": 1,
+        "白露": 9,
+        "秋分": 7,
+        "寒露": 6,
+        "霜降": 5,
+        "立冬": 6,
+        "小雪": 5,
+        "大雪": 4
+    };
+    return map[jq] || 1;
+}
+
+function getShiChenIndex(h) {
+    if (h >= 23 || h < 1) return 0;
+    if (h < 3) return 1;
+    if (h < 5) return 2;
+    if (h < 7) return 3;
+    if (h < 9) return 4;
+    if (h < 11) return 5;
+    if (h < 13) return 6;
+    if (h < 15) return 7;
+    if (h < 17) return 8;
+    if (h < 19) return 9;
+    if (h < 21) return 10;
+    return 11;
+}
+
+function getDayGanZhi(d) {
+    var base = new Date(1900, 0, 31);
+    var diffDays = Math.floor((d - base) / 86400000);
+    var ganIdx = (diffDays + 40) % 10;
+    var zhiIdx = (diffDays + 42) % 12;
+    return {gan: TIAN_GAN[ganIdx], zhi: DI_ZHI[zhiIdx], ganIdx: ganIdx, zhiIdx: zhiIdx};
+}
+
+function getShiGanZhi(dayGanIdx, shiChenIdx) {
+    var dayGanMod = dayGanIdx % 5;
+    var shiGanStartMap = [0, 2, 4, 6, 8];
+    var startGan = shiGanStartMap[dayGanMod];
+    var ganIdx = (startGan + shiChenIdx) % 10;
+    var zhiIdx = sh
+function getMaXing(zhi) {
+    return MA_XING_MAP[zhi] || "";
+}
+
+function getXing(zhi) {
+    return XING_MAP[zhi] || "";
+}
+
+function getHe(zhi) {
+    return HE_MAP[zhi] || "";
+}
+
+function getHai(zhi) {
+    return HAI_MAP[zhi] || "";
+}
+
+function getRuMu(tianGan) {
+    return RU_MU_MAP[tianGan] !== undefined ? RU_MU_MAP[tianGan] : -1;
+}
+
+function getJiXing(tianGan) {
+    return JI_XING_MAP[tianGan] !== undefined ? JI_XING_MAP[tianGan] : -1;
+}
+
+function getMenPo(men) {
+    return MEN_PO_MAP[men] !== undefined ? MEN_PO_MAP[men] : -1;
+}
+
+function wuxingShengKe(wx1, wx2) {
+    if (WU_XING_SHENG[wx1] === wx2) return "生";
+    if (WU_XING_KE[wx1] === wx2) return "克";
+    if (wx1 === wx2) return "同";
+    return "泄";
+}
+
+function isSanQi(gan) {
+    return gan === "乙" || gan === "丙" || gan === "丁";
+}
+
+function isYiSi(gan) {
+    return gan === "己" || gan === "庚" || gan === "辛" || gan === "壬" || gan === "癸";
+}
+
+function buildPan(type) {
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    var isSSQ = type === 'ssq';
+    var targetHour = 21;
+    var targetMin = isSSQ ? 15 : 25;
+    var panDate = new Date(now);
+    if (h > targetHour || (h === targetHour && m >= targetMin)) {
+    } else {
+        panDate.setDate(panDate.getDate() - 1);
+    }
+    var jq = jieQiFromDate(panDate);
+    var yang = isYangDun(jq);
+    var ju = getJuNumber(jq);
+    var dayGZ = getDayGanZhi(panDate);
+    var shiChenIdx = getShiChenIndex(targetHour);
+    var shiGZ = getShiGanZhi(dayGZ.ganIdx, shiChenIdx);
+    var xunShou = findXunShou(shiGZ.gan, shiGZ.zhi);
+    var kongWang = getKongWang(xunShou);
+    var maZhi = getMaXing(shiGZ.zhi);
+    var xingZhi = getXing(shiGZ.zhi);
+    var heZhi = getHe(shiGZ.zhi);
+    var haiZhi = getHai(shiGZ.zhi);
+    var shiGanGong = dayGZ.ganIdx % 9;
+    var zhiFuGong = shiGanGong;
+    var tianPanGanOrder = [];
+    var liuYiIdx = LIU_YI_ORDER.indexOf(shiGZ.gan);
+    for (var ii = 0; ii < 9; ii++) {
+        tianPanGanOrder.push(LIU_YI_ORDER[(liuYiIdx + ii) % 9]);
+    }
+    var diPanGanOrder = [];
+    var startGan = LIU_YI_ORDER[0];
+    var startGanIdx = TIAN_GAN.indexOf(startGan);
+    for (var jj = 0; jj < 9; jj++) {
+        diPanGanOrder.push(TIAN_GAN[(startGanIdx + jj) % 10]);
+    }
+    var gongData = [];
+    for (var gg = 0; gg < 9; gg++) {
+        var diGan = diPanGanOrder[gg];
+        var tianGan = tianPanGanOrder[gg];
+        var gongWx = GONG_WUXING[gg];
+        var fangWei = GONG_FANGWEI[gg];
+        var luoShu = GONG_LUOSHU[gg];
+        var diGanWx = TIAN_GAN_WUXING[diGan];
+        var tianGanWx = TIAN_GAN_WUXING[tianGan];
+        var shengKeDi = wuxingShengKe(gongWx, diGanWx);
+        var shengKeTian = wuxingShengKe(gongWx, tianGanWx);
+        var men = GONG_MEN_PEI[gg];
+        var menWx = BA_MEN_WUXING[men];
+        var menJx = BA_MEN_JIXIONG[men];
+        var menPo = getMenPo(men);
+        var menShengKe = wuxingShengKe(gongWx, menWx);
+        var xing = JIU_XING[gg];
+        var xingWx = JIU_XING_WUXING[xing];
+        var xingShengKe = wuxingShengKe(gongWx, xingWx);
+        var shen = BA_SHEN[gg];
+        var shenJx = BA_SHEN_JIXIONG[shen];
+        var isSanQiGan = isSanQi(tianGan);
+        var isYiSiGan = isYiSi(tianGan);
+        var ruMu = getRuMu(tianGan);
+        var jiXing = getJiXing(tianGan);
+        var isKong = false;
+        if (kongWang.indexOf(shiGZ.zhi) !== -1) {
+            isKong = true;
+        }
+        var isMa = (maZhi === DI_ZHI[gg % 12]);
+        var isXing = (xingZhi === DI_ZHI[gg % 12]);
+        var isHe = (heZhi === DI_ZHI[gg % 12]);
+        var isHai = (haiZhi === DI_ZHI[gg % 12]);
+        var tags = [];
+        if (isSanQiGan) tags.push("三奇");
+        if (isYiSiGan) tags.push("仪煞");
+        if (menJx === "吉") tags.push("吉门");
+        if (menJx === "凶") tags.push("凶门");
+        if (shenJx === "吉") tags.push("吉神");
+        if (shenJx === "凶") tags.push("凶神");
+        if (isKong) tags.push("空亡");
+        if (isMa) tags.push("马星");
+        if (isXing) tags.push("刑");
+        if (isHe) tags.push("合");
+        if (isHai) tags.push("害");
+        if (ruMu === gg) tags.push("入墓");
+        if (jiXing === gg) tags.push("击刑");
+        if (menPo === gg) tags.push("门迫");
+        var weight = 0;
+        if (isSanQiGan) weight += 30;
+        if (menJx === "吉") weight += 20;
+        if (shenJx === "吉") weight += 15;
+        if (isMa) weight += 10;
+        if (isHe) weight += 5;
+        if (isKong) weight -= 20;
+        if (isXing) weight -= 10;
+        if (isHai) weight -= 10;
+        if (ruMu === gg) weight -= 15;
+        if (jiXing === gg) weight -= 15;
+        if (menPo === gg) weight -= 20;
+        if (isYiSiGan) weight -= 5;
+        if (menJx === "凶") weight -= 10;
+        if (shenJx === "凶") weight -= 10;
+        gongData.push({
+            index: gg,
+            diGan: diGan,
+            tianGan: tianGan,
+            gongWx: gongWx,
+            fangWei: fangWei,
+            luoShu: luoShu,
+            men: men,
+            menWx: menWx,
+            menJx: menJx,
+            xing: xing,
+            xingWx: xingWx,
+            shen: shen,
+            shenJx: shenJx,
+            tags: tags,
+            weight: weight,
+            isKong: isKong,
+            isMa: isMa,
+            isSanQi: isSanQiGan,
+            ruMu: ruMu === gg,
+            jiXing: jiXing === gg,
+            menPo: menPo === gg
+        });
+    }
+    var pan = {
+        dt: panDate,
+        jq: jq,
+        yang: yang,
+        ju: ju,
+        dayGZ: dayGZ,
+        shiGZ: shiGZ,
+        xunShou: xunShou,
+        kongWang: kongWang,
+        maZhi: maZhi,
+        xingZhi: xingZhi,
+        heZhi: heZhi,
+        haiZhi: haiZhi,
+        shiGanGong: shiGanGong,
+        zhiFuGong: zhiFuGong,
+        gongData: gongData
+    };
+    return pan;
+}
 
 var LOT_CFG = {
     ssq: {
@@ -394,14 +1012,9 @@ var LOT_CFG = {
         bMin: 1,
         bMax: 16,
         bPick: 1,
-        openWeekdays: [2, 4, 0],
-        openHour: 21,
-        openMin: 15,
-        idealSum: [90, 145],
-        idealSpan: [20, 28],
-        idealAC: [6, 10],
         bigLine: 17,
-        zoneSplit: [11, 22, 33]
+        rangeFront: 33,
+        rangeBack: 16
     },
     dlt: {
         name: "大乐透",
@@ -411,14 +1024,9 @@ var LOT_CFG = {
         bMin: 1,
         bMax: 12,
         bPick: 2,
-        openWeekdays: [1, 3, 6],
-        openHour: 21,
-        openMin: 25,
-        idealSum: [75, 125],
-        idealSpan: [20, 30],
-        idealAC: [5, 9],
         bigLine: 18,
-        zoneSplit: [12, 23, 35]
+        rangeFront: 35,
+        rangeBack: 12
     }
 };
 
@@ -426,496 +1034,367 @@ var lastSSQFront = null;
 var lastSSQBack = null;
 var lastDLTFront = null;
 var lastDLTBack = null;
-var currentPan = null;
-
-function formatDate(d) {
-    return d.getFullYear() + "-" + padZero(d.getMonth() + 1) + "-" + padZero(d.getDate()) + " " + padZero(d.getHours()) + ":" + padZero(d.getMinutes()) + ":" + padZero(d.getSeconds());
+function extractKeyGongNumbers(pan) {
+    var keyNums = [];
+    var gongData = pan.gongData;
+    var usedGongs = {};
+    var zfGong = pan.zhiFuGong;
+    var sgGong = pan.shiGanGong;
+    var candidates = [];
+    candidates.push({gong: zfGong, reason: "值符宫", priority: 1});
+    candidates.push({gong: sgGong, reason: "时干宫", priority: 2});
+    for (var gi = 0; gi < gongData.length; gi++) {
+        var gd = gongData[gi];
+        if (gd.isSanQi) {
+            candidates.push({gong: gi, reason: "三奇-" + gd.tianGan, priority: 3});
+        }
+        if (gd.menJx === "吉") {
+            candidates.push({gong: gi, reason: "吉门-" + gd.men, priority: 4});
+        }
+        if (gd.shen === "六合") {
+            candidates.push({gong: gi, reason: "六合", priority: 5});
+        }
+        if (gd.isMa) {
+            candidates.push({gong: gi, reason: "马星", priority: 6});
+        }
+        if (gd.weight > 30) {
+            candidates.push({gong: gi, reason: "高权重", priority: 7});
+        }
+    }
+    candidates.sort(function(a, b) {
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        return gongData[b.gong].weight - gongData[a.gong].weight;
+    });
+    var seen = {};
+    for (var ci = 0; ci < candidates.length; ci++) {
+        var cg = candidates[ci].gong;
+        if (seen[cg]) continue;
+        seen[cg] = true;
+        if (keyNums.length >= 5) break;
+        var luoShu = gongData[cg].luoShu;
+        var num = luoShu;
+        keyNums.push({gong: cg, num: num, reason: candidates[ci].reason});
+    }
+    if (keyNums.length < 3) {
+        for (var ri = 0; ri < gongData.length; ri++) {
+            if (seen[ri]) continue;
+            seen[ri] = true;
+            keyNums.push({gong: ri, num: gongData[ri].luoShu, reason: "补位"});
+            if (keyNums.length >= 3) break;
+        }
+    }
+    return keyNums;
 }
 
-function padZero(n) {
-    return n < 10 ? "0" + n : "" + n;
+function generateBasePool(pan, cfg) {
+    var pool = [];
+    var gongData = pan.gongData;
+    var keyNums = extractKeyGongNumbers(pan);
+    for (var ki = 0; ki < keyNums.length; ki++) {
+        var kn = keyNums[ki];
+        var luoShu = kn.num;
+        var mapped = mapLuoShuToRange(luoShu, cfg);
+        for (var mi = 0; mi < mapped.length; mi++) {
+            if (pool.indexOf(mapped[mi]) === -1) {
+                pool.push(mapped[mi]);
+            }
+        }
+    }
+    for (var gi = 0; gi < gongData.length; gi++) {
+        var gd = gongData[gi];
+        var gLuoShu = gd.luoShu;
+        var gMapped = mapLuoShuToRange(gLuoShu, cfg);
+        for (var mi2 = 0; mi2 < gMapped.length; mi2++) {
+            if (pool.indexOf(gMapped[mi2]) === -1) {
+                pool.push(gMapped[mi2]);
+            }
+        }
+        if (gd.isSanQi) {
+            var sanQiMapped = mapLuoShuToRange(gLuoShu + 3, cfg);
+            for (var si = 0; si < sanQiMapped.length; si++) {
+                if (pool.indexOf(sanQiMapped[si]) === -1) {
+                    pool.push(sanQiMapped[si]);
+                }
+            }
+        }
+        if (gd.menJx === "吉") {
+            var jiMenMapped = mapLuoShuToRange(gLuoShu + 5, cfg);
+            for (var ji = 0; ji < jiMenMapped.length; ji++) {
+                if (pool.indexOf(jiMenMapped[ji]) === -1) {
+                    pool.push(jiMenMapped[ji]);
+                }
+            }
+        }
+        if (gd.weight > 20) {
+            var highWtMapped = mapLuoShuToRange(gLuoShu + 7, cfg);
+            for (var wi = 0; wi < highWtMapped.length; wi++) {
+                if (pool.indexOf(highWtMapped[wi]) === -1) {
+                    pool.push(highWtMapped[wi]);
+                }
+            }
+        }
+        if (gd.isMa) {
+            var maMapped = mapLuoShuToRange(gLuoShu + 2, cfg);
+            for (var mai = 0; mai < maMapped.length; mai++) {
+                if (pool.indexOf(maMapped[mai]) === -1) {
+                    pool.push(maMapped[mai]);
+                }
+            }
+        }
+        if (gd.shen === "六合") {
+            var liuHeMapped = mapLuoShuToRange(gLuoShu + 4, cfg);
+            for (var lhi = 0; lhi < liuHeMapped.length; lhi++) {
+                if (pool.indexOf(liuHeMapped[lhi]) === -1) {
+                    pool.push(liuHeMapped[lhi]);
+                }
+            }
+        }
+        if (gd.ruMu) {
+            var ruMuMapped = mapLuoShuToRange(gLuoShu + 6, cfg);
+            for (var rmi = 0; rmi < ruMuMapped.length; rmi++) {
+                if (pool.indexOf(ruMuMapped[rmi]) === -1) {
+                    pool.push(ruMuMapped[rmi]);
+                }
+            }
+        }
+    }
+    pool.sort(function(a, b) { return a - b; });
+    return pool;
 }
 
-function arraySum(a) {
+function mapLuoShuToRange(luoShu, cfg) {
+    var result = [];
+    var base = luoShu;
+    var step = 9;
+    var maxVal = cfg.fMax;
+    var minVal = cfg.fMin;
+    for (var v = base; v <= maxVal; v += step) {
+        if (v >= minVal) {
+            result.push(v);
+        }
+    }
+    for (var v2 = base - step; v2 >= minVal; v2 -= step) {
+        if (v2 >= minVal) {
+            result.push(v2);
+        }
+    }
+    if (result.length === 0) {
+        result.push(base);
+    }
+    result.sort(function(a, b) { return a - b; });
+    return result;
+}
+
+function buildTotalPool(pan, cfg) {
+    var basePool = generateBasePool(pan, cfg);
+    var totalPool = [];
+    var gongData = pan.gongData;
+    var allLuoShu = [];
+    for (var gi = 0; gi < gongData.length; gi++) {
+        allLuoShu.push(gongData[gi].luoShu);
+    }
+    for (var bi = 0; bi < basePool.length; bi++) {
+        if (totalPool.indexOf(basePool[bi]) === -1) {
+            totalPool.push(basePool[bi]);
+        }
+    }
+    for (var ai = 0; ai < allLuoShu.length; ai++) {
+        var mapped = mapLuoShuToRange(allLuoShu[ai], cfg);
+        for (var mi = 0; mi < mapped.length; mi++) {
+            if (totalPool.indexOf(mapped[mi]) === -1) {
+                totalPool.push(mapped[mi]);
+            }
+        }
+    }
+    var extraOffsets = [1, 2, 3, 4, 5, 6, 7, 8];
+    for (var ei = 0; ei < extraOffsets.length; ei++) {
+        var offset = extraOffsets[ei];
+        for (var xi = 0; xi < allLuoShu.length; xi++) {
+            var em = mapLuoShuToRange(allLuoShu[xi] + offset, cfg);
+            for (var emi = 0; emi < em.length; emi++) {
+                if (totalPool.indexOf(em[emi]) === -1) {
+                    totalPool.push(em[emi]);
+                }
+            }
+        }
+    }
+    totalPool.sort(function(a, b) { return a - b; });
+    return totalPool;
+}
+
+function arraySum(arr) {
     var s = 0;
-    for (var i = 0; i < a.length; i++) {
-        s += a[i];
+    for (var i = 0; i < arr.length; i++) {
+        s += arr[i];
     }
     return s;
 }
 
-function arrayAvg(a) {
-    return a.length ? arraySum(a) / a.length : 0;
+function arraySpan(arr) {
+    if (arr.length < 2) return 0;
+    return arr[arr.length - 1] - arr[0];
 }
 
-function arraySpan(a) {
-    return Math.max.apply(null, a) - Math.min.apply(null, a);
-}
-
-function arrayShuffle(a) {
-    var b = a.slice();
-    for (var i = b.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var t = b[i];
-        b[i] = b[j];
-        b[j] = t;
+function arrayMin(arr) {
+    var m = arr[0];
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] < m) m = arr[i];
     }
-    return b;
+    return m;
 }
 
-function arrayUnique(a) {
-    var o = {};
-    for (var i = 0; i < a.length; i++) {
-        o[a[i]] = 1;
+function arrayMax(arr) {
+    var m = arr[0];
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] > m) m = arr[i];
     }
-    return Object.keys(o).map(Number);
+    return m;
 }
 
-function countRepeats(c, p) {
-    var cnt = 0;
-    for (var i = 0; i < c.length; i++) {
-        for (var j = 0; j < p.length; j++) {
-            if (c[i] === p[j]) {
-                cnt++;
+function calcAC(arr) {
+    if (arr.length < 2) return 0;
+    var diffs = {};
+    for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+            var d = Math.abs(arr[i] - arr[j]);
+            diffs[d] = true;
+        }
+    }
+    var uniqueCount = Object.keys(diffs).length;
+    return uniqueCount - (arr.length - 1);
+}
+
+function oddEvenCount(arr) {
+    var odd = 0;
+    var even = 0;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] % 2 === 0) {
+            even++;
+        } else {
+            odd++;
+        }
+    }
+    return [odd, even];
+}
+
+function bigSmallCount(arr, line) {
+    var big = 0;
+    var small = 0;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] >= line) {
+            big++;
+        } else {
+            small++;
+        }
+    }
+    return [big, small];
+}
+
+function hasSameTail(arr) {
+    var tails = {};
+    for (var i = 0; i < arr.length; i++) {
+        var t = arr[i] % 10;
+        if (tails[t]) {
+            tails[t]++;
+        } else {
+            tails[t] = 1;
+        }
+    }
+    var maxCnt = 0;
+    for (var k in tails) {
+        if (tails[k] > maxCnt) maxCnt = tails[k];
+    }
+    return maxCnt;
+}
+
+function countConsecutiveGroups(arr) {
+    if (arr.length < 2) return 0;
+    var groups = 0;
+    var inGroup = false;
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] - arr[i - 1] === 1) {
+            if (!inGroup) {
+                groups++;
+                inGroup = true;
             }
-        }
-    }
-    return cnt;
-}
-
-function countNeighbors(c, p) {
-    var cnt = 0;
-    for (var i = 0; i < c.length; i++) {
-        for (var j = 0; j < p.length; j++) {
-            if (Math.abs(c[i] - p[j]) === 1) {
-                cnt++;
-            }
-        }
-    }
-    return cnt;
-}
-
-function countConsecutivePairs(a) {
-    var b = a.slice().sort(function(x, y) { return x - y; });
-    var c = 0;
-    var i = 0;
-    while (i < b.length - 1) {
-        if (b[i + 1] - b[i] === 1) {
-            c++;
-            i += 2;
         } else {
-            i++;
+            inGroup = false;
         }
     }
-    return c;
+    return groups;
 }
 
-function oddEvenCount(a) {
-    var o = 0;
-    var e = 0;
-    for (var i = 0; i < a.length; i++) {
-        if (a[i] % 2) {
-            o++;
-        } else {
-            e++;
-        }
-    }
-    return [o, e];
-}
-
-function bigSmallCount(a, l) {
-    var b = 0;
-    var s = 0;
-    for (var i = 0; i < a.length; i++) {
-        if (a[i] > l) {
-            b++;
-        } else {
-            s++;
-        }
-    }
-    return [b, s];
-}
-
-function calcAC(a) {
-    var b = a.slice().sort(function(x, y) { return x - y; });
-    var d = {};
-    for (var i = 0; i < b.length; i++) {
-        for (var j = i + 1; j < b.length; j++) {
-            d[b[j] - b[i]] = 1;
-        }
-    }
-    return Object.keys(d).length - (b.length - 1);
-}
-
-function countSameTailWithLast(c, p) {
-    var cnt = 0;
-    for (var i = 0; i < c.length; i++) {
-        for (var j = 0; j < p.length; j++) {
-            if (c[i] % 10 === p[j] % 10) {
-                cnt++;
-            }
-        }
-    }
-    return cnt;
-}
-
-function zoneDistribution(a, s) {
-    var z = [0, 0, 0];
-    for (var i = 0; i < a.length; i++) {
-        if (a[i] <= s[0]) {
-            z[0]++;
-        } else if (a[i] <= s[1]) {
-            z[1]++;
-        } else {
-            z[2]++;
-        }
-    }
-    return z;
-}
-function getCurrentDrawTime(t) {
-    var n = new Date();
-    var c = LOT_CFG[t];
-    var dw = n.getDay();
-    var td = c.openWeekdays[0];
-    var df = (td - dw + 7) % 7;
-    if (df === 0) {
-        var cm = n.getHours() * 60 + n.getMinutes();
-        var dm = c.openHour * 60 + c.openMin;
-        if (cm >= dm) {
-            df = 7;
-        }
-    }
-    var dd = new Date(n);
-    dd.setDate(dd.getDate() + df);
-    dd.setHours(c.openHour, c.openMin, 0, 0);
-    log("当前开奖时间：" + formatDate(dd));
-    return dd;
-}
-
-function findClosestJieQi(y, m, d) {
-    var b = JIE_QI_TABLE[0];
-    var bd = 365;
-    for (var i = 0; i < JIE_QI_TABLE.length; i++) {
-        var q = JIE_QI_TABLE[i];
-        var dy = m - q[1];
-        var dd = d - q[2];
-        var dst = Math.abs(dy * 50 + dd);
-        if (dst < bd) {
-            bd = dst;
-            b = q[0];
-        }
-    }
-    log("最近节气：" + b);
-    return b;
-}
-
-function getDayGanzhi(y, m, d) {
-    var base = new Date(1900, 0, 1);
-    var target = new Date(y, m - 1, d);
-    var ds = Math.round((target - base) / 86400000);
-    var r = SIXTY_JIAZI[(ds + 49) % 60];
-    log("日干支：" + y + "-" + m + "-" + d + " → " + r);
-    return r;
-}
-
-function getHourGanzhi(dg, h) {
-    var sm = {"甲":0, "乙":2, "丙":4, "丁":6, "戊":8, "己":0, "庚":2, "辛":4, "壬":6, "癸":8};
-    var zi = Math.floor((h + 1) / 2) % 12;
-    var gi = (sm[dg] + zi) % 10;
-    var r = TIAN_GAN[gi] + DI_ZHI[zi];
-    log("时干支：" + h + "时 → " + r);
-    return r;
-}
-
-function getXunShou(gz) {
-    var i = SIXTY_JIAZI.indexOf(gz);
-    if (i === -1) {
-        return "甲子";
-    }
-    return SIXTY_JIAZI[Math.floor(i / 10) * 10];
-}
-
-function getXunKong(gz) {
-    var xs = getXunShou(gz);
-    return XUN_KONG_MAP[xs] || "戌亥";
-}
-
-function getHiddenYi(gz) {
-    var xs = getXunShou(gz);
-    var mp = {"甲子":"戊", "甲戌":"己", "甲申":"庚", "甲午":"辛", "甲辰":"壬", "甲寅":"癸"};
-    return mp[xs] || "戊";
-}
-
-function getYuanIndex(dgz) {
-    var z = dgz[1];
-    if ("子午卯酉".indexOf(z) !== -1) {
-        return 0;
-    }
-    if ("寅申巳亥".indexOf(z) !== -1) {
-        return 1;
-    }
-    return 2;
-}
-
-function getJuNumber(jq, dt) {
-    var a = JU_SHU_MAP[jq];
-    if (!a) {
-        return 1;
-    }
-    var dgz = getDayGanzhi(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
-    var idx = getYuanIndex(dgz);
-    var ju = a[idx];
-    log("局数：" + jq + " 第" + (idx + 1) + "元 → " + ju + "局");
-    return ju;
-}
-
-function buildPan(lotType) {
-    var dt = getCurrentDrawTime(lotType);
-    var y = dt.getFullYear();
-    var m = dt.getMonth() + 1;
-    var d = dt.getDate();
-    var h = dt.getHours();
-    var jq = findClosestJieQi(y, m, d);
-    var yin = isYinSeason(jq);
-    var ju = getJuNumber(jq, dt);
-    var riGZ = getDayGanzhi(y, m, d);
-    var shiGZ = getHourGanzhi(riGZ[0], h);
-    var xs = getXunShou(shiGZ);
-    var xk = getXunKong(shiGZ);
-    var hy = getHiddenYi(shiGZ);
-    log("旬首：" + xs + " 旬空：" + xk + " 隐仪：" + hy);
-    var zhiFuGong = DIZHI_TO_IDX[xs[1]];
-    log("值符落宫(时辰地支)：" + xs[1] + " → 宫" + (zhiFuGong + 1));
-    var diPan = {};
-    var tianPan = {};
-    var baMen = {};
-    var baShen = {};
-    var liuYiOrder = yin ? LIU_YI_ORDER.slice().reverse() : LIU_YI_ORDER.slice();
-    var startIdx = ju - 1;
-    for (var i = 0; i < 9; i++) {
-        var gongIdx = (startIdx + i) % 9;
-        diPan[gongIdx] = liuYiOrder[i];
-    }
-    log("地盘排布完成，局数=" + ju + " 阴阳=" + (yin ? "阴" : "阳"));
-    var shiGan = shiGZ[0];
-    var shiZhi = shiGZ[1];
-    var shiGanGong = -1;
-    for (var k in diPan) {
-        if (diPan[k] === shiGan) {
-            shiGanGong = parseInt(k);
-            break;
-        }
-    }
-    if (shiGanGong === -1) {
-        var hyGong = -1;
-        for (var kk in diPan) {
-            if (diPan[kk] === hy) {
-                hyGong = parseInt(kk);
+function countNeighborHits(lastFront, candidateFront) {
+    var hits = 0;
+    for (var ci = 0; ci < candidateFront.length; ci++) {
+        var cn = candidateFront[ci];
+        for (var li = 0; li < lastFront.length; li++) {
+            if (Math.abs(cn - lastFront[li]) === 1) {
+                hits++;
                 break;
             }
         }
-        shiGanGong = hyGong;
     }
-    log("时干" + shiGan + "落宫：" + (shiGanGong + 1));
-    tianPan[zhiFuGong] = diPan[zhiFuGong];
-    for (var gi = 0; gi < 9; gi++) {
-        var srcGong = (zhiFuGong + gi) % 9;
-        var tarGong = (shiGanGong + gi) % 9;
-        tianPan[tarGong] = diPan[srcGong];
-    }
-    log("天盘排布完成");
-    var menOrder = BA_MEN.slice();
-    baMen[zhiFuGong] = menOrder[0];
-    for (var mi = 1; mi < 8; mi++) {
-        var srcM = (zhiFuGong + mi) % 9;
-        var tarM = (shiGanGong + mi) % 9;
-        baMen[tarM] = menOrder[mi];
-    }
-    log("八门排布完成");
-    var shenOrder = BA_SHEN.slice();
-    baShen[zhiFuGong] = shenOrder[0];
-    for (var si = 1; si < 8; si++) {
-        var srcS = (zhiFuGong + si) % 9;
-        var tarS = (shiGanGong + si) % 9;
-        baShen[tarS] = shenOrder[si];
-    }
-    log("八神排布完成");
-    var pan = {
-        lotType: lotType,
-        dt: dt,
-        jq: jq,
-        yin: yin,
-        ju: ju,
-        riGZ: riGZ,
-        shiGZ: shiGZ,
-        xs: xs,
-        xk: xk,
-        hy: hy,
-        zhiFuGong: zhiFuGong,
-        shiGanGong: shiGanGong,
-        diPan: diPan,
-        tianPan: tianPan,
-        baMen: baMen,
-        baShen: baShen
-    };
-    currentPan = pan;
-    log("奇门排盘完成！");
-    return pan;
-}
-function getGongNumbers(pan) {
-    var nums = {};
-    for (var g = 0; g < 9; g++) {
-        var di = pan.diPan[g] || "";
-        var ti = pan.tianPan[g] || "";
-        var men = pan.baMen[g] || "";
-        var shen = pan.baShen[g] || "";
-        var base = 0;
-        if (DIZHI_TO_IDX[di[1]] !== undefined) {
-            base += DIZHI_TO_IDX[di[1]] + 1;
-        }
-        if (DIZHI_TO_IDX[ti[1]] !== undefined) {
-            base += DIZHI_TO_IDX[ti[1]] + 1;
-        }
-        if (men && MEN_PO_MAP[men]) {
-            base += MEN_PO_MAP[men];
-        }
-        if (shen) {
-            base += BA_SHEN.indexOf(shen) + 1;
-        }
-        base += TIAN_GAN.indexOf(di[0]) + 1;
-        base += TIAN_GAN.indexOf(ti[0]) + 1;
-        var gongNum = ((base % 9) + 9) % 9 + 1;
-        nums[g] = gongNum;
-    }
-    return nums;
+    return hits;
 }
 
-function getSanQiGongs(pan) {
-    var qiGongs = [];
-    for (var g = 0; g < 9; g++) {
-        var di = pan.diPan[g];
-        if (di && "乙丙丁".indexOf(di[0]) !== -1) {
-            qiGongs.push({gong: g, type: "三奇", val: di[0]});
-        }
-        var ti = pan.tianPan[g];
-        if (ti && "乙丙丁".indexOf(ti[0]) !== -1) {
-            qiGongs.push({gong: g, type: "天三奇", val: ti[0]});
+function countRepeatHits(lastFront, candidateFront) {
+    var hits = 0;
+    for (var ci = 0; ci < candidateFront.length; ci++) {
+        for (var li = 0; li < lastFront.length; li++) {
+            if (candidateFront[ci] === lastFront[li]) {
+                hits++;
+                break;
+            }
         }
     }
-    return qiGongs;
+    return hits;
 }
 
-function getJiMenGongs(pan) {
-    var jiGongs = [];
-    for (var g = 0; g < 9; g++) {
-        var men = pan.baMen[g];
-        if (men && "休生开".indexOf(men) !== -1) {
-            jiGongs.push({gong: g, type: "吉门", val: men});
-        }
+function getIntervalRatio(front) {
+    var ranges = [0, 0, 0];
+    for (var i = 0; i < front.length; i++) {
+        var n = front[i];
+        if (n >= 1 && n <= 11) ranges[0]++;
+        else if (n >= 12 && n <= 22) ranges[1]++;
+        else ranges[2]++;
     }
-    return jiGongs;
+    return ranges;
 }
-
-function getLiuHeGongs(pan) {
-    var liuGongs = [];
-    for (var g = 0; g < 9; g++) {
-        var shen = pan.baShen[g];
-        if (shen === "六合") {
-            liuGongs.push({gong: g, type: "六合", val: shen});
-        }
-    }
-    return liuGongs;
-}
-
-function getZhiFuGong(pan) {
-    return [{gong: pan.zhiFuGong, type: "值符", val: pan.diPan[pan.zhiFuGong] || ""}];
-}
-
-function extractKeyGongNumbers(pan) {
-    var gongNums = getGongNumbers(pan);
-    var keyGongs = [];
-    keyGongs = keyGongs.concat(getZhiFuGong(pan));
-    keyGongs = keyGongs.concat(getSanQiGongs(pan));
-    keyGongs = keyGongs.concat(getJiMenGongs(pan));
-    keyGongs = keyGongs.concat(getLiuHeGongs(pan));
-    var uniqueGongs = {};
-    keyGongs.forEach(function(item) {
-        uniqueGongs[item.gong] = true;
-    });
-    var result = [];
-    for (var g in uniqueGongs) {
-        result.push({gong: parseInt(g), num: gongNums[g]});
-    }
-    return result.sort(function(a, b) { return a.gong - b.gong; });
-}
-
-function generateBasePool(pan, cfg) {
-    var keyNums = extractKeyGongNumbers(pan);
-    var pool = [];
-    keyNums.forEach(function(item) {
-        pool.push(item.num);
-    });
-    for (var i = 1; i <= 9; i++) {
-        if (pool.indexOf(i) === -1) {
-            pool.push(i);
-        }
-    }
-    pool = arrayUnique(pool);
-    var expanded = [];
-    pool.forEach(function(n) {
-        expanded.push(n);
-        var step = Math.floor((cfg.fMax - cfg.fMin + 1) / 9);
-        var mapped = cfg.fMin + (n - 1) * step;
-        if (mapped >= cfg.fMin && mapped <= cfg.fMax && expanded.indexOf(mapped) === -1) {
-            expanded.push(mapped);
-        }
-        var mapped2 = cfg.fMax - (9 - n) * step;
-        if (mapped2 >= cfg.fMin && mapped2 <= cfg.fMax && expanded.indexOf(mapped2) === -1) {
-            expanded.push(mapped2);
-        }
-    });
-    return arrayUnique(expanded).sort(function(a, b) { return a - b; });
-}
-
 function zhangWeimingSha(lastFront, lastBack, candidate, cfg) {
     var front = candidate.front;
     var back = candidate.back;
-    if (!lastFront || !lastFront.length) {
-        return true;
-    }
-    var repeatCnt = countRepeats(front, lastFront);
-    if (repeatCnt > 1) {
+    var repeats = countRepeatHits(lastFront, front);
+    if (repeats > 1) {
         return false;
     }
-    var neighborCnt = countNeighbors(front, lastFront);
-    if (neighborCnt > 2) {
+    var neighbors = countNeighborHits(lastFront, front);
+    if (neighbors > 2) {
         return false;
     }
-    var tails = {};
-    front.forEach(function(n) {
-        var t = n % 10;
-        tails[t] = (tails[t] || 0) + 1;
-    });
-    var sameTailCnt = 0;
-    for (var t in tails) {
-        if (tails[t] > 1) {
-            sameTailCnt += tails[t];
-        }
-    }
+    var sameTailCnt = hasSameTail(front);
     if (sameTailCnt > 2) {
         return false;
     }
-    var consecPairs = countConsecutivePairs(front);
-    if (consecPairs > 1) {
+    var consecutiveGroups = countConsecutiveGroups(front);
+    if (consecutiveGroups > 1) {
         return false;
     }
-    var zones = zoneDistribution(front, cfg.zoneSplit);
-    if (zones[0] < 1 || zones[0] > 4 || zones[1] < 1 || zones[1] > 4 || zones[2] < 1 || zones[2] > 4) {
+    var intervals = getIntervalRatio(front);
+    if (intervals[0] > 4 || intervals[1] > 4 || intervals[2] > 4) {
+        return false;
+    }
+    if (intervals[0] === 0 || intervals[1] === 0 || intervals[2] === 0) {
         return false;
     }
     var oe = oddEvenCount(front);
     if (oe[0] < 1 || oe[0] > 5 || oe[1] < 1 || oe[1] > 5) {
         return false;
+    }
+    if (cfg.fPick === 6) {
+        if (oe[0] < 2 || oe[0] > 4 || oe[1] < 2 || oe[1] > 4) {
+            return false;
+        }
     }
     return true;
 }
@@ -924,29 +1403,57 @@ function chuTianyiQin(lastFront, lastBack, candidate, cfg) {
     var front = candidate.front;
     var back = candidate.back;
     var sum = arraySum(front);
-    if (sum < cfg.idealSum[0] || sum > cfg.idealSum[1]) {
-        return false;
-    }
     var span = arraySpan(front);
-    if (span < cfg.idealSpan[0] || span > cfg.idealSpan[1]) {
-        return false;
-    }
     var ac = calcAC(front);
-    if (ac < cfg.idealAC[0] || ac > cfg.idealAC[1]) {
-        return false;
-    }
     var bs = bigSmallCount(front, cfg.bigLine);
-    if (bs[0] < 1 || bs[1] < 1) {
+    var expectedSumMin = 0;
+    var expectedSumMax = 0;
+    var expectedSpanMin = 0;
+    var expectedSpanMax = 0;
+    var expectedACMin = 0;
+    var expectedACMax = 0;
+    if (cfg.fPick === 6) {
+        expectedSumMin = 88;
+        expectedSumMax = 138;
+        expectedSpanMin = 26;
+        expectedSpanMax = 32;
+        expectedACMin = 8;
+        expectedACMax = 12;
+    } else {
+        expectedSumMin = 72;
+        expectedSumMax = 118;
+        expectedSpanMin = 25;
+        expectedSpanMax = 34;
+        expectedACMin = 6;
+        expectedACMax = 10;
+    }
+    if (sum < expectedSumMin || sum > expectedSumMax) {
         return false;
     }
-    if (lastBack && lastBack.length) {
-        var backSameTail = countSameTailWithLast(back, lastBack);
-        if (backSameTail > 0) {
+    if (span < expectedSpanMin || span > expectedSpanMax) {
+        return false;
+    }
+    if (ac < expectedACMin || ac > expectedACMax) {
+        return false;
+    }
+    if (bs[0] < 2 || bs[0] > 4 || bs[1] < 2 || bs[1] > 4) {
+        return false;
+    }
+    if (cfg.fPick === 6) {
+        if (bs[0] < 2 || bs[0] > 4 || bs[1] < 2 || bs[1] > 4) {
             return false;
+        }
+    }
+    for (var bi = 0; bi < back.length; bi++) {
+        for (var lbi = 0; lbi < lastBack.length; lbi++) {
+            if (back[bi] === lastBack[lbi]) {
+                return false;
+            }
         }
     }
     return true;
 }
+
 function runLottery(type, count) {
     count = count || 5;
     var cfg = LOT_CFG[type];
@@ -959,19 +1466,19 @@ function runLottery(type, count) {
         lastFront = lastDLTFront;
         lastBack = lastDLTBack;
     }
-    if (!lastFront || !lastBack) {
-        log("警告：未注入上期数据，使用随机初始数据");
-        lastFront = [];
-        lastBack = [];
+    if (!lastFront || !lastFront.length || !lastBack || !lastBack.length) {
+        log("错误：请先注入上期真实开奖数据！");
+        alert("请先点击【注入上期】输入上期开奖号码！");
+        return [];
     }
     log("开始" + cfg.name + "选号，目标" + count + "注");
     var pan = buildPan(type);
     renderGong(pan);
     var keyNums = extractKeyGongNumbers(pan);
-    var basePool = generateBasePool(pan, cfg);
-    log("初池(奇门取数): [" + basePool.join(",") + "]");
+    var basePool = buildTotalPool(pan, cfg);
+    log("奇门总池: [" + basePool.join(",") + "] 共" + basePool.length + "个号码");
     var results = [];
-    var maxAttempts = 8000;
+    var maxAttempts = 30000;
     var attempts = 0;
     while (results.length < count && attempts < maxAttempts) {
         attempts++;
@@ -1004,82 +1511,95 @@ function runLottery(type, count) {
         }
         results.push(candidate);
     }
-    log("选号完成，共生成" + results.length + "注");
+    log("选号完成，共生成" + results.length + "注，尝试次数" + attempts);
+    if (results.length < count) {
+        log("警告：仅生成" + results.length + "注，条件过于严格，放宽中...");
+        while (results.length < count && attempts < maxAttempts + 20000) {
+            attempts++;
+            var candidateFront2 = [];
+            var poolCopy2 = basePool.slice();
+            for (var fi2 = 0; fi2 < cfg.fPick; fi2++) {
+                if (poolCopy2.length === 0) break;
+                var idx2 = Math.floor(Math.random() * poolCopy2.length);
+                candidateFront2.push(poolCopy2[idx2]);
+                poolCopy2.splice(idx2, 1);
+            }
+            if (candidateFront2.length !== cfg.fPick) continue;
+            candidateFront2.sort(function(a, b) { return a - b; });
+            var candidateBack2 = [];
+            for (var bi2 = 0; bi2 < cfg.bPick; bi2++) {
+                var bNum2 = cfg.bMin + Math.floor(Math.random() * (cfg.bMax - cfg.bMin + 1));
+                candidateBack2.push(bNum2);
+            }
+            candidateBack2.sort(function(a, b) { return a - b; });
+            var candidate2 = {front: candidateFront2, back: candidateBack2};
+            if (!zhangWeimingSha(lastFront, lastBack, candidate2, cfg)) {
+                continue;
+            }
+            results.push(candidate2);
+        }
+        log("放宽后共生成" + results.length + "注");
+    }
     renderResults(type, results, pan, keyNums);
     updateStatBar(type, results);
     return results;
 }
 
-function showPanOnly() {
-    if (!currentPan) {
-        var pan = buildPan('ssq');
-    } else {
-        var pan = currentPan;
-    }
-    renderGong(pan);
-    var out = document.getElementById("mainOutput");
-    var html = '<div class="hl-gold">═══ 奇门排盘详情 ═══</div>';
-    html += '<div class="info-line">开奖时间：' + formatDate(pan.dt) + '</div>';
-    html += '<div class="info-line">节气：' + pan.jq + ' | ' + (pan.yin ? '阴遁' : '阳遁') + ' | ' + pan.ju + '局</div>';
-    html += '<div class="info-line">日干支：' + pan.riGZ + ' | 时干支：' + pan.shiGZ + '</div>';
-    html += '<div class="info-line">旬首：' + pan.xs + ' | 旬空：' + pan.xk + ' | 隐仪：' + pan.hy + '</div>';
-    html += '<div class="info-line">值符落宫：宫' + (pan.zhiFuGong + 1) + ' | 时干落宫：宫' + (pan.shiGanGong + 1) + '</div>';
-    html += '<div class="hl-gold">══════════════</div>';
-    out.innerHTML = html;
-}
-
 function renderGong(pan) {
     var container = document.getElementById("gongContainer");
-    if (!container) {
-        return;
-    }
+    if (!container) return;
+    var gongData = pan.gongData;
     var html = "";
-    for (var g = 0; g < 9; g++) {
-        var di = pan.diPan[g] || "";
-        var ti = pan.tianPan[g] || "";
-        var men = pan.baMen[g] || "";
-        var shen = pan.baShen[g] || "";
-        var tags = "";
-        if (shen === "值符") {
-            tags += '<span class="g-tag tag-zf">值符</span>';
+    for (var g = 0; g < gongData.length; g++) {
+        var gd = gongData[g];
+        var bgColor = "#0d1424";
+        if (gd.isSanQi) bgColor = "#0a2e1a";
+        if (gd.menJx === "吉") bgColor = "#0a1a2e";
+        if (gd.weight > 30) bgColor = "#1a102e";
+        if (gd.isKong) bgColor = "#1a0a0a";
+        html += '<div class="gong-cell" style="background:' + bgColor + ';">';
+        html += '<div class="g-num">宫' + (g + 1) + ' ' + gd.fangWei + ' ' + gd.luoShu + '</div>';
+        html += '<div class="g-main">' + gd.tianGan + '</div>';
+        html += '<div class="g-sub">天:' + gd.xing + ' 门:' + gd.men + '</div>';
+        html += '<div class="g-sub">神:' + gd.shen + ' 地:' + gd.diGan + '</div>';
+        html += '<div class="g-sub">权:' + gd.weight + '</div>';
+        html += '<div>';
+        for (var ti = 0; ti < gd.tags.length; ti++) {
+            var cls = "tag-";
+            var tag = gd.tags[ti];
+            if (tag === "三奇") cls += "qi";
+            else if (tag === "吉门" || tag === "吉神") cls += "ji";
+            else if (tag === "马星") cls += "ma";
+            else if (tag === "空亡") cls += "kong";
+            else if (tag === "入墓" || tag === "门迫" || tag === "击刑") cls += "mu";
+            else cls += "zf";
+            html += '<span class="g-tag ' + cls + '">' + tag + '</span>';
         }
-        if (di && "乙丙丁".indexOf(di[0]) !== -1) {
-            tags += '<span class="g-tag tag-qi">三奇</span>';
-        }
-        if (ti && "乙丙丁".indexOf(ti[0]) !== -1) {
-            tags += '<span class="g-tag tag-qi">天三奇</span>';
-        }
-        if (men && "休生开".indexOf(men) !== -1) {
-            tags += '<span class="g-tag tag-ji">吉门</span>';
-        }
-        if (shen === "六合") {
-            tags += '<span class="g-tag tag-zf">六合</span>';
-        }
-        html += '<div class="gong-cell">';
-        html += '<div class="g-num">宫' + (g + 1) + '</div>';
-        html += '<div class="g-main">' + di + '</div>';
-        html += '<div class="g-sub">天:' + ti + ' 门:' + men + '</div>';
-        html += '<div class="g-sub">神:' + shen + '</div>';
-        html += '<div>' + tags + '</div>';
-        html += '</div>';
+        html += '</div></div>';
     }
     container.innerHTML = html;
+    var ps = document.getElementById("panStatus");
+    if (ps) {
+        ps.innerHTML = pan.jq + " " + pan.ju + "局 " + (pan.yang ? "阳" : "阴") + " | " + pan.shiGZ.gan + pan.shiGZ.zhi + "时";
+    }
 }
 
 function renderResults(type, results, pan, keyNums) {
     var out = document.getElementById("mainOutput");
     var cfg = LOT_CFG[type];
     var html = '<div class="hl-gold">═══ ' + cfg.name + ' 精选 ' + results.length + ' 注 ═══</div>';
-    html += '<div class="info-line">排盘时间：' + formatDate(pan.dt) + ' | ' + pan.jq + ' ' + pan.ju + '局</div>';
+    html += '<div class="info-line">排盘时间：' + formatDate(pan.dt) + ' | ' + pan.jq + ' ' + (pan.yang ? "阳" : "阴") + pan.ju + '局</div>';
+    html += '<div class="info-line">日柱：' + pan.dayGZ.gan + pan.dayGZ.zhi + ' | 时柱：' + pan.shiGZ.gan + pan.shiGZ.zhi + '</div>';
     html += '<div class="info-line">值符宫' + (pan.zhiFuGong + 1) + ' 时干宫' + (pan.shiGanGong + 1) + '</div>';
+    html += '<div class="info-line">旬首：' + pan.xunShou + ' 空亡：' + pan.kongWang + ' 马星：' + pan.maZhi + '</div>';
     html += '<div class="info-line">关键宫位取数：';
-    keyNums.forEach(function(item) {
-        html += '宫' + (item.gong + 1) + '→' + item.num + ' ';
-    });
+    for (var ki = 0; ki < keyNums.length; ki++) {
+        html += '宫' + (keyNums[ki].gong + 1) + '→' + keyNums[ki].num + '(' + keyNums[ki].reason + ') ';
+    }
     html += '</div>';
     html += '<div class="hl-gold">══════════════</div>';
-    for (var i = 0; i < results.length; i++) {
-        var r = results[i];
+    for (var ri = 0; ri < results.length; ri++) {
+        var r = results[ri];
         var frontStr = r.front.map(function(n) { return n < 10 ? "0" + n : "" + n; }).join(" ");
         var backStr = r.back.map(function(n) { return n < 10 ? "0" + n : "" + n; }).join(" ");
         var sum = arraySum(r.front);
@@ -1087,8 +1607,8 @@ function renderResults(type, results, pan, keyNums) {
         var ac = calcAC(r.front);
         var oe = oddEvenCount(r.front);
         var bs = bigSmallCount(r.front, cfg.bigLine);
-        html += '<div style="background:#131b32;border-radius:6px;padding:8px 12px;margin:6px 0;border-left:3px solid ' + (type === 'ssq' ? '#e74c3c' : '#3498db') + '">';
-        html += '<div style="font-size:16px;font-weight:700;color:#f5c542;">第' + (i + 1) + '注</div>';
+        html += '<div class="result-card">';
+        html += '<div style="font-size:16px;font-weight:700;color:#f5c542;">第' + (ri + 1) + '注</div>';
         html += '<div><span class="hl-green">前区:</span> <span style="font-size:18px;font-weight:700;color:#e5e7eb;">' + frontStr + '</span></div>';
         html += '<div><span class="hl-blue">后区:</span> <span style="font-size:16px;font-weight:600;color:#93c5fd;">' + backStr + '</span></div>';
         html += '<div class="info-line">和值' + sum + ' | 跨度' + span + ' | AC' + ac + ' | 奇偶' + oe[0] + ':' + oe[1] + ' | 大小' + bs[0] + ':' + bs[1] + '</div>';
@@ -1096,13 +1616,15 @@ function renderResults(type, results, pan, keyNums) {
     }
     html += '<div class="hl-gold">══════════════</div>';
     out.innerHTML = html;
+    var rc = document.getElementById("resultCount");
+    if (rc) {
+        rc.innerHTML = results.length + "注 | " + cfg.name;
+    }
 }
 
 function updateStatBar(type, results) {
     var bar = document.getElementById("statBar");
-    if (!bar || !results.length) {
-        return;
-    }
+    if (!bar || !results.length) return;
     var cfg = LOT_CFG[type];
     var allFront = [];
     results.forEach(function(r) {
@@ -1128,21 +1650,98 @@ function updateStatBar(type, results) {
     html += '<span>号码范围：' + cfg.fMin + '-' + cfg.fMax + '</span>';
     bar.innerHTML = html;
 }
+function showPanOnly() {
+    var pan = buildPan('ssq');
+    renderGong(pan);
+    log("排盘已更新：" + pan.jq + " " + pan.ju + "局");
+}
+
+function showPanDetail() {
+    var out = document.getElementById("mainOutput");
+    var pan = buildPan('ssq');
+    var html = '<div class="hl-gold">═══ 奇门排盘详情 ═══</div>';
+    html += '<div class="info-line">排盘时间：' + formatDate(pan.dt) + ' ' + pan.shiGZ.gan + pan.shiGZ.zhi + '时</div>';
+    html += '<div class="info-line">节气：' + pan.jq + ' | ' + (pan.yang ? "阳" : "阴") + pan.ju + '局</div>';
+    html += '<div class="info-line">日柱：' + pan.dayGZ.gan + pan.dayGZ.zhi + ' | 时柱：' + pan.shiGZ.gan + pan.shiGZ.zhi + '</div>';
+    html += '<div class="info-line">旬首：' + pan.xunShou + ' | 空亡：' + pan.kongWang + '</div>';
+    html += '<div class="info-line">马星：' + pan.maZhi + ' | 刑：' + pan.xingZhi + ' | 合：' + pan.heZhi + ' | 害：' + pan.haiZhi + '</div>';
+    html += '<div class="info-line">值符宫：宫' + (pan.zhiFuGong + 1) + ' | 时干宫：宫' + (pan.shiGanGong + 1) + '</div>';
+    html += '<div class="hl-gold">══════════════</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:12px;">';
+    for (var gi = 0; gi < pan.gongData.length; gi++) {
+        var gd = pan.gongData[gi];
+        var bg = "#0d1424";
+        if (gd.isSanQi) bg = "#0a2e1a";
+        if (gd.menJx === "吉") bg = "#0a1a2e";
+        if (gd.isKong) bg = "#1a0a0a";
+        html += '<div style="background:' + bg + ';border-radius:4px;padding:4px;border:1px solid #1a2540;">';
+        html += '<strong>宫' + (gi + 1) + '</strong> ' + gd.fangWei + ' ';
+        html += '洛书' + gd.luoShu + '<br>';
+        html += '天盘:' + gd.tianGan + ' 地盘:' + gd.diGan + '<br>';
+        html += '星:' + gd.xing + ' 门:' + gd.men + ' ' + gd.menJx + '<br>';
+        html += '神:' + gd.shen + ' ' + gd.shenJx + '<br>';
+        html += '权重:' + gd.weight + '<br>';
+        html += '标签:';
+        for (var ti = 0; ti < gd.tags.length; ti++) {
+            html += gd.tags[ti] + ' ';
+        }
+        html += '</div>';
+    }
+    html += '</div>';
+    html += '<div class="hl-gold">══════════════</div>';
+    out.innerHTML = html;
+    renderGong(pan);
+    log("排盘详情已展示");
+}
+
+function showWeightAnalysis() {
+    var out = document.getElementById("mainOutput");
+    var pan = buildPan('ssq');
+    var sorted = pan.gongData.slice().sort(function(a, b) {
+        return b.weight - a.weight;
+    });
+    var html = '<div class="hl-gold">═══ 九宫权重分析 ═══</div>';
+    html += '<div class="info-line">权重越高，号码出现概率越大</div>';
+    html += '<div class="hl-gold">══════════════</div>';
+    for (var si = 0; si < sorted.length; si++) {
+        var gd = sorted[si];
+        var barWidth = Math.min(100, Math.max(5, (gd.weight + 50) / 130 * 100));
+        var barColor = "#f5c542";
+        if (gd.weight < 0) barColor = "#e74c3c";
+        if (gd.weight > 20) barColor = "#4ade80";
+        html += '<div style="margin:6px 0;">';
+        html += '<div style="display:flex;justify-content:space-between;font-size:12px;">';
+        html += '<span>宫' + (gd.index + 1) + ' ' + gd.fangWei + ' ' + gd.tianGan + '/' + gd.men + '/' + gd.shen + '</span>';
+        html += '<span style="color:#f5c542;">' + gd.weight + '分</span>';
+        html += '</div>';
+        html += '<div style="height:8px;background:#1a2540;border-radius:4px;overflow:hidden;">';
+        html += '<div style="height:100%;width:' + barWidth + '%;background:' + barColor + ';border-radius:4px;transition:width 0.3s;"></div>';
+        html += '</div>';
+        html += '<div style="font-size:10px;color:#667799;">';
+        for (var ti = 0; ti < gd.tags.length; ti++) {
+            html += gd.tags[ti] + ' ';
+        }
+        html += '</div>';
+        html += '</div>';
+    }
+    html += '<div class="hl-gold">══════════════</div>';
+    out.innerHTML = html;
+    log("权重分析已展示");
+}
 
 function clearOutput() {
     var out = document.getElementById("mainOutput");
     out.innerHTML = '<div class="hl-gold">═══ 已清空 ═══</div><div class="info-line">点击按钮重新选号</div>';
+    var rc = document.getElementById("resultCount");
+    if (rc) rc.innerHTML = "";
     log("输出已清空");
 }
+
 function setRealLastData() {
     var frontStr = prompt("请输入上期前区号码（空格分隔）：\n例：05 12 18 23 29 31（双色球6个）\n例：08 11 16 25 32（大乐透5个）");
-    if (!frontStr) {
-        return;
-    }
+    if (!frontStr) return;
     var backStr = prompt("请输入上期后区号码（空格分隔）：\n例：07（双色球1个）\n例：03 08（大乐透2个）");
-    if (!backStr) {
-        return;
-    }
+    if (!backStr) return;
     var frontArr = frontStr.trim().split(/[\s,，]+/).map(Number);
     var backArr = backStr.trim().split(/[\s,，]+/).map(Number);
     if (frontArr.length === 6 && backArr.length === 1) {
@@ -1203,11 +1802,13 @@ function exportResult() {
 }
 
 window.onload = function() {
-    log("奇门遁甲V9 加载完成，版本 " + VERSION);
-    log("提示：请先点击【注入真实上期】输入上期开奖数据");
+    log("奇门遁甲V9 终极版加载完成，版本 " + VERSION);
+    log("提示：请先点击【注入上期】输入上期开奖数据");
     var pan = buildPan('ssq');
     renderGong(pan);
-    showPanOnly();
+    log("初始排盘完成：" + pan.jq + " " + pan.ju + "局");
+    log("九宫权重范围：" + pan.gongData.reduce(function(m, g) { return Math.min(m, g.weight); }, 999) + " ~ " + pan.gongData.reduce(function(m, g) { return Math.max(m, g.weight); }, -999));
+    log("系统就绪，等待操作...");
 };
 </script>
 </body>
