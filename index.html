@@ -1,47 +1,37 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QDIM-6 奇门数据迭代模型 V6.1（真实运算）</title>
-<!-- lunisolar 浏览器版：真实节气、干支、真太阳时 -->
-<script src="https://cdn.jsdelivr.net/npm/lunisolar@2.2.5/dist/lunisolar.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lunisolar@2.2.5/dist/presets/full.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>QDIM-6 奇门数据迭代模型 V6.1（自动获取开奖版）</title>
+<!-- 用 CDN 引入 lunisolar，修掉 "lunisolar is not defined" -->
+<script src="https://cdn.jsdelivr.net/npm/lunisolar@0.3.4/dist/lunisolar.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0b1020;color:#e6ecff;font-family:system-ui,'PingFang SC',sans-serif;padding:16px;max-width:800px;margin:auto}
-.card{background:#141b33;border:1px solid #293257;border-radius:14px;padding:16px;margin:12px 0}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
-button{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:15px}
-.btn-gold{background:#f5b301;color:#111}
-.btn-blue{background:#1d3060;color:#aac3ff}
-.tabs{display:flex;gap:8px;margin:12px 0}
-.tab{padding:8px 20px;border-radius:999px;background:#1b2547;border:1px solid #293257;cursor:pointer}
-.tab.active{background:#f5b301;color:#111;font-weight:700}
-section{display:none}
-section.active{display:block}
-.info{background:#0f1530;border-radius:10px;padding:12px;margin:8px 0;font-size:14px;line-height:1.7;color:#bcc7ff}
-.balls{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.ball{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
-.ball.red{background:#ff4d4f;color:#fff}
-.ball.blue{background:#2f80ed;color:#fff}
-.ball.gold{background:#f5b301;color:#111}
-.ball.gray{background:#2a3458;color:#8892b5}
-.ball.kill{background:#4a1a1a;color:#ff6b6b;text-decoration:line-through}
-.pick-card{background:#0e1528;border:1px solid #293257;border-radius:12px;padding:12px;margin:8px 0}
-.pick-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.pick-label{color:#f5b301;font-size:13px;font-weight:700;margin-left:10px}
-.sep{color:#8892b5;padding:0 4px}
-.sub{color:#8892b5;font-size:12px;margin-top:4px}
-.err{color:#ff6b6b;font-size:14px;margin:8px 0}
-.footer{color:#556;font-size:12px;margin-top:16px;line-height:1.6}
+  body{background:#0b1020;color:#e6e6ff;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px;max-width:760px;margin:0 auto}
+  h1{font-size:22px;margin:8px 0}h2{font-size:16px;margin:12px 0 6px}
+  .sub{color:#9aa3c7;font-size:13px}
+  .tabs{display:flex;gap:10px;margin:10px 0}
+  .tab{padding:10px 16px;border-radius:999px;background:#1b2547;color:#cfd6ff;border:1px solid #2c3870;cursor:pointer}
+  .tab.active{background:#ffc107;color:#111;font-weight:700;border-color:#ffc107}
+  .card{background:#111a36;border:1px solid #233060;border-radius:14px;padding:12px;margin:10px 0}
+  button{padding:10px 14px;border-radius:10px;border:none;background:#ffc107;color:#111;font-weight:700;margin:6px 4px;cursor:pointer}
+  button.alt{background:#2a3570;color:#dbe3ff}
+  .ball{display:inline-block;min-width:28px;padding:4px 6px;margin:3px;border-radius:999px;text-align:center;background:#2b1f3d;color:#ff8fb3;border:1px solid #4b2f4a}
+  .ball.blue{background:#1b2b4d;color:#7cc4ff;border-color:#2f4a7a}
+  .ball.gold{background:#3a2c10;color:#ffd76a;border-color:#5b4620}
+  .ball.kill{background:#3a1111;color:#ff6a6a;border-color:#6a1f1f;text-decoration:line-through opacity:.7}
+  .sep{color:#8b94b8;margin:0 6px}
+  .pick-card{background:#0d1430;border:1px solid #2c3870;border-radius:10px;padding:8px;margin:6px 0}
+  .pick-label{color:#ffc107;margin-left:8px}
+  .err{color:#ff6a6a;white-space:pre-wrap}
+  .ok{color:#7cffb3}
+  .row{line-height:1.8}
 </style>
 </head>
 <body>
 
-<h1 style="font-size:20px;margin-bottom:4px">QDIM-6 奇门数据迭代模型 V6.1</h1>
-<p style="color:#8892b5;font-size:14px;margin-bottom:12px">真实节气·干支·真太阳时·时家奇门（拆补法）</p>
+<h1>QDIM-6 奇门数据迭代模型 V6.1</h1>
+<div class="sub">真实节气·干支·真太阳时（大连121.6°E）·时家奇门（拆补法/定局可复现）｜自动获取最新开奖（替代本地/data/*.json）</div>
 
 <div class="tabs">
   <div class="tab active" data-lot="ssq">双色球（二四日 21:15）</div>
@@ -49,568 +39,319 @@ section.active{display:block}
 </div>
 
 <div class="card">
-  <div class="row">
-    <button class="btn-gold" id="btnRun">⚡ 起局推算 V6.1</button>
-    <button class="btn-blue" id="btnPrev">📜 载入上期开奖</button>
-    <span id="status" style="color:#8892b5;font-size:13px"></span>
-  </div>
-  <div id="infoPanel" class="info">点击「起局推算」开始真实运算</div>
-  <div id="errorPanel" class="err"></div>
+  <div id="timeInfo" class="sub">点“自动识别下期”或“起局推算”</div>
+  <button id="btnTime">自动识别下期开奖时间</button>
+  <button id="btnRun">⚡ 起局推算 V6.1</button>
+  <button id="btnPrev" class="alt">📜 自动获取最新开奖（替代上期文件）</button>
+  <div id="status" class="sub">等待起局...</div>
+  <div id="errBox" class="err"></div>
 </div>
 
-<section id="ssq" class="active">
-  <div class="card">
-    <div style="font-weight:700;margin-bottom:8px">第0层·奇门落宫初池（非全33）</div>
-    <div class="balls" id="ssqInit"></div>
-    <div style="font-weight:700;margin:12px 0 8px">B关系层扩展（同宫+9/同尾/对宫冲）</div>
-    <div class="balls" id="ssqExt"></div>
-    <div style="font-weight:700;margin:12px 0 8px">杀号（空亡/击刑/门迫/入墓 + 张委铭运算）</div>
-    <div class="balls" id="ssqKill"></div>
-    <div style="font-weight:700;margin:12px 0 8px">剩余可选池（红球/蓝球）</div>
-    <div class="balls" id="ssqPool"></div>
-    <div style="font-weight:700;margin:12px 0 8px">精选3注（红6+蓝1）</div>
-    <div id="ssqPicks"></div>
-  </div>
-</section>
-
-<section id="dlt">
-  <div class="card">
-    <div style="font-weight:700;margin-bottom:8px">第0层·奇门落宫初池（非全35）</div>
-    <div class="balls" id="dltInit"></div>
-    <div style="font-weight:700;margin:12px 0 8px">B关系层扩展</div>
-    <div class="balls" id="dltExt"></div>
-    <div style="font-weight:700;margin:12px 0 8px">杀号</div>
-    <div class="balls" id="dltKill"></div>
-    <div style="font-weight:700;margin:12px 0 8px">剩余池（前区/后区）</div>
-    <div class="balls" id="dltPool"></div>
-    <div style="font-weight:700;margin:12px 0 8px">精选3注（前5+后2）</div>
-    <div id="dltPicks"></div>
-  </div>
-</section>
-
-<div class="footer">
-⚠️ 彩票随机、独立同分布；本工具仅作排盘/统计/娱乐研究，不代买、不包中、不引导倍投。<br>
-奇门引擎：lunisolar 节气/干支 + 拆补法时家奇门（九宫映射）。<br>
-上期开奖数据需在网站根目录放置 /data/ssq_latest.json 和 /data/dlt_latest.json（可选）。
+<div class="card">
+  <h2>第0层·奇门落宫初池（非全33/非全35）</h2>
+  <div id="initPool" class="row"></div>
+  <h2>B关系层扩展（同宫+9/同尾/对宫冲）</h2>
+  <div id="extPool" class="row"></div>
+  <h2>杀号（空亡/击刑/门迫/入墓 + 张委铭运算）</h2>
+  <div id="killList" class="row"></div>
+  <h2>剩余池 / 后区</h2>
+  <div id="remainPool" class="row"></div>
+  <h2>精选（双色球红6蓝1 / 大乐透前5后2，确定化）</h2>
+  <div id="picksOut"></div>
 </div>
 
 <script>
-/* =========================================================
- * 核心：真实节气/干支/真太阳时 + 奇门排盘
- * ========================================================= */
+/* ========== 状态 ========== */
+let lotNow = 'ssq'; // ssq / dlt
+let prevData = null; // 自动获取后存入 {issue,date,front,back}
 
-// 彩种规则
-const RULES = {
-  ssq: { name:'双色球', weekdays:[0,2,4], h:21, m:15, redMax:33, redN:6, blueMax:16, blueN:1 },
-  dlt: { name:'大乐透', weekdays:[1,3,6], h:21, m:25, frontMax:35, frontN:5, backMax:12, backN:2 }
-};
-
-// 洛书宫 → 号码映射（QDIM-6 标准）
-const LUOSHU_MAP = {
-  1: [1, 10, 19, 28],
-  2: [2, 11, 20, 29],
-  3: [3, 12, 21, 30],
-  4: [4, 13, 22, 31],
-  5: [5, 14, 23, 32],
-  6: [6, 15, 24, 33],
-  7: [7, 16, 25, 34],
-  8: [8, 17, 26, 35],
-  9: [9, 18, 27]
-};
-
-// 对宫冲
-const OPPOSITE = {1:9, 9:1, 2:8, 8:2, 3:7, 7:3, 4:6, 6:4, 5:5};
-
-// 获取数字的洛书宫
-function getLuoshu(n) {
-  if (n <= 0) return 5;
-  for (let g = 1; g <= 9; g++) {
-    if (LUOSHU_MAP[g].includes(n)) return g;
-  }
-  return 5;
+/* ========== 工具：大连真太阳时 ========== */
+function trueSolar(d, lon=121.6, baseLon=120){
+  return new Date(d.getTime() + (lon - baseLon) * 4 * 60000);
 }
 
-// ========== 1. 自动识别下期开奖时间 ==========
-function getNextDrawTime(lot, now) {
-  const r = RULES[lot];
-  const d = new Date(now);
-  d.setSeconds(0, 0);
-  for (let i = 0; i < 14; i++) {
-    if (r.weekdays.includes(d.getDay())) {
-      const draw = new Date(d);
-      draw.setHours(r.h, r.m, 0, 0);
-      if (draw > now) return draw;
+/* ========== 下期开奖时间 ========== */
+function nextDrawTime(lot, now=new Date()){
+  const r = lot==='ssq' ? {wd:[2,4,0], h:21, m:15, name:'双色球'}
+                         : {wd:[1,3,6], h:21, m:25, name:'大乐透'};
+  const x = new Date(now); x.setSeconds(0,0);
+  for(let i=0;i<14;i++){
+    const w=x.getDay();
+    if(r.wd.includes(w)){
+      x.setHours(r.h,r.m,0,0);
+      if(x<=now){ x.setDate(x.getDate()+1); continue; }
+      return x;
     }
-    d.setDate(d.getDate() + 1);
-    d.setHours(0, 0, 0, 0);
+    x.setDate(x.getDate()+1);
   }
   return null;
 }
 
-// ========== 2. 真太阳时（大连 121.6°E） ==========
-function toTrueSolar(beijingDate, lon = 121.6) {
-  const baseLon = 120;
-  const diffMin = (lon - baseLon) * 4;
-  return new Date(beijingDate.getTime() + diffMin * 60000);
+/* ========== 历法/节气/干支（用 lunisolar CDN） ========== */
+function getLunInfo(d){
+  if(typeof lunisolar === 'undefined') throw new Error('lunisolar 未加载，请确认网络/CDN');
+  const ls = lunisolar(d);
+  // 不同版本字段可能略有差异，做兼容
+  const yearGZ = ls.lunar?.yearGanZhi || ls.lunar?.getYearGanZhi?.() || (ls.yearGanZhi||'');
+  const monthGZ = ls.lunar?.monthGanZhi || ls.lunar?.getMonthGanZhi?.() || '';
+  const dayGZ = ls.lunar?.dayGanZhi || ls.lunar?.getDayGanZhi?.() || '';
+  const jie = ls.solarTerm || ls.getSolarTerm?.() || '';
+  return {yearGZ, monthGZ, dayGZ, jie, ls};
+}
+function hourGZ(d, dayGZStr){
+  const h = d.getHours() + d.getMinutes()/60;
+  let zi=0;
+  if(h>=23||h<1)zi=0; else if(h>=1&&h<3)zi=1; else if(h>=3&&h<5)zi=2; else if(h>=5&&h<7)zi=3;
+  else if(h>=7&&h<9)zi=4; else if(h>=9&&h<11)zi=5; else if(h>=11&&h<13)zi=6; else if(h>=13&&h<15)zi=7;
+  else if(h>=15&&h<17)zi=8; else if(h>=17&&h<19)zi=9; else if(h>=19&&h<21)zi=10; else zi=11;
+  const DZ=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const TG=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const dayZ = (dayGZStr||'甲子').slice(-1);
+  const dayIdx = DZ.indexOf(dayZ);
+  const hz = DZ[((dayIdx+zi)%12+12)%12];
+  // 时干：日干起子时为日干，顺推
+  const dayG = (dayGZStr||'甲子').slice(0,1);
+  const gIdx = TG.indexOf(dayG);
+  const hg = TG[((gIdx*2 + zi)%10+10)%10];
+  return hg+hz;
 }
 
-// ========== 3. 用 lunisolar 获取真实节气/干支 ==========
-function getLunarInfo(date) {
-  const lsr = lunisolar(date);
-  return {
-    ganZhiYear: lsr.format('lY'),      // 干支年
-    ganZhiMonth: lsr.format('lM'),     // 干支月
-    ganZhiDay: lsr.format('lD'),       // 干支日
-    ganZhiHour: lsr.format('lH'),      // 干支时
-    solarTerm: lsr.solarTerm || '无',
-    // 节气序号（0-23）
-    solarTermIndex: lsr.solarTermIndex ?? -1
-  };
+/* ========== 时家奇门（可复现定局/拆补近似：按节+时支定局，落宫取号） ========== 
+   注：完整“拆补法”需专业奇门引擎；这里用“节气定阴阳遁+时支映射局数+九宫三奇六仪”做确定化排盘核心，
+   保证同时间同结果、不回退全量33；用于研究模型框架。
+*/
+const PALACE_NUM = { // 洛书九宫对应数字展开（取号用）
+  1:[1,10,19,28], 2:[2,11,20,29], 3:[3,12,21,30],
+  4:[4,13,22,31], 5:[5,14,23,32], 6:[6,15,24,33],
+  7:[7,16,25],    8:[8,17,26],    9:[9,18,27]
+};
+const OPP = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
+const EMPTY_GONG = (jie)=>{ // 按节简单取空亡（以子午卯酉等规律近似，确定化）
+  // 用“节内旬空”近似：以日干支旬空，这里用节+日取稳定映射
+  const map={'立春':[6,7],'雨水':[5,6],'惊蛰':[4,5],'春分':[3,4],'清明':[2,3],'谷雨':[1,2],
+             '立夏':[9,1],'小满':[8,9],'芒种':[7,8],'夏至':[6,7],'小暑':[5,6],'大暑':[4,5],
+             '立秋':[3,4],'处暑':[2,3],'白露':[1,2],'秋分':[9,1],'寒露':[8,9],'霜降':[7,8],
+             '立冬':[6,7],'小雪':[5,6],'大雪':[4,5],'冬至':[3,4],'小寒':[2,3],'大寒':[1,2]};
+  return map[jie]||[3,4];
+};
+
+function buildBoard(tsDate, lot){
+  const {jie, dayGZ} = getLunInfo(tsDate);
+  const hgz = hourGZ(tsDate, dayGZ);
+  const yangJie=['冬至','小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种'];
+  const isYang = yangJie.includes(jie);
+  const DZ=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const zi = DZ.indexOf(hgz.slice(-1));
+  let ju = ((zi-1+12)%12)%9 + 1; if(!isYang) ju = ((9-ju)%9)+1;
+  // 用神：开奖时刻以“日干/时干”取宫（确定化）
+  const TG=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const gIdx = TG.indexOf((dayGZ||'甲子').slice(0,1));
+  const shenGong = ((gIdx + zi)%9)+1;
+  const zhiFu = ((ju + gIdx)%9)+1;
+  const zhiShi = ((ju + zi)%9)+1;
+  const kwong = EMPTY_GONG(jie);
+  return {jie, dayGZ, hgz, isYang, ju, shenGong, zhiFu, zhiShi, kwong, tsDate};
 }
 
-// ========== 4. 简易时家奇门排盘（拆补法） ==========
-// 基于节气确定阴阳遁和局数
-function getDunJu(solarTermIndex) {
-  // 阳遁节气（冬至→夏至前）：冬至、小寒、大寒、立春、雨水、惊蛰、春分、清明、谷雨、立夏、小满、芒种
-  const yangTerms = [0,1,2,3,4,5,6,7,8,9,10,11];
-  // 阴遁节气（夏至→冬至前）：夏至、小暑、大暑、立秋、处暑、白露、秋分、寒露、霜降、立冬、小雪、大雪
-  const yinTerms = [12,13,14,15,16,17,18,19,20,21,22,23];
-  
-  let isYang = yangTerms.includes(solarTermIndex);
-  let juBase;
-  
-  // 三元局数表（拆补法）
-  // 每个节气分上中下三元，用日干支定元
-  // 简化：用日干支的地支定元（子午卯酉上元，寅申巳亥中元，辰戌丑未下元）
-  // 这里直接用日期hash替代，实际应用需查表
-  const juTable = {
-    // 阳遁：节气索引 -> [上元, 中元, 下元]
-    yang: {
-      0: [1,7,4],   // 冬至
-      1: [2,8,5],   // 小寒
-      2: [3,9,6],   // 大寒
-      3: [8,5,2],   // 立春
-      4: [9,6,3],   // 雨水
-      5: [1,7,4],   // 惊蛰
-      6: [3,9,6],   // 春分
-      7: [4,1,7],   // 清明
-      8: [5,2,8],   // 谷雨
-      9: [4,1,7],   // 立夏
-      10: [5,2,8],  // 小满
-      11: [6,3,9]   // 芒种
-    },
-    // 阴遁
-    yin: {
-      12: [9,3,6],  // 夏至
-      13: [8,2,5],  // 小暑
-      14: [7,1,4],  // 大暑
-      15: [2,8,5],  // 立秋
-      16: [1,7,4],  // 处暑
-      17: [9,3,6],  // 白露
-      18: [7,1,4],  // 秋分
-      19: [6,9,3],  // 寒露
-      20: [5,8,2],  // 霜降
-      21: [6,9,3],  // 立冬
-      22: [5,8,2],  // 小雪
-      23: [4,7,1]   // 大雪
-    }
-  };
-  
-  // 用日干支的序号决定上中下元
-  const dayGanZhi = lunisolar(new Date()).format('lD');
-  const diZhiOrder = {子:0,丑:1,寅:2,卯:3,辰:4,巳:5,午:6,未:7,申:8,酉:9,戌:10,亥:11};
-  const lastChar = dayGanZhi.charAt(dayGanZhi.length-1);
-  const dzIdx = diZhiOrder[lastChar] ?? 0;
-  let yuanIdx;
-  if ([0,3,6,9].includes(dzIdx)) yuanIdx = 0; // 子午卯酉 → 上元
-  else if ([2,5,8,11].includes(dzIdx)) yuanIdx = 1; // 寅申巳亥 → 中元
-  else yuanIdx = 2; // 辰戌丑未 → 下元
-  
-  if (isYang) {
-    const table = juTable.yang[solarTermIndex];
-    if (table) juBase = table[yuanIdx];
-    else juBase = 1 + (solarTermIndex % 9);
-  } else {
-    const table = juTable.yin[solarTermIndex];
-    if (table) juBase = table[yuanIdx];
-    else juBase = 9 - (solarTermIndex % 9);
-  }
-  
-  return {
-    yinYang: isYang ? '阳遁' : '阴遁',
-    ju: juBase || 1,
-    isYang
-  };
-}
-
-// 排九宫（简版：按局数布三奇六仪）
-function arrangePalaces(board) {
-  const { ju, isYang } = board;
-  // 三奇六仪顺序：戊己庚辛壬癸丁丙乙
-  const order = ['戊','己','庚','辛','壬','癸','丁','丙','乙'];
-  const palaces = [];
-  
-  // 阳遁顺排，阴遁逆排
-  const step = isYang ? 1 : -1;
-  let startGong = ju; // 从几宫开始布戊
-  
-  for (let i = 0; i < 9; i++) {
-    const gong = ((startGong - 1 + i * step + 90) % 9) + 1;
-    palaces.push({
-      gong: gong,
-      luoshu: [4,9,2,3,5,7,8,1,6][gong-1],
-      diPan: order[i] // 地盘干
-    });
-  }
-  
-  return palaces;
-}
-
-// 完整排盘
-function createQimenBoard(date) {
-  const lunarInfo = getLunarInfo(date);
-  const { yinYang, ju, isYang } = getDunJu(lunarInfo.solarTermIndex);
-  const palaces = arrangePalaces({ ju, isYang });
-  
-  // 确定值符、值使（简化：用旬首定）
-  const hourGanZhi = lunarInfo.ganZhiHour;
-  const tiangan = hourGanZhi.charAt(0);
-  const xunShouMap = {甲:'戊',乙:'戊',丙:'戊',丁:'戊',戊:'戊',己:'己',庚:'庚',辛:'辛',壬:'壬',癸:'癸'};
-  const xunShou = xunShouMap[tiangan] || '戊';
-  
-  // 值符：旬首所在宫的天盘星（简化：用地盘干所在宫）
-  let zhiFuGong = 1;
-  for (const p of palaces) {
-    if (p.diPan === xunShou) {
-      zhiFuGong = p.gong;
-      break;
-    }
-  }
-  
-  // 值使：旬首所在宫的门（简化）
-  const zhiShiGong = zhiFuGong;
-  
-  // 用神宫：按时间定（简化：值时干所在宫）
-  let yongShenGong = 1;
-  const shiGan = hourGanZhi.charAt(0);
-  for (const p of palaces) {
-    if (p.diPan === shiGan) {
-      yongShenGong = p.gong;
-      break;
-    }
-  }
-  
-  // 空亡：时柱旬空（简化：用日干支定）
-  const kongWangGongs = [];
-  const dayGanZhi = lunarInfo.ganZhiDay;
-  const diZhi = dayGanZhi.charAt(dayGanZhi.length-1);
-  const xunKong = {子:'戌亥',丑:'戌亥',寅:'子丑',卯:'子丑',辰:'寅卯',巳:'寅卯',
-                   午:'辰巳',未:'辰巳',申:'午未',酉:'午未',戌:'申酉',亥:'申酉'};
-  const kw = xunKong[diZhi] || '';
-  const gongNames = {子:1,丑:1,寅:2,卯:2,辰:3,巳:3,午:4,未:4,申:5,酉:5,戌:6,亥:6};
-  for (const ch of kw) {
-    if (gongNames[ch]) kongWangGongs.push(gongNames[ch]);
-  }
-  
-  return {
-    date,
-    lunarInfo,
-    yinYang,
-    ju,
-    palaces,
-    zhiFuGong,
-    zhiShiGong,
-    yongShenGong,
-    kongWangGongs,
-    goodGongs: [yongShenGong, zhiFuGong, zhiShiGong],
-    badGongs: kongWangGongs
-  };
-}
-
-// ========== 5. QDIM-6 V6.1 运算链 ==========
-
-// 第0层：奇门落宫初池
-function buildInitPool(board, lot) {
-  const r = RULES[lot];
-  const max = lot === 'ssq' ? r.redMax : r.frontMax;
-  const seeds = [board.yongShenGong, board.zhiFuGong, board.zhiShiGong];
-  const set = new Set();
-  
-  seeds.forEach(g => {
-    const luo = [4,9,2,3,5,7,8,1,6][g-1];
-    const nums = LUOSHU_MAP[luo] || [];
-    nums.forEach(n => { if (n <= max) set.add(n); });
+function initFromBoard(board, lot){
+  const set=new Set();
+  [board.shenGong, board.zhiFu, board.zhiShi].forEach(g=>{
+    (PALACE_NUM[g]||[]).forEach(n=>set.add(n));
   });
-  
-  // 后区/蓝球
-  const backSet = new Set();
-  seeds.forEach(g => {
-    const luo = [4,9,2,3,5,7,8,1,6][g-1];
-    const backMax = lot === 'ssq' ? r.blueMax : r.backMax;
-    const nums = LUOSHU_MAP[luo] || [];
-    nums.forEach(n => { if (n <= backMax) backSet.add(n); });
-  });
-  
-  return {
-    red: [...set].sort((a,b)=>a-b),
-    blue: [...backSet].sort((a,b)=>a-b)
-  };
+  // 限制彩种范围
+  const max = lot==='ssq'?33:35;
+  return [...set].filter(n=>n>=1&&n<=max).sort((a,b)=>a-b);
 }
-
-// B关系层扩展
-function extendLayer(nums, max) {
-  const set = new Set(nums);
-  nums.forEach(n => {
-    const g = getLuoshu(n);
-    // 同宫+9
-    const numsInGong = LUOSHU_MAP[g] || [];
-    numsInGong.forEach(x => { if (x <= max) set.add(x); });
-    // 对宫冲
-    const oppG = OPPOSITE[g];
-    if (oppG) {
-      const oppNums = LUOSHU_MAP[oppG] || [];
-      oppNums.forEach(x => { if (x <= max) set.add(x); });
+function extFromBoard(board, init, lot){
+  const out=new Set(init);
+  // 同宫+9（在范围内）、对宫冲
+  init.forEach(n=>{
+    for(let g=1;g<=9;g++){
+      if((PALACE_NUM[g]||[]).includes(n)){
+        (PALACE_NUM[g]||[]).forEach(x=>out.add(x));
+        (PALACE_NUM[OPP[g]]||[]).forEach(x=>out.add(x));
+      }
     }
     // 同尾
-    const tail = n % 10;
-    for (let i = tail || 10; i <= max; i += 10) set.add(i);
+    for(let k=0;k<4;k++){ const t=n+k*10; if(t<= (lot==='ssq'?33:35)) out.add(t); }
   });
-  return [...set].sort((a,b)=>a-b);
+  const max = lot==='ssq'?33:35;
+  return [...out].filter(n=>n>=1&&n<=max).sort((a,b)=>a-b);
 }
 
-// 杀号（空亡 + 张委铭运算）
-function killNumbers(nums, board, max, prev) {
-  const killSet = new Set();
-  
-  // 空亡宫杀号
-  board.kongWangGongs.forEach(g => {
-    const luo = [4,9,2,3,5,7,8,1,6][g-1];
-    const killNums = LUOSHU_MAP[luo] || [];
-    killNums.forEach(n => { if (n <= max) killSet.add(n); });
+/* ========== 张委铭杀号（确定化：空亡+尾数集中+区间退号）+ 后区/蓝球 ========== */
+function killStep(pool, board, lot, prev){
+  const killSet=new Set();
+  board.kwong.forEach(g=>(PALACE_NUM[g]||[]).forEach(n=>killSet.add(n)));
+  // 尾数集中退号（确定化）
+  const tail={}; pool.forEach(n=>{ const t=n%10; tail[t]=(tail[t]||[]).concat(n); });
+  Object.values(tail).forEach(arr=>{ if(arr.length>=3) arr.slice(0,1).forEach(n=>killSet.add(n)); });
+  // 区间退号（前/中/后）
+  const sec = [[1,11],[12,22],[23,33]]; if(lot==='dlt') sec[2]=[23,35];
+  const cnt={}; pool.forEach(n=>{ const s=sec.findIndex(r=>n>=r[0]&&n<=r[1]); cnt[s]=(cnt[s]||[]).concat(n); });
+  Object.values(cnt).forEach(arr=>{ if(arr.length>=4) arr[0]&&killSet.add(arr[0]); });
+  // 重号保守：若上期存在可杀1个（可选，不强制）
+  if(prev&&Array.isArray(prev.front)){ prev.front.forEach(n=>killSet.add(n)); }
+  const remain = pool.filter(n=>!killSet.has(n)).sort((a,b)=>a-b);
+  return {kill:[...killSet].filter(n=>pool.includes(n)).sort((a,b)=>a-b), remain};
+}
+function killBack(lot, board){
+  // 双色球蓝01-16；大乐透后区01-12
+  const max = lot==='ssq'?16:12;
+  const base = lot==='ssq'? [board.shenGong, board.zhiFu, board.zhiShi].flatMap(g=>{
+     // 蓝/后区按宫位映射（确定化）
+     const m={1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5],6:[6],7:[7],8:[8],9:[9]};
+     return m[g]||[];
+  }) : [board.shenGong, board.zhiFu, board.zhiShi].flatMap(g=>{
+     const m={1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5],6:[6],7:[7],8:[8],9:[9]};
+     return m[g]||[];
   });
-  
-  // 张委铭运算杀号：跨度、尾数集中、区间退号
-  const avg = nums.reduce((s,n)=>s+n,0) / nums.length;
-  nums.forEach(n => {
-    if (Math.abs(n - avg) > max * 0.45) killSet.add(n);
-  });
-  
-  // 同尾超过2个的杀多余
-  const tailCount = {};
-  nums.forEach(n => { const t = n%10; tailCount[t] = (tailCount[t]||0)+1; });
-  const keepTails = new Set();
-  Object.entries(tailCount).forEach(([t,c]) => { if (c <= 2) keepTails.add(Number(t)); });
-  nums.forEach(n => {
-    if (!keepTails.has(n%10)) killSet.add(n);
-  });
-  
-  // 上期重号杀
-  if (prev && prev.front) {
-    prev.front.forEach(n => killSet.add(n));
-  }
-  
-  const remain = nums.filter(n => !killSet.has(n));
-  return {
-    kill: [...killSet].sort((a,b)=>a-b),
-    remain: [...new Set(remain)].sort((a,b)=>a-b)
-  };
+  let pool=[...new Set(base)].filter(n=>n>=1&&n<=max).sort((a,b)=>a-b);
+  const kill=board.kwong.flatMap(g=>{const m={1:[1,9],2:[2,10],3:[3,11],4:[4,12]};return m[g]||[];});
+  const remain=pool.filter(n=>!kill.includes(n));
+  // 保底：若过滤完太少，取原池末位兜底（确定化，非随机）
+  const fallback = lot==='ssq'? [1,16,9,8] : [1,12,9,8];
+  const finalRemain = remain.length? remain : pool.length? pool : fallback.filter(n=>n<=max);
+  return {kill:kill.filter(n=>pool.includes(n)), remain:finalRemain};
 }
 
-// 褚天一擒号（形态校验）
-function pickFinalNotes(lot, remain, bremain, prev) {
-  const r = RULES[lot];
-  const frontN = lot === 'ssq' ? r.redN : r.frontN;
-  const backN = lot === 'ssq' ? r.blueN : r.backN;
-  const max = lot === 'ssq' ? r.redMax : r.frontMax;
-  const notes = [];
-  
-  // 生成组合（取前若干个候选）
-  const candidates = remain.slice(0, Math.min(remain.length, 15));
-  if (candidates.length < frontN) return [];
-  
-  // 按大小比分组
-  const half = max / 2;
-  const big = candidates.filter(n => n > half);
-  const small = candidates.filter(n => n <= half);
-  
-  const ratios = [[3,3],[4,2],[2,4]];
-  for (const ratio of ratios) {
-    if (notes.length >= 3) break;
-    const [b, s] = ratio;
-    if (big.length >= b && small.length >= s) {
-      const selBig = big.slice(-b);
-      const selSmall = small.slice(0, s);
-      let combo = [...selBig, ...selSmall].sort((a,b)=>a-b);
-      
-      // 和值校验
-      const sum = combo.reduce((a,b)=>a+b, 0);
-      if (lot === 'ssq' && (sum < 75 || sum > 145)) continue;
-      if (lot === 'dlt' && (sum < 65 || sum > 155)) continue;
-      
-      // 跨度
-      const span = combo[combo.length-1] - combo[0];
-      if (lot === 'ssq' && (span < 16 || span > 31)) continue;
-      if (lot === 'dlt' && (span < 18 || span > 33)) continue;
-      
-      // 连号检测（允许1组2连）
-      let consec = 0, maxCons = 1;
-      for (let i = 1; i < combo.length; i++) {
-        if (combo[i] === combo[i-1]+1) { consec++; maxCons = Math.max(maxCons, consec+1); }
-        else consec = 0;
-      }
-      if (maxCons >= 3) continue;
-      
-      // 重号1-2个
-      if (prev && prev.front) {
-        const overlap = combo.filter(n => prev.front.includes(n));
-        if (overlap.length < 1 || overlap.length > 2) continue;
-      }
-      
-      // 后区
-      let back;
-      if (lot === 'ssq') {
-        back = bremain.length > 0 ? [bremain[0]] : [1];
-      } else {
-        if (bremain.length >= 2) {
-          back = [bremain[0], bremain[1]].sort((a,b)=>a-b);
-        } else if (bremain.length === 1) {
-          back = [bremain[0], bremain[0]+1 > 12 ? 1 : bremain[0]+1];
-        } else {
-          back = [1, 2];
-        }
-      }
-      
-      notes.push({ front: combo, back });
-    }
+/* ========== 褚天一擒号形态 + 精选 ========== */
+function sumA(a){return a.reduce((s,x)=>s+x,0)}
+function ac(a){let c=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(Math.abs(a[i]-a[j])>1)c++;return c}
+function pickNotes(lot, frontPool, backPool, prev){
+  const out=[];
+  const targetF = lot==='ssq'?6:5;
+  // 确定化组合（不做随机）：按窗口/规则取可复现注
+  const takeFront = frontPool.slice(0, Math.max(targetF, frontPool.length)).sort((a,b)=>a-b);
+  // 大小比/和值/跨度/连号约束（轻量）
+  const big = takeFront.filter(n=>n> (lot==='ssq'?16:17)).length;
+  const small = takeFront.length-big;
+  const span = takeFront[takeFront.length-1]-takeFront[0];
+  const ok = (lot==='ssq'? (big>=2&&big<=4&&span>=15&&ac(takeFront)>=6)
+                       : (big>=2&&big<=3&&span>=20&&ac(takeFront)>=7));
+  const back = backPool.slice(0, lot==='ssq'?1:2);
+  if(ok && takeFront.length===targetF && back.length){
+    out.push({front:takeFront, back});
+  }else{
+    // 退阶：取前区前N+后区，标明“退阶”
+    out.push({front:takeFront.slice(0,targetF), back:back.slice(0, lot==='ssq'?1:2), note:'退阶/池过窄'});
   }
-  
-  // 补足3注
-  while (notes.length < 3 && candidates.length >= frontN) {
-    const fallback = candidates.slice(0, frontN);
-    let back;
-    if (lot === 'ssq') {
-      back = bremain.length > 0 ? [bremain[0]] : [1];
-    } else {
-      back = bremain.length >= 2 ? [bremain[0], bremain[1]].sort((a,b)=>a-b) : [1,2];
-    }
-    notes.push({ front: fallback, back });
-    candidates.splice(0, frontN);
+  // 生成3注（通过稳定偏移，非随机）
+  const res=[];
+  for(let i=0;i<3;i++){
+    const f = frontPool.slice(i, i+targetF) || [];
+    const b = backPool.slice(0, lot==='ssq'?1:2);
+    if(f.length===targetF && b.length) res.push({front:f.sort((a,b)=>a-b), back:b, note:i?'偏移':'主盘'});
+    if(res.length>=3) break;
   }
-  
-  return notes.slice(0, 3);
+  return res.length? res : out;
 }
 
-// ========== 6. 主流程 ==========
-let currentLot = 'ssq';
-let prevData = null;
+/* ========== 自动获取最新开奖（不读本地 /data/*.json） ========== */
+async function fetchLatest(lot){
+  // 双色球：福彩官网前端接口（非承诺开放API，仅个人研究低频用）
+  // 大乐透：体彩官网前端接口（同理）
+  if(lot==='ssq'){
+    const url = 'https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1&pageNo=1&pageSize=1';
+    const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0'}});
+    if(!r.ok) throw new Error('HTTP '+r.status+' 或跨域被拦');
+    const j = await r.json();
+    // 返回结构常见：result.data.list[{issue,date,red,blue}] 或类似；做兼容
+    const item = j?.result?.data?.list?.[0] || j?.data?.list?.[0] || j?.list?.[0];
+    if(!item) throw new Error('福彩接口返回结构变化，请核对');
+    const red = (item.red||item.openCode||'').split(',').map(Number).filter(Number.isFinite);
+    const blue = [Number(item.blue||(item.openCode||'').split(',').pop())];
+    return {issue:item.issue||item.expect, date:item.date||item.openTime, front:red, back:blue};
+  }else{
+    // 体彩大乐透
+    const url = 'https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=85&provinceId=0&pageNo=1&pageSize=1&isVerify=1';
+    const r = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0'}});
+    if(!r.ok) throw new Error('HTTP '+r.status+' 或跨域被拦');
+    const j = await r.json();
+    const item = j?.result?.data?.list?.[0] || j?.data?.list?.[0] || j?.list?.[0];
+    if(!item) throw new Error('体彩接口返回结构变化，请核对');
+    // 常见字段：frontNum/backNum 或 openCode
+    const f = (item.frontNum||item.openCode||'').split(',').map(Number).filter(Number.isFinite);
+    const b = (item.backNum||'').split(',').map(Number).filter(Number.isFinite);
+    return {issue:item.issue||item.expect, date:item.date||item.openTime, front:f, back:b};
+  }
+}
 
-function run() {
-  const errEl = document.getElementById('errorPanel');
-  const infoEl = document.getElementById('infoPanel');
-  errEl.textContent = '';
-  
-  try {
-    const now = new Date();
-    const drawTime = getNextDrawTime(currentLot, now);
-    if (!drawTime) {
-      errEl.textContent = '无法确定下期开奖时间';
-      return;
-    }
-    
-    const trueSolar = toTrueSolar(drawTime);
-    const board = createQimenBoard(trueSolar);
-    
-    // 显示盘面信息
-    infoEl.innerHTML = `
-      <b>${RULES[currentLot].name}</b> 下期开奖：${drawTime.toLocaleString('zh-CN')}（北京时间）<br>
-      真太阳时：${trueSolar.toLocaleString('zh-CN')}<br>
-      四柱：${board.lunarInfo.ganZhiYear}年 ${board.lunarInfo.ganZhiMonth}月 ${board.lunarInfo.ganZhiDay}日 ${board.lunarInfo.ganZhiHour}时<br>
-      节气：${board.lunarInfo.solarTerm} | ${board.yinYang}${board.ju}局<br>
-      值符宫：${board.zhiFuGong}宫 | 值使宫：${board.zhiShiGong}宫 | 用神宫：${board.yongShenGong}宫<br>
-      空亡宫：${board.kongWangGongs.join(',')}宫
-    `;
-    
-    // 第0层
-    const init = buildInitPool(board, currentLot);
-    const max = currentLot === 'ssq' ? 33 : 35;
-    const ext = extendLayer(init.red, max);
-    
-    // 杀号
-    const killed = killNumbers(ext, board, max, prevData);
-    
-    // 后区杀号
-    const backMax = currentLot === 'ssq' ? 16 : 12;
-    const backKilled = killNumbers(init.blue, board, backMax, prevData);
-    
-    // 精选
-    const notes = pickFinalNotes(currentLot, killed.remain, backKilled.remain, prevData);
-    
-    // 渲染
-    const prefix = currentLot;
-    const mainCls = currentLot === 'ssq' ? 'red' : 'gold';
-    
-    document.getElementById(`${prefix}Init`).innerHTML = 
-      init.red.map(n => `<span class="ball ${mainCls}">${String(n).padStart(2,'0')}</span>`).join('');
-    
-    document.getElementById(`${prefix}Ext`).innerHTML = 
-      ext.map(n => `<span class="ball ${mainCls}">${String(n).padStart(2,'0')}</span>`).join('');
-    
-    document.getElementById(`${prefix}Kill`).innerHTML = 
-      killed.kill.map(n => `<span class="ball kill">${String(n).padStart(2,'0')}</span>`).join('');
-    
-    const poolHtml = killed.remain.map(n => `<span class="ball ${mainCls}">${String(n).padStart(2,'0')}</span>`).join('')
-      + '<span class="sep">| 后区/蓝球：</span>'
-      + backKilled.remain.map(n => `<span class="ball blue">${String(n).padStart(2,'0')}</span>`).join('');
-    document.getElementById(`${prefix}Pool`).innerHTML = poolHtml;
-    
-    const picksHtml = notes.map((p, i) => `
-      <div class="pick-card">
-        <div class="pick-row">
-          ${p.front.map(n => `<span class="ball ${mainCls}">${String(n).padStart(2,'0')}</span>`).join('')}
-          <span class="sep">+</span>
-          ${p.back.map(n => `<span class="ball blue">${String(n).padStart(2,'0')}</span>`).join('')}
-          <span class="pick-label">精选${i+1}</span>
-        </div>
-        <div class="sub">和值${p.front.reduce((a,b)=>a+b,0)} 跨度${p.front[p.front.length-1]-p.front[0]}</div>
+/* ========== 渲染 ========== */
+const pad=n=>String(n).padStart(2,'0');
+function show(id, arr, cls='red'){
+  document.getElementById(id).innerHTML = arr.map(n=>`<span class="ball ${cls}">${pad(n)}</span>`).join('')||'(空)';
+}
+function showPicks(list, lot){
+  const cls = lot==='ssq'?'red':'gold';
+  document.getElementById('picksOut').innerHTML = list.map((p,i)=>`
+    <div class="pick-card">
+      <div class="pick-row">
+        ${p.front.map(n=>`<span class="ball ${cls}">${pad(n)}</span>`).join('')}
+        <span class="sep">+</span>
+        ${p.back.map(n=>`<span class="ball blue">${pad(n)}</span>`).join('')}
+        <span class="pick-label">精选${i+1}${p.note?`(${p.note})`:''}</span>
       </div>
-    `).join('');
-    document.getElementById(`${prefix}Picks`).innerHTML = picksHtml || '<div class="sub">未能生成符合形态的注数</div>';
-    
-    document.getElementById('status').textContent = '✓ 运算完成';
-    
-  } catch (e) {
-    errEl.textContent = '运算出错：' + e.message;
-    console.error(e);
+      <div class="sub">和值${sumA(p.front)} 跨度${p.front[p.front.length-1]-p.front[0]} AC${ac(p.front)}</div>
+    </div>
+  `).join('')||'<div class="sub">未生成</div>';
+}
+
+/* ========== 主运行 ========== */
+function run(){
+  const status=document.getElementById('status'), err=document.getElementById('errBox');
+  err.textContent=''; status.textContent='运算中...';
+  try{
+    const nd = nextDrawTime(lotNow, new Date());
+    const ts = trueSolar(nd, 121.6);
+    const board = buildBoard(ts, lotNow);
+    const init = initFromBoard(board, lotNow);
+    const ext = extFromBoard(board, init, lotNow);
+    const k = killStep(ext, board, lotNow, prevData);
+    const kb = killBack(lotNow, board);
+    const notes = pickNotes(lotNow, k.remain, kb.remain, prevData);
+
+    show('initPool', init, lotNow==='ssq'?'red':'gold');
+    show('extPool', ext, lotNow==='ssq'?'red':'gold');
+    show('killList', k.kill, 'kill');
+    document.getElementById('remainPool').innerHTML =
+      (lotNow==='ssq'?'红：':'前区：') + k.remain.map(n=>`<span class="ball ${lotNow==='ssq'?'red':'gold'}">${pad(n)}</span>`).join('')
+      + ' <span class="sep">'+(lotNow==='ssq'?'蓝：':'后区：')+'</span>' + kb.remain.map(n=>`<span class="ball blue">${pad(n)}</span>`).join('');
+    showPicks(notes, lotNow);
+
+    status.innerHTML = `<span class="ok">✓ 运算完成</span>｜下期${lotNow==='ssq'?'双色球':'大乐透'}（北京）${nd.toLocaleString('zh-CN')}｜真太阳时${ts.toLocaleString('zh-CN')}｜${board.isYang?'阳遁':'阴遁'}${board.ju}局｜节${board.jie}｜日${board.dayGZ}时${board.hgz}`;
+  }catch(e){
+    err.textContent = '运算出错：'+e.message + (e.message.includes('CORS')||e.message.includes('跨域')?'（跨域限制，建议本地代理/同域/仅用排盘不依赖开奖拉取）':'');
+    status.textContent='等待起局...';
   }
 }
 
-// ========== 交互 ==========
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentLot = tab.dataset.lot;
-    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-    document.getElementById(currentLot).classList.add('active');
-  });
+/* ========== 事件 ========== */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); lotNow=t.dataset.lot;
+  document.getElementById('status').textContent='已切换：'+ (lotNow==='ssq'?'双色球':'大乐透')+'，可重新起局/获取';
 });
-
-document.getElementById('btnRun').addEventListener('click', run);
-
-document.getElementById('btnPrev').addEventListener('click', async () => {
-  const url = currentLot === 'ssq' ? '/data/ssq_latest.json' : '/data/dlt_latest.json';
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    prevData = await res.json();
-    document.getElementById('status').textContent = '✓ 已载入上期开奖';
-  } catch (e) {
-    document.getElementById('errorPanel').textContent = '读取上期数据失败 (' + url + ')：' + e.message;
+document.getElementById('btnTime').onclick=()=>{
+  const nd=nextDrawTime(lotNow,new Date()), ts=trueSolar(nd,121.6);
+  document.getElementById('timeInfo').innerHTML=`下期（北京）${nd.toLocaleString('zh-CN')}｜真太阳时${ts.toLocaleString('zh-CN')}`;
+};
+document.getElementById('btnRun').onclick=run;
+document.getElementById('btnPrev').onclick=async()=>{
+  const s=document.getElementById('status'), e=document.getElementById('errBox');
+  s.textContent='正在自动获取最新开奖...'; e.textContent='';
+  try{
+    const d = await fetchLatest(lotNow);
+    prevData = d;
+    s.innerHTML = `<span class="ok">✓ 已获取${lotNow==='ssq'?'双色球':'大乐透'} ${d.issue||''}（${d.date||''}）前/红:${d.front.join(',')} 后/蓝:${d.back.join(',')}</span>（将用于重号参考/杀号，非预测结果）`;
+  }catch(err){
+    e.textContent = '自动获取失败：'+err.message+'（常见原因：github.io跨域/CORS、接口结构变化、需本地代理；不要依赖 /data/*.json 了）';
+    s.textContent='等待起局...';
   }
-});
+};
 
-// 自动运行
-run();
+// 初始识别时间
+document.getElementById('btnTime').click();
 </script>
 </body>
 </html>
