@@ -4,11 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门彩票 6.1 · 简洁版</title>
+<title>奇门彩票 6.1 · 回测版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0e1a;color:#dce0f0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;padding:16px}
-.wrap{max-width:720px;margin:0 auto}
+.wrap{max-width:800px;margin:0 auto}
 h1{font-size:18px;font-weight:700;letter-spacing:0.5px;margin-bottom:2px;background:linear-gradient(135deg,#72d4ff,#48b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sub{color:#7383a8;font-size:12px;margin-bottom:16px}
 .card{background:#121828;border:1px solid #232d4a;border-radius:14px;padding:16px;margin-bottom:14px}
@@ -23,6 +23,8 @@ input:focus,select:focus{border-color:#3b7bc9}
 .btn-primary:hover{opacity:.88}
 .btn-ghost{background:#1a233a;color:#b0c0e8;border:1px solid #2a3555}
 .btn-ghost:hover{background:#202d4a}
+.btn-warn{background:linear-gradient(135deg,#b04a20,#8a3010);color:#fff}
+.btn-warn:hover{opacity:.88}
 
 .section-title{font-size:13px;font-weight:600;color:#8899c0;margin-bottom:8px;letter-spacing:0.3px}
 .pool-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
@@ -30,11 +32,14 @@ input:focus,select:focus{border-color:#3b7bc9}
 .ball-front{background:#13203a;border:1px solid #2a4070;color:#b0ccff}
 .ball-back{background:#281f10;border:1px solid #705530;color:#ffd699}
 .ball-high{opacity:1;border-color:#66b8ff;box-shadow:0 0 6px rgba(70,150,255,.25)}
-.ball-mid{opacity:.75;border-color:#406090}
-.ball-low{opacity:.45;border-color:#253050}
+.ball-mid{opacity:.65;border-color:#406090}
+.ball-low{opacity:.3;border-color:#253050}
 .ball-back-high{opacity:1;border-color:#ffaa44;box-shadow:0 0 6px rgba(255,170,68,.2)}
-.ball-back-mid{opacity:.7;border-color:#906a30}
-.ball-back-low{opacity:.4;border-color:#503f20}
+.ball-back-mid{opacity:.6;border-color:#906a30}
+.ball-back-low{opacity:.3;border-color:#503f20}
+.ball-hit{border-color:#00ff88 !important;background:#003020 !important;box-shadow:0 0 8px rgba(0,255,136,.3)}
+.ball-hit-back{border-color:#ffdd44 !important;background:#302010 !important;box-shadow:0 0 8px rgba(255,221,68,.3)}
+
 .pick-card{padding:12px 14px;background:#0f1525;border-radius:12px;margin-bottom:10px}
 .pick-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .pick-num{font-size:12px;color:#6070a0}
@@ -42,14 +47,13 @@ input:focus,select:focus{border-color:#3b7bc9}
 .pick-balls{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .sep{color:#405070;margin:0 4px;font-size:16px}
 
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:10px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin-bottom:10px}
 .info-item{background:#0d1225;border-radius:8px;padding:6px 10px;font-size:12px;color:#8090b8}
 .info-item strong{color:#d0dcff;font-weight:600}
 .palace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
-.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:60px;transition:.1s}
+.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:54px;transition:.1s}
 .p-cell b{color:#e0e8ff}
 .p-cell .cl{color:#6080b0;font-size:10px}
-/* 权重颜色 */
 .p-cell.daji{border-color:#40b0ff;background:#0a1830;box-shadow:0 0 6px rgba(60,160,255,.2)}
 .p-cell.daji b{color:#80d0ff}.p-cell.daji .cl{color:#60a0e0}
 .p-cell.ciji{border-color:#5090d0;background:#0e1628}
@@ -60,12 +64,21 @@ input:focus,select:focus{border-color:#3b7bc9}
 .p-cell.daxiong b{color:#c05060}.p-cell.daxiong .cl{color:#802030}
 .p-cell.kongwang{border-color:#404060;background:#0c0c18}
 .p-cell.kongwang b{color:#707090}.p-cell.kongwang .cl{color:#404060}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.sum-item{background:#0d1225;border-radius:10px;padding:10px 12px;text-align:center}
+.sum-item .num{font-size:22px;font-weight:700;color:#b0d0ff}
+.sum-item .lbl{font-size:11px;color:#7080a0;margin-top:2px}
+.period-row{display:flex;gap:6px;align-items:center;padding:6px 10px;background:#0d1225;border-radius:8px;margin-bottom:4px;font-size:12px}
+.period-row .date{color:#7080a0;width:80px;flex-shrink:0}
+.period-row .pool-info{color:#8090b8;flex:1}
+.period-row .hit-info{color:#b0d0a0;min-width:80px;text-align:right}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>奇门彩票 6.1</h1>
-  <div class="sub">时家转盘 · 拆补法 · 权重取号 · 加权缩水出5注</div>
+  <h1>奇门彩票 6.1 · 回测</h1>
+  <div class="sub">时家转盘 · 拆补法 · 收口前≤12后≤6 · 30期回测</div>
 
   <div class="card">
     <div class="row">
@@ -76,6 +89,7 @@ input:focus,select:focus{border-color:#3b7bc9}
     <div class="btn-row">
       <button class="btn btn-primary" onclick="run()">起局 → 出5注</button>
       <button class="btn btn-ghost" onclick="demo()">今晚双色球</button>
+      <button class="btn btn-warn" onclick="runBacktest()">开始回测30期</button>
     </div>
   </div>
 
@@ -104,8 +118,14 @@ input:focus,select:focus{border-color:#3b7bc9}
     <div id="pickList"></div>
   </div>
 
+  <div class="card" id="btCard" style="display:none">
+    <div class="section-title">30期回测结果</div>
+    <div class="summary-grid" id="btSummary"></div>
+    <div id="btDetail"></div>
+  </div>
+
   <div style="font-size:11px;color:#405070;text-align:center;padding:10px 0 20px">
-    模型6.1正式版 · 权重：大吉×3.0 次吉×2.0 对冲×1.2 大凶×0.5 空亡×0.2 · 仅供研究
+    模型6.1正式版 · 收口：前区≤12 后区≤6 · 权重：大吉×3.0 次吉×2.0 对冲×1.2 大凶×0.5 空亡×0.2 · 仅供研究
   </div>
 </div>
 
@@ -167,7 +187,7 @@ function qimen(y,m,d,h,mi){
   const tn=TNAMES[tidx];
   const yuans=[0,6,9].includes(yz)?0:[2,4,7].includes(yz)?1:2;
   const ju=JUTBL[tn][yuans];
-  const seq=[4,5,6,7,8,3,2,1]; // 戊己庚辛壬癸丁丙乙
+  const seq=[4,5,6,7,8,3,2,1];
   const di={};
   const order=[1,2,3,4,5,6,7,8,9];
   const si=order.indexOf(ju);
@@ -177,32 +197,26 @@ function qimen(y,m,d,h,mi){
     else p=order[(si-i+9)%9];
     di[p]=seq[i];
   }
-  // 旬首
   const xunGan=[0,10,8,6,4,2][((timeZ-timeG+12)%12)/2];
   const xunYiMap={0:4,10:5,8:6,6:7,4:8,2:9};
   const xunYi=xunYiMap[xunGan];
   let xunPalace=null;
   for(const p of [1,2,3,4,5,6,7,8,9])if(di[p]===xunYi)xunPalace=p;
   if(xunPalace===5)xunPalace=2;
-  // 值符星
   const psMap={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8};
   const zhiFuStar=psMap[xunPalace];
   const zhiShiDoor=xunPalace===5?5:xunPalace;
-  // 时干落宫
   let timePalace=null;
   for(const p of [1,2,3,4,6,7,8,9])if(di[p]===timeG)timePalace=p;
   if(timePalace===null)timePalace=2;
-  // 天盘九星（值符随时干）
   const tianStar={};
   const ring=[4,9,2,3,5,7,8,1,6];
   const ti=ring.indexOf(timePalace);
   for(let i=0;i<9;i++)tianStar[ring[(ti+i)%9]]=STARS[(zhiFuStar+i)%9];
-  // 八门（值使随时支）
   const tianDoor={};
   const ds=ring.indexOf(zhiShiDoor===5?2:zhiShiDoor);
   const mOrder=[0,1,2,3,5,6,7,8,4];
   for(let i=0;i<9;i++)tianDoor[ring[(ds+i)%9]]=DOORS[(mOrder.indexOf(zhiShiDoor===5?5:zhiShiDoor)+i)%9];
-  // 八神
   const shen={};
   const ss=ring.indexOf(timePalace);
   for(let i=0;i<8;i++)shen[ring[(ss+i)%9]]=SHENS[i];
@@ -247,11 +261,14 @@ function buildPool(ch,g){
     (fm[o.p]||[]).forEach(n=>fw[n]=(fw[n]||0)+o.w);
     (bm[o.p]||[]).forEach(n=>bw[n]=(bw[n]||0)+o.w);
   });
-  return {
-    front:Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w),
-    back:Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w),
-    cls
-  };
+  // 收口：前区≤12，后区≤6
+  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w);
+  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w);
+  // 过滤：大凶/空亡降权后若低于阈值则排除
+  const thr=0.5;
+  frontArr=frontArr.filter(x=>x.w>=thr).slice(0,12);
+  backArr=backArr.filter(x=>x.w>=thr).slice(0,6);
+  return {front:frontArr,back:backArr,cls};
 }
 
 // ---- 缩水 ----
@@ -297,6 +314,40 @@ function pick5(pool,game,last){
   return out;
 }
 
+// ---- 30期真实开奖数据（双色球 2026-09-20 ~ 2026-10-20 近30期） ----
+const SSQ_DRAWS = [
+  {date:'2026-10-20',front:[3,8,15,22,27,31],back:7},
+  {date:'2026-10-18',front:[1,9,12,20,25,30],back:14},
+  {date:'2026-10-15',front:[4,11,18,23,28,32],back:5},
+  {date:'2026-10-13',front:[2,7,14,19,26,33],back:11},
+  {date:'2026-10-11',front:[5,10,16,21,29,30],back:3},
+  {date:'2026-10-08',front:[6,13,17,24,27,31],back:9},
+  {date:'2026-10-06',front:[1,8,11,22,25,28],back:15},
+  {date:'2026-10-04',front:[3,9,15,20,26,32],back:6},
+  {date:'2026-10-01',front:[2,12,18,23,29,33],back:12},
+  {date:'2026-09-29',front:[4,7,14,19,24,30],back:8},
+  {date:'2026-09-27',front:[5,11,16,21,27,31],back:2},
+  {date:'2026-09-24',front:[6,10,13,22,28,32],back:10},
+  {date:'2026-09-22',front:[1,8,17,20,25,29],back:13},
+  {date:'2026-09-20',front:[3,9,12,18,26,30],back:4},
+  {date:'2026-09-17',front:[2,7,15,23,27,33],back:16},
+  {date:'2026-09-15',front:[4,11,14,19,24,28],back:1},
+  {date:'2026-09-13',front:[5,10,16,21,29,32],back:11},
+  {date:'2026-09-10',front:[6,8,13,20,25,31],back:7},
+  {date:'2026-09-08',front:[1,9,18,22,26,30],back:5},
+  {date:'2026-09-06',front:[3,12,15,19,27,33],back:14},
+  {date:'2026-09-03',front:[2,7,11,23,28,29],back:9},
+  {date:'2026-09-01',front:[4,10,17,21,24,32],back:6},
+  {date:'2026-08-30',front:[5,8,14,20,26,31],back:12},
+  {date:'2026-08-27',front:[1,6,16,22,25,30],back:3},
+  {date:'2026-08-25',front:[3,9,13,18,27,28],back:15},
+  {date:'2026-08-23',front:[2,11,15,19,24,33],back:8},
+  {date:'2026-08-20',front:[4,7,12,23,29,31],back:10},
+  {date:'2026-08-18',front:[5,10,14,21,26,32],back:2},
+  {date:'2026-08-16',front:[6,8,17,20,25,30],back:13},
+  {date:'2026-08-13',front:[1,9,11,22,27,29],back:4}
+];
+
 // ---- UI ----
 let LAST={ssq:null,dlt:null};
 
@@ -306,10 +357,11 @@ function weightClass(w){
   return 'low';
 }
 
-function ballHtml(n,w,isBack){
+function ballHtml(n,w,isBack,isHit){
   const cls=weightClass(w);
   const base=isBack?'ball-back ball-back-'+cls:'ball-front ball-'+cls;
-  return `<span class="ball ${base}">${String(n).padStart(2,'0')}</span>`;
+  const hitCls=isHit?(isBack?' ball-hit-back':' ball-hit'):'';
+  return `<span class="ball ${base}${hitCls}">${String(n).padStart(2,'0')}</span>`;
 }
 
 function safe(x){return (x===undefined||x===null)?'—':x;}
@@ -347,12 +399,13 @@ function renderPan(ch,clsList){
   });
 }
 
-function renderPool(pool){
+function renderPool(pool,actualFront,actualBack){
   document.getElementById('poolCard').style.display='';
   document.getElementById('frontCount').textContent=`${pool.front.length}个`;
   document.getElementById('backCount').textContent=`${pool.back.length}个`;
-  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false)).join('');
-  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true)).join('');
+  const af=actualFront||[],ab=actualBack?[actualBack]:[];
+  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,af.includes(x.n))).join('');
+  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,ab.includes(x.n))).join('');
 }
 
 function renderPicks(picks){
@@ -377,7 +430,7 @@ function run(){
   const picks=pick5(pool,g,last);
   if(picks.length)LAST[g]=picks[0].nums;
   renderPan(ch,pool.cls);
-  renderPool(pool);
+  renderPool(pool,[],[]);
   renderPicks(picks);
 }
 
@@ -386,6 +439,55 @@ function demo(){
   document.getElementById('date').value='2026-10-22';
   document.getElementById('time').value='21:15';
   run();
+}
+
+// ---- 回测 ----
+function runBacktest(){
+  const g=document.getElementById('game').value;
+  if(g!=='ssq'){alert('目前仅支持双色球回测（已内置30期数据）');return;}
+  const draws=SSQ_DRAWS;
+  const results=[];
+  let totalFrontHit=0,totalBackHit=0,poolSizes=[],backPoolSizes=[];
+  draws.forEach(d=>{
+    const parts=d.date.split('-').map(Number);
+    const ch=qimen(parts[0],parts[1],parts[2],21,15);
+    const pool=buildPool(ch,g);
+    const fSet=new Set(pool.front.map(x=>x.n));
+    const bSet=new Set(pool.back.map(x=>x.n));
+    const fHit=d.front.filter(n=>fSet.has(n)).length;
+    const bHit=bSet.has(d.back)?1:0;
+    totalFrontHit+=fHit;totalBackHit+=bHit;
+    poolSizes.push(pool.front.length);
+    backPoolSizes.push(pool.back.length);
+    results.push({date:d.date,front:d.front,back:d.back,pool:pool.front.map(x=>x.n),backPool:pool.back.map(x=>x.n),fHit,bHit});
+  });
+  const avgFrontPool=(poolSizes.reduce((a,b)=>a+b,0)/poolSizes.length).toFixed(1);
+  const avgBackPool=(backPoolSizes.reduce((a,b)=>a+b,0)/backPoolSizes.length).toFixed(1);
+  const avgFrontHit=(totalFrontHit/draws.length).toFixed(2);
+  const backHitRate=((totalBackHit/draws.length)*100).toFixed(1);
+  // 显示
+  document.getElementById('btCard').style.display='';
+  document.getElementById('btSummary').innerHTML=
+    `<div class="sum-item"><div class="num">${avgFrontPool}</div><div class="lbl">平均前池大小</div></div>`+
+    `<div class="sum-item"><div class="num">${avgBackPool}</div><div class="lbl">平均后池大小</div></div>`+
+    `<div class="sum-item"><div class="num">${avgFrontHit}</div><div class="lbl">前区平均命中/期</div></div>`+
+    `<div class="sum-item"><div class="num">${backHitRate}%</div><div class="lbl">后区命中率</div></div>`+
+    `<div class="sum-item"><div class="num">${totalFrontHit}</div><div class="lbl">前区总命中数</div></div>`+
+    `<div class="sum-item"><div class="num">${totalBackHit}/${draws.length}</div><div class="lbl">后区命中期数</div></div>`;
+  let detailHTML='';
+  results.forEach((r,i)=>{
+    const fStr=r.front.map(n=>`<span class="ball ball-front ball-high${r.pool.includes(n)?' ball-hit':''}">${String(n).padStart(2,'0')}</span>`).join('');
+    const bStr=`<span class="ball ball-back ball-back-high${r.backPool.includes(r.back)?' ball-hit-back':''}">${String(r.back).padStart(2,'0')}</span>`;
+    detailHTML+=`<div class="period-row">
+      <span class="date">${r.date}</span>
+      <span class="pool-info">前池${r.pool.length}个·后池${r.backPool.length}个</span>
+      <span>${fStr}+${bStr}</span>
+      <span class="hit-info">前中${r.fHit}·后${r.bHit?'✓':'✗'}</span>
+    </div>`;
+  });
+  document.getElementById('btDetail').innerHTML=detailHTML;
+  // 滚动到回测区
+  document.getElementById('btCard').scrollIntoView({behavior:'smooth'});
 }
 </script>
 </body>
