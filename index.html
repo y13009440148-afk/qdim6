@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门彩票 V6.1 固定模型 · 修正版</title>
+<title>奇门彩票 V6.1 固定模型 · 缩水优化版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0e1a;color:#dce0f0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;padding:16px}
@@ -67,7 +67,7 @@ input:focus,select:focus{border-color:#3b7bc9}
 <body>
 <div class="wrap">
   <h1>奇门彩票 V6.1</h1>
-  <div class="sub">固定模型 · 值符四宫 + 伤门 + 值使 + 玄武/太阴 + 空亡降权 · 前≤14后≤5</div>
+  <div class="sub">固定模型 · 值符四宫 + 伤门 + 值使 + 玄武/太阴 + 空亡降权 · 前≤18后≤6（放宽）</div>
 
   <div class="card">
     <div class="row">
@@ -119,7 +119,7 @@ input:focus,select:focus{border-color:#3b7bc9}
   </div>
 
   <div style="font-size:11px;color:#405070;text-align:center;padding:10px 0 20px">
-    奇门数据迭代模型 V6.1 · 值符四宫+伤门+值使+玄武/太阴+空亡降权 · 前区≤14 后区≤5 · 仅供研究
+    奇门数据迭代模型 V6.1 · 值符四宫+伤门+值使+玄武/太阴+空亡降权 · 前区≤18 后区≤6 · 注间差异增强 · 仅供研究
   </div>
 </div>
 
@@ -285,8 +285,9 @@ function buildPoolV61(ch,g){
     (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
   });
   
-  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,14);
-  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,5);
+  // ★ 放宽：前区取18个，后区取6个
+  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,18);
+  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,6);
   
   return {
     front:frontArr,
@@ -296,7 +297,7 @@ function buildPoolV61(ch,g){
   };
 }
 
-// ---- 缩水（修正版） ----
+// ---- 缩水（放宽版） ----
 function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
 function valid6(nums,last){
   if(nums.length!==6)return false;
@@ -304,10 +305,12 @@ function valid6(nums,last){
   if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===odd&&b===6-odd))return false;
   const sm=nums.filter(x=>x<=16).length;
   if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===sm&&b===6-sm))return false;
+  // ★ 放宽和值范围 80~150
   const s=nums.reduce((a,b)=>a+b,0);
-  if(s<85||s>145)return false;
+  if(s<80||s>150)return false;
+  // ★ 放宽跨度 14~34
   const sp=Math.max(...nums)-Math.min(...nums);
-  if(sp<16||sp>32)return false;
+  if(sp<14||sp>34)return false;
   const sorted=[...nums].sort((a,b)=>a-b);
   let pair=0;for(let i=0;i<5;i++)if(sorted[i+1]-sorted[i]===1)pair++;
   if(pair>1)return false;
@@ -326,62 +329,75 @@ function combos(arr,k){
   rec(0,[]);return r;
 }
 
-// ★ 只改了这个函数：前区组合去重 + 每注配最优后区
-function pick5(pool,game,last){
-  const f=pool.front.map(x=>x.n);
-  const b=pool.back.map(x=>x.n);
-  const wm={};pool.front.forEach(x=>wm[x.n]=x.w);
-  const bm={};pool.back.forEach(x=>bm[x.n]=x.w);
+// ★ 重写 pick5：前区组合去重 + 后区错开 + 注间差异
+function pick5(pool, game, last){
+  const f = pool.front.map(x => x.n);
+  const b = pool.back.map(x => x.n);
+  const wm = {}; pool.front.forEach(x => wm[x.n] = x.w);
+  const bm = {}; pool.back.forEach(x => bm[x.n] = x.w);
 
-  // 枚举所有前区6码组合
-  const cand=combos(f,6).filter(c=>valid6(c,last));
+  // 所有合法6红组合
+  const cand = combos(f, 6).filter(c => valid6(c, last));
 
-  // 按组合权重排序
-  const scored=cand.map(c=>({
-    nums:[...c].sort((a,b)=>a-b),
-    fw:c.reduce((a,n)=>a+(wm[n]||0),0)
-  })).sort((a,b)=>b.fw-a.fw);
+  // 打分：权重 + 和值居中奖励 + 质数奖励
+  const scored = cand.map(c => {
+    const fw = c.reduce((a, n) => a + (wm[n] || 0), 0);
+    const sum = c.reduce((a,b)=>a+b,0);
+    const centerBonus = Math.abs(sum - 115) < 15 ? 0.5 : 0;
+    const primeN = c.filter(isPrime).length;
+    const primeBonus = (primeN===2||primeN===3)?0.3:0;
+    return {
+      nums: c.slice().sort((a,b)=>a-b),
+      fw,
+      score: fw + centerBonus + primeBonus,
+      sum,
+      odd: c.filter(x=>x%2).length
+    };
+  });
+  scored.sort((a,b)=>b.score - a.score);
 
-  // 前区组合去重 + 每注选权重最高的后区
-  const seenFront=new Set();
-  const out=[];
+  // 后区按权重排序（用于错开选择）
+  const backRank = b.slice().sort((x,y)=>(bm[y]||0)-(bm[x]||0));
 
-  for(const t of scored){
-    const key=t.nums.join(',');
-    if(seenFront.has(key))continue;
-    seenFront.add(key);
+  const usedBack = new Set();
+  const out = [];
+  const seenFrontKey = new Set();
 
-    // 找权重最高的后区
-    let bestBack=null;
-    let bestBackScore=-1;
-    for(const bb of b){
-      const bs=bm[bb]||0;
-      if(bs>bestBackScore){bestBackScore=bs;bestBack=bb;}
+  function frontKey(arr){ return arr.join(','); }
+  function overlap(a,b){ let s=new Set(b); return a.filter(x=>s.has(x)).length; }
+
+  // 选后区：优先未用，其次权重
+  function pickBackFor(preferRank){
+    for(const bb of preferRank){
+      if(!usedBack.has(bb)) return bb;
     }
-
-    if(bestBack!==null){
-      out.push({
-        nums:t.nums,
-        back:bestBack,
-        score:+(t.fw+bestBackScore).toFixed(2)
-      });
-    }
-
-    if(out.length>=5)break;
+    return preferRank[0];
   }
 
-  // 兜底：如果还不够5注
-  if(out.length<5){
-    for(const t of scored){
-      const key=t.nums.join(',');
-      if(seenFront.has(key))continue;
-      seenFront.add(key);
-      out.push({
-        nums:t.nums,
-        back:b[0]||1,
-        score:+(t.fw+(bm[b[0]]||0)).toFixed(2)
-      });
-      if(out.length>=5)break;
+  // 第一轮：严格限制重叠 ≤3，后区错开
+  for (const t of scored) {
+    if (out.length >= 5) break;
+    if (seenFrontKey.has(frontKey(t.nums))) continue;
+
+    const tooClose = out.some(o => overlap(t.nums, o.nums) >= 4);
+    if (tooClose) continue;
+
+    const bb = pickBackFor(backRank);
+    usedBack.add(bb);
+
+    out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+    seenFrontKey.add(frontKey(t.nums));
+  }
+
+  // 第二轮：如果不够5注，放宽重叠限制到4，但后区仍尽量不同
+  if (out.length < 5) {
+    for (const t of scored) {
+      if (out.length >= 5) break;
+      if (seenFrontKey.has(frontKey(t.nums))) continue;
+      const bb = backRank.find(x=>!usedBack.has(x)) || backRank[out.length % backRank.length];
+      usedBack.add(bb);
+      out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+      seenFrontKey.add(frontKey(t.nums));
     }
   }
 
