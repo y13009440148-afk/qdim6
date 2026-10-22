@@ -46,9 +46,20 @@ input:focus,select:focus{border-color:#3b7bc9}
 .info-item{background:#0d1225;border-radius:8px;padding:6px 10px;font-size:12px;color:#8090b8}
 .info-item strong{color:#d0dcff;font-weight:600}
 .palace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
-.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:56px}
+.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:60px;transition:.1s}
 .p-cell b{color:#e0e8ff}
 .p-cell .cl{color:#6080b0;font-size:10px}
+/* 权重颜色 */
+.p-cell.daji{border-color:#40b0ff;background:#0a1830;box-shadow:0 0 6px rgba(60,160,255,.2)}
+.p-cell.daji b{color:#80d0ff}.p-cell.daji .cl{color:#60a0e0}
+.p-cell.ciji{border-color:#5090d0;background:#0e1628}
+.p-cell.ciji b{color:#90c0f0}.p-cell.ciji .cl{color:#5080b0}
+.p-cell.duichong{border-color:#8060c0;background:#141030}
+.p-cell.duichong b{color:#b090e0}.p-cell.duichong .cl{color:#7050a0}
+.p-cell.daxiong{border-color:#803040;background:#1a0810}
+.p-cell.daxiong b{color:#c05060}.p-cell.daxiong .cl{color:#802030}
+.p-cell.kongwang{border-color:#404060;background:#0c0c18}
+.p-cell.kongwang b{color:#707090}.p-cell.kongwang .cl{color:#404060}
 </style>
 </head>
 <body>
@@ -303,7 +314,20 @@ function ballHtml(n,w,isBack){
 
 function safe(x){return (x===undefined||x===null)?'—':x;}
 
-function renderPan(ch){
+function getPalaceClass(p,clsList){
+  const item=clsList.find(o=>o.p===p);
+  if(!item)return '';
+  switch(item.c){
+    case '大吉':return 'daji';
+    case '次吉':return 'ciji';
+    case '对冲':return 'duichong';
+    case '大凶':return 'daxiong';
+    case '空亡':return 'kongwang';
+    default:return '';
+  }
+}
+
+function renderPan(ch,clsList){
   document.getElementById('panCard').style.display='';
   document.getElementById('panInfo').innerHTML=
     `<div class="info-item">${ch.y}-${ch.m}-${ch.d} ${ch.h}:${String(ch.mi).padStart(2,'0')}</div>`+
@@ -313,7 +337,7 @@ function renderPan(ch){
     `<div class="info-item">旬首宫 ${safe(ch.xunPalace)}</div>`;
   const grid=document.getElementById('palaceGrid');grid.innerHTML='';
   PORD.forEach(p=>{
-    const div=document.createElement('div');div.className='p-cell';
+    const div=document.createElement('div');div.className='p-cell '+getPalaceClass(p,clsList);
     const ganName=safe(GAN[ch.di[p]]);
     const star=safe(ch.tianStar[p]);
     const door=safe(ch.tianDoor[p]);
@@ -352,7 +376,7 @@ function run(){
   const last=LAST[g];
   const picks=pick5(pool,g,last);
   if(picks.length)LAST[g]=picks[0].nums;
-  renderPan(ch);
+  renderPan(ch,pool.cls);
   renderPool(pool);
   renderPicks(picks);
 }
