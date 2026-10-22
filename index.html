@@ -297,18 +297,18 @@ function buildPoolV61(ch,g){
   };
 }
 
-// ---- 缩水（放宽版） ----
+// ---- 缩水（放宽版）- 分游戏 ----
 function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
-function valid6(nums,last){
+
+// 双色球前区6红缩水
+function validSsq(nums,last){
   if(nums.length!==6)return false;
   const odd=nums.filter(x=>x%2).length;
   if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===odd&&b===6-odd))return false;
   const sm=nums.filter(x=>x<=16).length;
   if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===sm&&b===6-sm))return false;
-  // ★ 放宽和值范围 80~150
   const s=nums.reduce((a,b)=>a+b,0);
   if(s<80||s>150)return false;
-  // ★ 放宽跨度 14~34
   const sp=Math.max(...nums)-Math.min(...nums);
   if(sp<14||sp>34)return false;
   const sorted=[...nums].sort((a,b)=>a-b);
@@ -323,23 +323,121 @@ function valid6(nums,last){
   }
   return true;
 }
+
+// 大乐透前区5红缩水
+function validDlt(nums,last){
+  if(nums.length!==5)return false;
+  const odd=nums.filter(x=>x%2).length;
+  if(![[3,2],[2,3],[1,4],[4,1]].some(([a,b])=>a===odd&&b===5-odd))return false;
+  const sm=nums.filter(x=>x<=18).length;
+  if(![[3,2],[2,3],[1,4],[4,1]].some(([a,b])=>a===sm&&b===5-sm))return false;
+  const s=nums.reduce((a,b)=>a+b,0);
+  if(s<60||s>160)return false;
+  const sp=Math.max(...nums)-Math.min(...nums);
+  if(sp<14||sp>34)return false;
+  const sorted=[...nums].sort((a,b)=>a-b);
+  let pair=0;for(let i=0;i<4;i++)if(sorted[i+1]-sorted[i]===1)pair++;
+  if(pair>2)return false;
+  const pr=nums.filter(isPrime).length;
+  if(pr<1||pr>4)return false;
+  if(last){
+    const ln=new Set();last.forEach(x=>{ln.add(x);if(x>1)ln.add(x-1);if(x<35)ln.add(x+1);});
+    const hit=nums.filter(x=>ln.has(x)).length;
+    if(hit<1||hit>2)return false;
+  }
+  return true;
+}
+
 function combos(arr,k){
   const r=[];
   function rec(s,cur){if(cur.length===k){r.push(cur.slice());return;}for(let i=s;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}
   rec(0,[]);return r;
 }
 
-// ★ 重写 pick5：前区组合去重 + 后区错开 + 注间差异
+// ★ 重写 pick5：分游戏（双色球前6后1 / 大乐透前5后2），注间差异 + 后区错开
 function pick5(pool, game, last){
   const f = pool.front.map(x => x.n);
   const b = pool.back.map(x => x.n);
   const wm = {}; pool.front.forEach(x => wm[x.n] = x.w);
   const bm = {}; pool.back.forEach(x => bm[x.n] = x.w);
 
-  // 所有合法6红组合
-  const cand = combos(f, 6).filter(c => valid6(c, last));
+  if(game === 'dlt'){
+    // 大乐透：前区5码组合
+    const cand = combos(f, 5).filter(c => validDlt(c, last));
+    const scored = cand.map(c => {
+      const fw = c.reduce((a, n) => a + (wm[n] || 0), 0);
+      const sum = c.reduce((a,b)=>a+b,0);
+      const centerBonus = Math.abs(sum - 110) < 20 ? 0.5 : 0;
+      const primeN = c.filter(isPrime).length;
+      const primeBonus = (primeN===2||primeN===3)?0.3:0;
+      return {
+        nums: c.slice().sort((a,b)=>a-b),
+        fw,
+        score: fw + centerBonus + primeBonus,
+        sum,
+        odd: c.filter(x=>x%2).length
+      };
+    });
+    scored.sort((a,b)=>b.score - a.score);
 
-  // 打分：权重 + 和值居中奖励 + 质数奖励
+    // 后区2码组合
+    const backPairs = combos(b, 2).filter(p => p[0] !== p[1]);
+    const backScored = backPairs.map(p => ({
+      pair: p.slice().sort((x,y)=>x-y),
+      bw: p.reduce((a,n)=>a+(bm[n]||0),0)
+    })).sort((a,b)=>b.bw - a.bw);
+
+    const usedBackKey = new Set();
+    const out = [];
+    const seenFrontKey = new Set();
+
+    function frontKey(arr){ return arr.join(','); }
+    function overlap(a,b){ let s=new Set(b); return a.filter(x=>s.has(x)).length; }
+
+    // 第一轮：严格限制重叠 ≤3
+    for (const t of scored) {
+      if (out.length >= 5) break;
+      if (seenFrontKey.has(frontKey(t.nums))) continue;
+      const tooClose = out.some(o => overlap(t.nums, o.nums) >= 4);
+      if (tooClose) continue;
+
+      let bp = backScored.find(x => !usedBackKey.has(x.pair.join(',')));
+      if (!bp) bp = backScored[0];
+      usedBackKey.add(bp.pair.join(','));
+
+      out.push({
+        nums: t.nums,
+        back: bp.pair,
+        score: +(t.fw + bp.bw).toFixed(2),
+        sum: t.sum,
+        odd: t.odd
+      });
+      seenFrontKey.add(frontKey(t.nums));
+    }
+
+    // 第二轮：补足5注
+    if (out.length < 5) {
+      for (const t of scored) {
+        if (out.length >= 5) break;
+        if (seenFrontKey.has(frontKey(t.nums))) continue;
+        let bp = backScored.find(x => !usedBackKey.has(x.pair.join(',')));
+        if (!bp) bp = backScored[out.length % backScored.length];
+        usedBackKey.add(bp.pair.join(','));
+        out.push({
+          nums: t.nums,
+          back: bp.pair,
+          score: +(t.fw + bp.bw).toFixed(2),
+          sum: t.sum,
+          odd: t.odd
+        });
+        seenFrontKey.add(frontKey(t.nums));
+      }
+    }
+    return out;
+  }
+
+  // 双色球：前区6码组合
+  const cand = combos(f, 6).filter(c => validSsq(c, last));
   const scored = cand.map(c => {
     const fw = c.reduce((a, n) => a + (wm[n] || 0), 0);
     const sum = c.reduce((a,b)=>a+b,0);
@@ -356,9 +454,7 @@ function pick5(pool, game, last){
   });
   scored.sort((a,b)=>b.score - a.score);
 
-  // 后区按权重排序（用于错开选择）
   const backRank = b.slice().sort((x,y)=>(bm[y]||0)-(bm[x]||0));
-
   const usedBack = new Set();
   const out = [];
   const seenFrontKey = new Set();
@@ -366,37 +462,39 @@ function pick5(pool, game, last){
   function frontKey(arr){ return arr.join(','); }
   function overlap(a,b){ let s=new Set(b); return a.filter(x=>s.has(x)).length; }
 
-  // 选后区：优先未用，其次权重
-  function pickBackFor(preferRank){
-    for(const bb of preferRank){
-      if(!usedBack.has(bb)) return bb;
-    }
-    return preferRank[0];
-  }
-
-  // 第一轮：严格限制重叠 ≤3，后区错开
   for (const t of scored) {
     if (out.length >= 5) break;
     if (seenFrontKey.has(frontKey(t.nums))) continue;
-
     const tooClose = out.some(o => overlap(t.nums, o.nums) >= 4);
     if (tooClose) continue;
 
-    const bb = pickBackFor(backRank);
+    let bb = backRank.find(x => !usedBack.has(x));
+    if (bb === undefined) bb = backRank[0];
     usedBack.add(bb);
 
-    out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+    out.push({
+      nums: t.nums,
+      back: bb,
+      score: +(t.fw + (bm[bb]||0)).toFixed(2),
+      sum: t.sum,
+      odd: t.odd
+    });
     seenFrontKey.add(frontKey(t.nums));
   }
 
-  // 第二轮：如果不够5注，放宽重叠限制到4，但后区仍尽量不同
   if (out.length < 5) {
     for (const t of scored) {
       if (out.length >= 5) break;
       if (seenFrontKey.has(frontKey(t.nums))) continue;
-      const bb = backRank.find(x=>!usedBack.has(x)) || backRank[out.length % backRank.length];
+      const bb = backRank.find(x => !usedBack.has(x)) || backRank[out.length % backRank.length];
       usedBack.add(bb);
-      out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+      out.push({
+        nums: t.nums,
+        back: bb,
+        score: +(t.fw + (bm[bb]||0)).toFixed(2),
+        sum: t.sum,
+        odd: t.odd
+      });
       seenFrontKey.add(frontKey(t.nums));
     }
   }
@@ -467,14 +565,22 @@ function renderPool(pool){
   document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,false)).join('');
 }
 
-function renderPicks(picks){
+function renderPicks(picks, game){
   document.getElementById('pickCard').style.display='';
   document.getElementById('pickList').innerHTML=picks.map((p,i)=>{
     const nums=p.nums.map(n=>`<span class="ball ball-front ball-high">${String(n).padStart(2,'0')}</span>`).join('');
-    const bk=`<span class="ball ball-back ball-back-high">${String(p.back).padStart(2,'0')}</span>`;
+    let bkHtml = '';
+    if(game === 'dlt'){
+      // 大乐透后区2个号码
+      const backs = p.back || [];
+      bkHtml = backs.map(x=>`<span class="ball ball-back ball-back-high">${String(x).padStart(2,'0')}</span>`).join(' ');
+    } else {
+      // 双色球后区1个号码
+      bkHtml = `<span class="ball ball-back ball-back-high">${String(p.back).padStart(2,'0')}</span>`;
+    }
     return `<div class="pick-card">
       <div class="pick-header"><span class="pick-num">第${i+1}注</span><span class="pick-score">权重 ${p.score}</span></div>
-      <div class="pick-balls">${nums}<span class="sep">+</span>${bk}</div>
+      <div class="pick-balls">${nums}<span class="sep">+</span>${bkHtml}</div>
     </div>`;
   }).join('');
 }
@@ -490,7 +596,7 @@ function run(){
   if(picks.length)LAST[g]=picks[0].nums;
   renderPan(ch,pool.realTags,pool.zfFour,pool.smFour);
   renderPool(pool);
-  renderPicks(picks);
+  renderPicks(picks, g);
 }
 
 function demo(){
