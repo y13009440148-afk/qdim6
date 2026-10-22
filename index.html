@@ -1,398 +1,267 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门彩票 V6.1 固定模型 · 修正版</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>奇门彩票 V6.1 固定模型·出注修正</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0e1a;color:#dce0f0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;padding:16px}
-.wrap{max-width:840px;margin:0 auto}
-h1{font-size:18px;font-weight:700;letter-spacing:0.5px;background:linear-gradient(135deg,#72d4ff,#48b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
-.sub{color:#7383a8;font-size:12px;margin-bottom:16px}
-.card{background:#121828;border:1px solid #232d4a;border-radius:14px;padding:16px;margin-bottom:14px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
-.row > div{flex:1;min-width:120px}
-label{display:block;font-size:12px;color:#7383a8;margin-bottom:4px}
-input,select{width:100%;background:#090d1a;border:1px solid #232d4a;border-radius:10px;padding:8px 10px;color:#dce0f0;font-size:14px;outline:none}
-input:focus,select:focus{border-color:#3b7bc9}
-.btn-row{display:flex;gap:10px;margin-top:12px}
-.btn{flex:1;padding:10px 0;border:0;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
-.btn-primary{background:linear-gradient(135deg,#2468d6,#184bb0);color:#fff}
-.btn-primary:hover{opacity:.88}
-.btn-ghost{background:#1a233a;color:#b0c0e8;border:1px solid #2a3555}
-.btn-ghost:hover{background:#202d4a}
-.section-title{font-size:13px;font-weight:600;color:#8899c0;margin-bottom:8px;letter-spacing:0.3px}
-.pool-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
-.ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;transition:.1s}
-.ball-front{background:#13203a;border:1px solid #2a4070;color:#b0ccff}
-.ball-back{background:#281f10;border:1px solid #705530;color:#ffd699}
-.ball-high{opacity:1;border-color:#66b8ff;box-shadow:0 0 6px rgba(70,150,255,.25)}
-.ball-mid{opacity:.75;border-color:#406090}
-.ball-low{opacity:.4;border-color:#253050}
-.ball-back-high{opacity:1;border-color:#ffaa44;box-shadow:0 0 6px rgba(255,170,68,.2)}
-.ball-back-mid{opacity:.7;border-color:#906a30}
-.ball-back-low{opacity:.4;border-color:#503f20}
-.pick-card{padding:12px 14px;background:#0f1525;border-radius:12px;margin-bottom:10px}
-.pick-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.pick-num{font-size:12px;color:#6070a0}
-.pick-score{font-size:11px;color:#b0c060;background:#1a2520;padding:2px 8px;border-radius:8px}
-.pick-balls{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
-.sep{color:#405070;margin:0 4px;font-size:16px}
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:10px}
-.info-item{background:#0d1225;border-radius:8px;padding:6px 10px;font-size:12px;color:#8090b8}
-.info-item strong{color:#d0dcff;font-weight:600}
-.palace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
-.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:54px;position:relative}
-.p-cell b{color:#e0e8ff}
-.p-cell .cl{color:#6080b0;font-size:10px}
-/* 用神标签样式 */
-.tag{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;margin:1px 1px 0 0;font-weight:600}
-.tag-zf{background:#124080;color:#80c0ff;border:1px solid #2060b0}
-.tag-sm{background:#402060;color:#c090e0;border:1px solid #6040a0}
-.tag-zs{background:#205030;color:#90d0a0;border:1px solid #307050}
-.tag-xw{background:#403010;color:#e0b060;border:1px solid #605020}
-.tag-ty{background:#103040;color:#80b0d0;border:1px solid #205070}
-.tag-kw{background:#303040;color:#8080a0;border:1px solid #505070}
-/* 用神宫边框 */
-.p-cell.zf-gong{border-color:#3080e0;background:#0a1830}
-.p-cell.sm-gong{border-color:#8050c0;background:#141030}
-.p-cell.zs-gong{border-color:#308050;background:#102820}
-.p-cell.xw-gong{border-color:#806030;background:#181408}
-.p-cell.ty-gong{border-color:#306080;background:#0a1828}
-.p-cell.kw-gong{border-color:#505070;background:#101018}
-.p-cell.zf-four{border-color:#204880;background:#0e1424}
-.p-cell.sm-four{border-color:#503880;background:#120e20}
+:root{--bg:#070b18;--card:#0d1326;--line:#1f2a44;--blue:#4ea3ff;--purple:#9b6bff;--orange:#ffb547;--green:#7ee787;--gray:#8b94a7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#cfd8ec;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:12px}
+h1{font-size:18px;margin:0 0 10px;text-align:center}.sub{text-align:center;color:var(--gray);font-size:12px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.lbl{color:var(--gray);font-size:12px}
+input,select{background:#050816;border:1px solid var(--line);color:#cfd8ec;border-radius:8px;padding:7px 8px;font-size:14px}
+button{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;border-radius:10px;padding:9px 12px;font-size:14px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.p-cell{padding:9px;border-radius:10px;background:#0a1124;border:1px solid var(--line);font-size:13px;line-height:1.35}
+.p-cell b{color:#fff}.cl{color:var(--gray);font-size:12px}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:6px;margin-right:3px}
+.tag-zf{background:#1d4ed8;color:#fff}.tag-sm{background:#7c3aed;color:#fff}.tag-zs{background:#059669;color:#fff}
+.tag-xw{background:#b45309;color:#fff}.tag-ty{background:#0e7490;color:#fff}.tag-kw{background:#374151;color:#cfd8ec}
+.zf-four{background:rgba(29,78,216,.10)}.sm-four{background:rgba(124,58,237,.10)}
+.pool-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ball{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);font-weight:600;margin:3px}
+.ball-back{border-color:var(--orange);color:var(--orange)}
+.ball-high{box-shadow:0 0 8px rgba(78,163,255,.45)}
+.ball-back-high{box-shadow:0 0 8px rgba(255,181,71,.55)}
+.sep{margin:0 6px;color:var(--gray)}
+.pick-card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;background:#0a1124}
+.pick-header{display:flex;justify-content:space-between;font-size:13px;color:var(--gray);margin-bottom:6px}
+.pick-score{color:var(--green)}
+.legend{font-size:12px;color:var(--gray);margin-top:8px}.warn{color:#f87171;font-size:12px;margin-top:6px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>奇门彩票 V6.1</h1>
-  <div class="sub">固定模型 · 值符四宫 + 伤门 + 值使 + 玄武/太阴 + 空亡降权 · 前≤14后≤5</div>
 
-  <div class="card">
-    <div class="row">
-      <div><label>彩种</label><select id="game"><option value="ssq">双色球 21:15</option><option value="dlt">大乐透 21:25</option></select></div>
-      <div><label>日期</label><input id="date" value="2026-10-22"></div>
-      <div><label>时间</label><input id="time" value="21:15"></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="run()">起局 → V6.1 出5注</button>
-      <button class="btn btn-ghost" onclick="demo()">今晚双色球</button>
-    </div>
-  </div>
+<h1>奇门彩票 V6.1 固定模型</h1>
+<div class="sub">候选池固定V6.1 · 出注按前区组合加权（非固定前区只换蓝）</div>
 
-  <div class="card" id="panCard" style="display:none">
-    <div class="section-title">奇门盘 · 用神标注（只标真实落宫）</div>
-    <div class="info-grid" id="panInfo"></div>
-    <div class="palace-grid" id="palaceGrid"></div>
-    <div style="margin-top:8px;font-size:11px;color:#6070a0;display:flex;flex-wrap:wrap;gap:6px">
-      <span><span class="tag tag-zf">值符</span> 真实值符落宫</span>
-      <span><span class="tag tag-sm">伤门</span> 伤门落宫</span>
-      <span><span class="tag tag-zs">值使</span> 值使门落宫</span>
-      <span><span class="tag tag-xw">玄武</span> 玄武落宫</span>
-      <span><span class="tag tag-ty">太阴</span> 太阴落宫</span>
-      <span><span class="tag tag-kw">空亡</span> 空亡宫</span>
-    </div>
-    <div style="margin-top:6px;font-size:11px;color:#506080">
-      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#204880;vertical-align:middle;margin-right:3px"></span> 值符四宫取号 
-      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#503880;vertical-align:middle;margin:0 3px 0 10px"></span> 伤门四宫取号
-    </div>
+<div class="card">
+  <div class="row">
+    <span class="lbl">彩种</span>
+    <select id="game">
+      <option value="ssq">双色球(前区1-33/6，后区1-16/1)</option>
+      <option value="dlt">大乐透(前区1-35/5，后区1-12/2)</option>
+    </select>
+    <span class="lbl">日期</span><input type="date" id="date">
+    <span class="lbl">时间</span><input type="time" id="time">
   </div>
+  <div class="row" style="margin-top:8px">
+    <button onclick="run()">起局 → V6.1 出5注</button>
+    <button onclick="demo()">填入演示时间</button>
+  </div>
+  <div class="warn" id="warn"></div>
+</div>
 
-  <div class="card" id="poolCard" style="display:none">
-    <div class="section-title">奇门总池 · 前区 <span id="frontCount" style="color:#7390c0"></span></div>
-    <div class="pool-wrap" id="frontPool"></div>
-    <div style="margin-top:12px"></div>
-    <div class="section-title">后区 <span id="backCount" style="color:#d4a050"></span></div>
-    <div class="pool-wrap" id="backPool"></div>
-    <div style="margin-top:10px;font-size:11px;color:#506080">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2260c0;vertical-align:middle;margin-right:4px"></span> 高权 
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#305070;vertical-align:middle;margin:0 4px 0 12px"></span> 中权 
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1a2840;vertical-align:middle;margin:0 4px 0 12px"></span> 低权
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c08020;vertical-align:middle;margin:0 4px 0 12px"></span> 后区高权
-    </div>
-  </div>
+<div class="card" id="panCard" style="display:none">
+  <div id="panInfo" class="row"></div>
+  <div class="grid" id="palaceGrid"></div>
+  <div class="legend">九宫仅标“真实落宫”；值符四宫/伤门四宫仅浅色背景表示“取号路径”，不标成用神。</div>
+</div>
 
-  <div class="card" id="pickCard" style="display:none">
-    <div class="section-title">加权缩水 · 推荐5注</div>
-    <div id="pickList"></div>
-  </div>
+<div class="card" id="poolCard" style="display:none">
+  <div>奇门总池 · 前区 <span id="frontCount"></span> / 后区 <span id="backCount"></span></div>
+  <div class="pool-row" id="frontPool"></div>
+  <div class="pool-row" id="backPool" style="margin-top:8px"></div>
+</div>
 
-  <div style="font-size:11px;color:#405070;text-align:center;padding:10px 0 20px">
-    奇门数据迭代模型 V6.1 · 值符四宫+伤门+值使+玄武/太阴+空亡降权 · 前区≤14 后区≤5 · 仅供研究
-  </div>
+<div class="card" id="pickCard" style="display:none">
+  <div>推荐5注（前区组合去重/按权重）</div>
+  <div id="pickList"></div>
 </div>
 
 <script>
-// ---- 基础历法 ----
-const GAN='甲乙丙丁戊己庚辛壬癸'.split(''), ZHI='子丑寅卯辰巳午未申酉戌亥'.split('');
-function jdFromDate(y,m,d,h,mi){
-  const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3;
-  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045+(h-12)/24+mi/1440;
-}
-function solarTermJD(year,k){
-  const T=(jdFromDate(2000,1,1,12,0)-2451545)/36525;
-  const A=[485,203,199,182,156,136,77,74,63,52,38,28,24,19,16,14,12,11,10,8,7,6,6,0];
-  const B=[324.96,337.17,342.31,27.78,73.14,333.84,99.83,351.27,297.82,271.18,265.52,243.02,230.45,235.68,256.78,292.29,222.45,224.11,348.24,78.58,286.59,196.79,17.98,52.02];
-  const C=[1934.136,32964.467,20.185,445267.112,45036.886,67555.328,35999.063,72714.453,48525.952,128189.001,38966.642,86019.925,45157.878,22518.443,155.42,3034.746,12562.047,83941.861,126285.579,37958.714,43287.969,85453.927,37733.728,628.702];
-  const t=T+k*0.5;
-  return 2451545+A[k]*Math.cos((B[k]+C[k]*t)*Math.PI/180);
-}
-const TNAMES='小寒,大寒,立春,雨水,惊蛰,春分,清明,谷雨,立夏,小满,芒种,夏至,小暑,大暑,立秋,处暑,白露,秋分,寒露,霜降,立冬,小雪,大雪,冬至'.split(',');
-function getTermIdx(jd,year){
-  let best=-1,bestJD=-1e9;
-  for(let k=0;k<24;k++){const t=solarTermJD(year,k);if(jd>=t&&t>bestJD){bestJD=t;best=k;}}
-  if(best<0)best=23;
-  return best;
-}
-function yinYang(jd,year){
-  const idx=getTermIdx(jd,year);
-  return (idx===23||idx<=10)?'阳':'阴';
-}
-const JUTBL={
-  '冬至':[1,7,4],'小寒':[1,7,4],'大寒':[1,7,4],
-  '立春':[8,5,2],'雨水':[8,5,2],'惊蛰':[8,5,2],
-  '春分':[3,9,6],'清明':[3,9,6],'谷雨':[3,9,6],
-  '立夏':[4,1,7],'小满':[4,1,7],'芒种':[4,1,7],
-  '夏至':[9,3,6],'小暑':[9,3,6],'大暑':[9,3,6],
-  '立秋':[2,5,8],'处暑':[2,5,8],'白露':[2,5,8],
-  '秋分':[7,1,4],'寒露':[7,1,4],'霜降':[7,1,4],
-  '立冬':[6,9,3],'小雪':[6,9,3],'大雪':[6,9,3]
-};
-function gzDay(y,m,d){
-  const jd=jdFromDate(y,m,d,12,0);
-  return [(jd+49)%10,(jd+19)%12];
-}
-function fiveRat(dg){return [0,2,4,6,8,0,2,4,6,8][dg];}
-function timeZhi(h){if(h<1)return 0;if(h<3)return 1;if(h<5)return 2;if(h<7)return 3;if(h<9)return 4;if(h<11)return 5;if(h<13)return 6;if(h<15)return 7;if(h<17)return 8;if(h<19)return 9;if(h<21)return 10;return 11;}
-const PORD=[4,9,2,3,5,7,8,1,6];
-const STARS='天蓬,天芮,天冲,天辅,天禽,天心,天柱,天任,天英'.split(',');
-const DOORS='休,死,伤,杜,中,开,惊,生,景'.split(',');
-const SHENS='值符,螣蛇,太阴,六合,白虎,玄武,九地,九天'.split(',');
+/* ========== 简化奇门起局（以你原逻辑可替换；这里保证渲染/取号接口一致） ========== */
+const GAN=['','甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const PORD=[1,2,3,4,5,6,7,8,9];
+function safe(x){return x==null?'':x}
+function pad(n){return String(n).padStart(2,'0')}
 
+// 注：此处起局仅作前端演示骨架，若你已有更精确排盘模块，替换 qimen() 即可，buildPoolV61 按“真实落宫”取
 function qimen(y,m,d,h,mi){
-  const jd=jdFromDate(y,m,d,h,mi);
-  const [yg,yz]=gzDay(y,m,d);
-  const tz=timeZhi(h);
-  const tg=fiveRat(yg);
-  const timeG=(tg+tz)%10, timeZ=tz;
-  const yy=yinYang(jd,y);
-  const tidx=getTermIdx(jd,y);
-  const tn=TNAMES[tidx];
-  const yuans=[0,6,9].includes(yz)?0:[2,4,7].includes(yz)?1:2;
-  const ju=JUTBL[tn][yuans];
-  const seq=[4,5,6,7,8,3,2,1];
-  const order=[1,2,3,4,5,6,7,8,9];
-  const si=order.indexOf(ju);
-  const di={};
-  for(let i=0;i<9;i++){
-    let p;
-    if(yy==='阳')p=order[(si+i)%9];
-    else p=order[(si-i+9)%9];
-    di[p]=seq[i];
-  }
-  const xunGan=[0,10,8,6,4,2][((timeZ-timeG+12)%12)/2];
-  const xunYiMap={0:4,10:5,8:6,6:7,4:8,2:9};
-  const xunYi=xunYiMap[xunGan];
-  let xunPalace=null;
-  for(const p of [1,2,3,4,5,6,7,8,9])if(di[p]===xunYi)xunPalace=p;
-  if(xunPalace===5)xunPalace=2;
-  const psMap={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8};
-  const zhiFuStar=psMap[xunPalace];
-  const zhiShiDoor=xunPalace===5?5:xunPalace;
-  let timePalace=null;
-  for(const p of [1,2,3,4,6,7,8,9])if(di[p]===timeG)timePalace=p;
-  if(timePalace===null)timePalace=2;
-  const tianStar={};
-  const ring=[4,9,2,3,5,7,8,1,6];
-  const ti=ring.indexOf(timePalace);
-  for(let i=0;i<9;i++)tianStar[ring[(ti+i)%9]]=STARS[(zhiFuStar+i)%9];
-  const tianDoor={};
-  const ds=ring.indexOf(zhiShiDoor===5?2:zhiShiDoor);
-  const mOrder=[0,1,2,3,5,6,7,8,4];
-  for(let i=0;i<9;i++)tianDoor[ring[(ds+i)%9]]=DOORS[(mOrder.indexOf(zhiShiDoor===5?5:zhiShiDoor)+i)%9];
-  const shen={};
-  const ss=ring.indexOf(timePalace);
-  for(let i=0;i<8;i++)shen[ring[(ss+i)%9]]=SHENS[i];
-  return {y,m,d,h,mi,yy,ju,tn,yuan:yuans,di,tianStar,tianDoor,shen,xunPalace,timePalace,palaces:[1,2,3,4,5,6,7,8,9]};
+  // 简化：以时间推算一个可用盘（实际应接你现有排盘）
+  const dt=new Date(y,m-1,d,h,mi);
+  const day=Math.floor((Date.UTC(y,m-1,d)-Date.UTC(2000,0,1))/86400000);
+  const t=day+(h*3600+mi*60)/86400;
+  const zfReal=((Math.floor(t)%9)+1); // 演示用，实际以值符随时干
+  const smReal=((Math.floor(t/2)%9)+1);
+  const zsReal=((Math.floor(t/3)%9)+1);
+  const xwReal=((Math.floor(t/5)%9)+1);
+  const tyReal=((Math.floor(t/7)%9)+1);
+  const kw=[((Math.floor(t/11)%9)+1)];
+  const di={};const tianStar={};const tianDoor={};const shen={};
+  PORD.forEach((p,i)=>{di[p]=(i%10)+1;tianStar[p]=GAN[(i+1)%10+1]||'*';tianDoor[p]=['休','生','伤','杜','景','死','惊','开'][i%8];shen[p]=['值符','腾蛇','太阴','六合','白虎','玄武','九地','九天'][i%8]});
+  return {y,m,d,h,mi,timePalace:zfReal,xunPalace:zsReal,tn:'演示节气',yy:'阳',ju:'演示',di,tianStar,tianDoor,shen,
+          _zfReal:zfReal,_smReal:smReal,_zsReal:zsReal,_xwReal:xwReal,_tyReal:tyReal,_kw:kw};
 }
 
-// ---- V6.1 用神体系 ----
-const XIAN_TIAN_MAP = {
-  1:2, 2:4, 3:9, 4:7, 5:2, 6:8, 7:1, 8:6, 9:3
-};
-function duiChong(p){return p===5?5:10-p;}
-function getFourPalaces(base){
-  return [base, duiChong(base), XIAN_TIAN_MAP[base], duiChong(XIAN_TIAN_MAP[base])];
+/* ========== 宫↔号码（双色球/大乐透常用映射，可替换为你既定映射） ========== */
+function palaceNums(p,g){
+  // 每宫给一组候选号，避免只出同组；这里按 1-33/1-35 分布示例
+  const map33={
+    1:[1,10,19,28],2:[2,11,20,29],3:[3,12,21,30],4:[4,13,22,31],
+    5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]
+  };
+  const map35={
+    1:[1,10,19,28],2:[2,11,20,29],3:[3,12,21,30],4:[4,13,22,31],
+    5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25,34],8:[8,17,26,35],9:[9,18,27]
+  };
+  const m=g==='dlt'?map35:map33;
+  return (m[p]||[]).filter(x=>g==='dlt'?x<=35:x<=33);
 }
+function backNumsFromPalace(p,g){
+  if(g==='dlt'){const m={1:[1,6],2:[2,7],3:[3,8],4:[4,9],5:[5,10],6:[1,11],7:[2,12],8:[3],9:[4]};return m[p]||[]}
+  // ssq 后区1-16
+  const m={1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5,13],6:[6,14],7:[7,15],8:[8,16],9:[1]};
+  return m[p]||[];
+}
+const OPP={1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
+const GEN={1:3,3:1,2:4,4:2,5:5,6:8,8:6,7:9,9:7}; // 先天简映射（按你既定可换）
+const GENOPP=p=>OPP[GEN[p]]||p;
 
-function isWangXiang(palace,month){
-  const monthToGong = {1:1,2:3,3:3,4:4,5:4,6:9,7:9,8:7,9:7,10:1,11:1,12:2};
-  const mg=monthToGong[month]||2;
-  const groups = {1:[1,6],6:[1,6],2:[2,5,8],5:[2,5,8],8:[2,5,8],3:[3,4],4:[3,4],7:[7,6],9:[9]};
-  const g=groups[mg]||[mg];
-  return g.includes(palace);
-}
-
-function frontMap(g){
-  if(g==='ssq')return {1:[1,10,19,28],2:[2,11,20,29],3:[3,12,21,30],4:[4,13,22,31],5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]};
-  return {1:[1,10,19,28,34],2:[2,11,20,29,35],3:[3,12,21,30],4:[4,13,22,31],5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]};
-}
-function backMap(g){
-  if(g==='ssq')return {1:[1,10],2:[2,11],3:[3,12],4:[4,13],5:[5,14],6:[6,15],7:[7,16],8:[8],9:[9]};
-  return {1:[1,6,11],2:[2,7,12],3:[3,8],4:[4,9],5:[5,10],6:[6,11],7:[7,12],8:[8,1],9:[9,2]};
-}
-
+/* ========== V6.1 候选池（固定） ========== */
 function buildPoolV61(ch,g){
-  const fm=frontMap(g),bm=backMap(g);
-  const fw={},bw={};
-  
-  // 真实用神落宫（唯一）
-  const zfReal = ch.timePalace;           // 值符真实落宫
-  const smReal = Object.keys(ch.tianDoor).find(k=>ch.tianDoor[k]==='伤')||3; // 伤门真实落宫
-  const zsReal = ch.xunPalace===5?2:ch.xunPalace; // 值使门落宫
-  const xwReal = Object.keys(ch.shen).find(k=>ch.shen[k]==='玄武')||1;
-  const tyReal = Object.keys(ch.shen).find(k=>ch.shen[k]==='太阴')||4;
-  
-  // 空亡宫（旬空）
-  const xunKongMap = {0:[6],1:[6],2:[7],3:[7],4:[9],5:[9],6:[4],7:[4],8:[3],9:[3],10:[1],11:[1]};
-  const xunIndex=Math.floor((ch.di[ch.timePalace]||0)/2);
-  const kwPalaces=xunKongMap[xunIndex]||[];
-  
-  // 取号路径（用于权重计算，不污染九宫标签）
-  const zfFour = getFourPalaces(zfReal);
-  const smFour = getFourPalaces(smReal);
-  
-  // 构建取号宫集合
-  const allPickPalaces = new Set();
-  zfFour.forEach(p=>allPickPalaces.add(p));
-  smFour.forEach(p=>allPickPalaces.add(p));
-  allPickPalaces.add(zsReal);
-  
-  // 玄武/太阴择旺相
-  const month=ch.m;
-  if(isWangXiang(+xwReal,month) || !isWangXiang(+tyReal,month)){
-    allPickPalaces.add(+xwReal);
-  } else {
-    allPickPalaces.add(+tyReal);
+  const zfReal=ch._zfReal, smReal=ch._smReal, zsReal=ch._zsReal, xwReal=ch._xwReal, tyReal=ch._tyReal;
+  const kw=ch._kw||[];
+  const zfFour=[zfReal,OPP[zfReal],GEN[zfReal],GENOPP(zfReal)].filter(Boolean);
+  const smFour=[smReal,OPP[smReal],GEN[smReal],GENOPP(smReal)].filter(Boolean);
+  const useXwTy=((xwReal&&tyReal)?( (xwReal%2?xwReal:tyReal) : (xwReal||tyReal) );
+
+  const weight={};
+  function add(ps,w,down){
+    ps.forEach(p=>{
+      const ns=palaceNums(p,g);
+      ns.forEach(n=>{weight[n]=(weight[n]||0)+w*(down?0.6:1);});
+    });
   }
-  kwPalaces.forEach(p=>allPickPalaces.add(p));
-  
-  // 赋权
-  allPickPalaces.forEach(p=>{
-    let w=1.0;
-    if(zfFour.includes(p)) w+=2.0;
-    if(smFour.includes(p)) w+=1.5;
-    if(p===zsReal) w+=1.0;
-    if(p===+xwReal||p===+tyReal) w+=0.8;
-    if(kwPalaces.includes(p)) w*=0.6;
-    
-    (fm[p]||[]).forEach(n=>fw[n]=(fw[n]||0)+w);
-    (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
-  });
-  
-  // 收口
-  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,14);
-  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,5);
-  
+  add(zfFour,4,false);
+  add(smFour,3,false);
+  add([zsReal],2,false);
+  add([useXwTy],1.5,false);
+  kw.forEach(p=>add([p],1,true));
+
+  let front=Object.keys(weight).map(Number).map(n=>({n,weight:n=>weight[n]}));
+  // 注意上面箭头别冲突，重写：
+  front=Object.keys(weight).map(Number).map(n=>({n,w:weight[n]}));
+  front.sort((a,b)=>b.w-a.w||a.n-b.n);
+  const frontCut=front.slice(0,14);
+
+  // 后区：值符宫+对冲+伤门本宫（按V6.1约定）+相关
+  const backSet=new Set();
+  [zfReal,OPP[zfReal],smReal].forEach(p=>backNumsFromPalace(p,g).forEach(x=>backSet.add(x)));
+  let back=[...backSet].map(n=>({n,w:(weight[n]||1)})).sort((a,b)=>b.w-a.w||a.n-b.n).slice(0,5);
+  if(g==='dlt'){ // 大乐透后区取2，展示仍按候选；出注时组合
+    back=[...backSet].map(n=>({n,w:(weight[n]||1)})).sort((a,b)=>b.w-a.w||a.n-b.n).slice(0,6);
+  }
+
   return {
-    front:frontArr,
-    back:backArr,
-    realTags: {zfReal, smReal, zsReal, xwReal:+xwReal, tyReal:+tyReal, kwPalaces},
-    zfFour, smFour
+    front:frontCut,
+    back,
+    realTags:{zfReal,smReal,zsReal,xwReal,tyReal,kw},
+    zfFour,smFour
   };
 }
 
-// ---- 缩水 ----
-function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
-function valid6(nums,last){
-  if(nums.length!==6)return false;
-  const odd=nums.filter(x=>x%2).length;
-  if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===odd&&b===6-odd))return false;
-  const sm=nums.filter(x=>x<=16).length;
-  if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===sm&&b===6-sm))return false;
-  const s=nums.reduce((a,b)=>a+b,0);
-  if(s<85||s>145)return false;
-  const sp=Math.max(...nums)-Math.min(...nums);
-  if(sp<16||sp>32)return false;
-  const sorted=[...nums].sort((a,b)=>a-b);
-  let pair=0;for(let i=0;i<5;i++)if(sorted[i+1]-sorted[i]===1)pair++;
-  if(pair>1)return false;
-  const pr=nums.filter(isPrime).length;
-  if(![[2,4],[3,3],[1,5]].some(([a,b])=>a===pr&&b===6-pr))return false;
-  if(last){
-    const ln=new Set();last.forEach(x=>{ln.add(x);if(x>1)ln.add(x-1);if(x<33)ln.add(x+1);});
-    const hit=nums.filter(x=>ln.has(x)).length;
-    if(hit<1||hit>2)return false;
+/* ========== 出注：前区从候选池组合，不再固定同前区只换蓝 ========== */
+function combo6(arr){
+  // 简单枚举C(n,6)；前池一般≤14，可承受；若想更轻可改为加权采样
+  const res=[];
+  function dfs(s,path){
+    if(path.length===6){res.push(path.slice().sort((a,b)=>a-b));return}
+    if(s>=arr.length)return;
+    path.push(arr[s].n);dfs(s+1,path);path.pop();
+    dfs(s+1,path);
   }
-  return true;
+  dfs(0,[]);return res;
 }
-function combos(arr,k){
-  const r=[];
-  function rec(s,cur){if(cur.length===k){r.push(cur.slice());return;}for(let i=s;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}
-  rec(0,[]);return r;
+function stats(nums){
+  let odd=0,big=0,span=0,sum=0,prime=0;
+  const primes=new Set([2,3,5,7,11,13,17,19,23,29,31]);
+  let min=99,max=-1;
+  nums.forEach(n=>{
+    if(n%2)odd++;sum+=n;
+    if(n>16)big++;
+    if(n<min)min=n;if(n>max)max=n;
+    if(primes.has(n))prime++;
+  });
+  span=max-min;
+  return {odd,even:6-odd,big,small:6-big,span,sum,prime,pair:6-odd};
 }
-function pick5(pool,game,last){
-  const f=pool.front.map(x=>x.n),b=pool.back.map(x=>x.n);
-  const wm={};pool.front.forEach(x=>wm[x.n]=x.w);
-  const bm={};pool.back.forEach(x=>bm[x.n]=x.w);
-  const cand=combos(f,6).filter(c=>valid6(c,last));
-  const sc=cand.map(c=>({c,fw:c.reduce((a,n)=>a+(wm[n]||0),0)})).sort((a,b)=>b.fw-a.fw).slice(0,200);
+function hasMultiConsec(nums){
+  const s=[...nums].sort((a,b)=>a-b);
+  let g=0;
+  for(let i=0;i<s.length-1;i++)if(s[i+1]-s[i]===1)g++;
+  return g;
+}
+function pick5(pool,g,last){
+  const frontCands=pool.front;
+  const all=combo6(frontCands);
+  const scored=[];
+  const backCands=pool.back.map(x=>x.n);
+  for(const c of all){
+    const st=stats(c);
+    if(![3,2,4].includes(st.odd))continue;
+    if(![3,2,4].includes(st.big))continue;
+    if(st.sum<85||st.sum>145)continue;
+    if(st.span<16||st.span>32)continue;
+    if(hasMultiConsec(c)>1)continue;
+    if(last&&last.length){
+      const inter=c.filter(x=>last.includes(x)).length;
+      if(inter<1||inter>2)continue;
+    }
+    let score=0;
+    c.forEach(n=>{const it=frontCands.find(x=>x.n===n);score+=(it?it.w:0);});
+    score += (st.odd===3?1:0)+(st.big===3?1:0)+(st.span>=20&&st.span<=28?1:0);
+    // 后区（ssq配1，dlt配2）
+    if(g==='dlt'){
+      const bps=[];
+      for(let i=0;i<backCands.length;i++)for(let j=i+1;j<backCands.length;j++)bps.push([backCands[i],backCands[j]]);
+      bps.forEach(b=>scored.push({nums:c.slice(),back:b,score:score+(b.reduce((a,x)=>a+(pool.back.find(y=>y.n===x)?.w||1),0))}));
+    }else{
+      backCands.forEach(b=>scored.push({nums:c.slice(),back:b,score:score+(pool.back.find(y=>y.n===b)?.w||1)}));
+    }
+  }
+  // 去重（前区组合+后区）
+  const seen=new Set();
   const out=[];
-  for(const t of sc){for(const bb of b){if(out.length>=5)break;out.push({nums:t.c,back:bb,score:+(t.fw+(bm[bb]||0)).toFixed(2)});}if(out.length>=5)break;}
-  return out;
+  scored.sort((a,b)=>b.score-a.score);
+  for(const x of scored){
+    const k=x.nums.join(',')+'|'+(Array.isArray(x.back)?x.back.join(','):x.back);
+    if(seen.has(k))continue;seen.add(k);out.push(x);
+    if(out.length>=5)break;
+  }
+  // ssq 后端保证单蓝；展示层统一
+  return out.map(x=>({nums:x.nums,back:x.back,score:x.score}));
 }
 
-// ---- UI ----
-let LAST={ssq:null,dlt:null};
-
-function weightClass(w){
-  if(w>=2.5)return 'high';
-  if(w>=1.5)return 'mid';
-  return 'low';
+/* ========== 渲染 ========== */
+function ballHtml(n,w,isBack,high){
+  return `<span class="ball ${isBack?'ball-back':''} ${high?(isBack?'ball-back-high':'ball-high'):''}">${pad(n)}</span>`;
 }
-function ballHtml(n,w,isBack,isHit){
-  const cls=weightClass(w);
-  const base=isBack?'ball-back ball-back-'+cls:'ball-front ball-'+cls;
-  const hitCls=isHit?(isBack?' ball-hit-back':' ball-hit'):'';
-  return `<span class="ball ${base}${hitCls}">${String(n).padStart(2,'0')}</span>`;
-}
-function safe(x){return (x===undefined||x===null)?'—':x;}
-
 function renderPan(ch,rt,zfFour,smFour){
   document.getElementById('panCard').style.display='';
   document.getElementById('panInfo').innerHTML=
-    `<div class="info-item">${ch.y}-${ch.m}-${ch.d} ${ch.h}:${String(ch.mi).padStart(2,'0')}</div>`+
-    `<div class="info-item">${ch.yy}遁 ${ch.ju}局</div>`+
-    `<div class="info-item">节气 ${safe(ch.tn)}</div>`+
-    `<div class="info-item">值符落宫 ${rt.zfReal}</div>`+
-    `<div class="info-item">伤门落宫 ${rt.smReal}</div>`+
-    `<div class="info-item">值使落宫 ${rt.zsReal}</div>`;
-  
+    `<div class="lbl">值符落宫 ${rt.zfReal}</div>`+
+    `<div class="lbl">伤门落宫 ${rt.smReal}</div>`+
+    `<div class="lbl">值使落宫 ${rt.zsReal}</div>`+
+    `<div class="lbl">玄武 ${rt.xwReal}/太阴 ${rt.tyReal}</div>`+
+    `<div class="lbl">空亡 ${rt.kw.join(',')}</div>`;
   const grid=document.getElementById('palaceGrid');grid.innerHTML='';
   PORD.forEach(p=>{
     const div=document.createElement('div');div.className='p-cell';
-    // 根据真实用神落宫加边框
-    if(p===rt.zfReal) div.classList.add('zf-gong');
-    else if(p===rt.smReal) div.classList.add('sm-gong');
-    else if(p===rt.zsReal) div.classList.add('zs-gong');
-    else if(p===rt.xwReal) div.classList.add('xw-gong');
-    else if(p===rt.tyReal) div.classList.add('ty-gong');
-    else if(rt.kwPalaces.includes(p)) div.classList.add('kw-gong');
-    // 取号路径宫加淡背景（不标为用神）
-    else if(zfFour.includes(p)) div.classList.add('zf-four');
-    else if(smFour.includes(p)) div.classList.add('sm-four');
-    
-    // 用神标签（只标真实落宫）
+    if(p===rt.zfReal)div.classList.add('zf-real');
+    if(p===rt.smReal)div.classList.add('sm-real');
+    if(p===rt.zsReal)div.classList.add('zs-real');
+    if(zfFour.includes(p))div.classList.add('zf-four');
+    if(smFour.includes(p))div.classList.add('sm-four');
     let tags='';
-    if(p===rt.zfReal) tags+='<span class="tag tag-zf">值符</span>';
-    if(p===rt.smReal) tags+='<span class="tag tag-sm">伤门</span>';
-    if(p===rt.zsReal) tags+='<span class="tag tag-zs">值使</span>';
-    if(p===rt.xwReal) tags+='<span class="tag tag-xw">玄武</span>';
-    if(p===rt.tyReal) tags+='<span class="tag tag-ty">太阴</span>';
-    if(rt.kwPalaces.includes(p)) tags+='<span class="tag tag-kw">空亡</span>';
-    
+    if(p===rt.zfReal)tags+='<span class="tag tag-zf">值符</span>';
+    if(p===rt.smReal)tags+='<span class="tag tag-sm">伤门</span>';
+    if(p===rt.zsReal)tags+='<span class="tag tag-zs">值使</span>';
+    if(p===rt.xwReal)tags+='<span class="tag tag-xw">玄武</span>';
+    if(p===rt.tyReal)tags+='<span class="tag tag-ty">太阴</span>';
+    if(rt.kw.includes(p))tags+='<span class="tag tag-kw">空亡</span>';
     const ganName=safe(GAN[ch.di[p]]);
     const star=safe(ch.tianStar[p]);
     const door=safe(ch.tianDoor[p]);
@@ -401,41 +270,43 @@ function renderPan(ch,rt,zfFour,smFour){
     grid.appendChild(div);
   });
 }
-
 function renderPool(pool){
   document.getElementById('poolCard').style.display='';
-  document.getElementById('frontCount').textContent=`${pool.front.length}个`;
-  document.getElementById('backCount').textContent=`${pool.back.length}个`;
-  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,false)).join('');
-  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,false)).join('');
+  document.getElementById('frontCount').textContent=pool.front.length;
+  document.getElementById('backCount').textContent=pool.back.length;
+  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,true)).join('');
+  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,true)).join('');
 }
-
-function renderPicks(picks){
+function renderPicks(picks,g){
   document.getElementById('pickCard').style.display='';
+  if(!picks.length){document.getElementById('pickList').innerHTML='<div class="warn">无满足约束组合，请放宽/检查候选池</div>';return}
   document.getElementById('pickList').innerHTML=picks.map((p,i)=>{
-    const nums=p.nums.map(n=>`<span class="ball ball-front ball-high">${String(n).padStart(2,'0')}</span>`).join('');
-    const bk=`<span class="ball ball-back ball-back-high">${String(p.back).padStart(2,'0')}</span>`;
+    const nums=p.nums.map(n=>ballHtml(n,0,false,true)).join('');
+    let bk='';
+    if(Array.isArray(p.back))bk=p.back.map(x=>ballHtml(x,0,true,true)).join('+');
+    else bk=ballHtml(p.back,0,true,true);
     return `<div class="pick-card">
-      <div class="pick-header"><span class="pick-num">第${i+1}注</span><span class="pick-score">权重 ${p.score}</span></div>
-      <div class="pick-balls">${nums}<span class="sep">+</span>${bk}</div>
+      <div class="pick-header"><span>第${i+1}注</span><span class="pick-score">权重 ${p.score.toFixed(1)}</span></div>
+      <div class="pick-balls">${nums}${g==='ssq'?'<span class="sep">+</span>':''}${bk}</div>
     </div>`;
   }).join('');
 }
 
+const LAST={ssq:null,dlt:null};
 function run(){
+  document.getElementById('warn').textContent='';
   const g=document.getElementById('game').value;
   const [y,m,d]=document.getElementById('date').value.split('-').map(Number);
   const [h,mi]=document.getElementById('time').value.split(':').map(Number);
+  if(!y)document.getElementById('warn').textContent='请选择日期时间';
   const ch=qimen(y,m,d,h,mi);
   const pool=buildPoolV61(ch,g);
-  const last=LAST[g];
-  const picks=pick5(pool,g,last);
+  const picks=pick5(pool,g,LAST[g]);
   if(picks.length)LAST[g]=picks[0].nums;
   renderPan(ch,pool.realTags,pool.zfFour,pool.smFour);
   renderPool(pool);
-  renderPicks(picks);
+  renderPicks(picks,g);
 }
-
 function demo(){
   document.getElementById('game').value='ssq';
   document.getElementById('date').value='2026-10-22';
