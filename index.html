@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -171,7 +172,7 @@ function qimen(y,m,d,h,mi){
   const xunYi=xunYiMap[xunGan];
   let xunPalace=null;
   for(const p of [1,2,3,4,5,6,7,8,9])if(di[p]===xunYi)xunPalace=p;
-  if(xunPalace===5)xunPalace=2; // 中宫寄坤
+  if(xunPalace===5)xunPalace=2;
   // 值符星
   const psMap={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8};
   const zhiFuStar=psMap[xunPalace];
@@ -300,21 +301,23 @@ function ballHtml(n,w,isBack){
   return `<span class="ball ${base}">${String(n).padStart(2,'0')}</span>`;
 }
 
+function safe(x){return (x===undefined||x===null)?'—':x;}
+
 function renderPan(ch){
   document.getElementById('panCard').style.display='';
   document.getElementById('panInfo').innerHTML=
     `<div class="info-item">${ch.y}-${ch.m}-${ch.d} ${ch.h}:${String(ch.mi).padStart(2,'0')}</div>`+
     `<div class="info-item">${ch.yy}遁 ${ch.ju}局</div>`+
-    `<div class="info-item">节气 ${ch.tn}</div>`+
-    `<div class="info-item">值符宫 ${ch.timePalace}</div>`+
-    `<div class="info-item">旬首宫 ${ch.xunPalace}</div>`;
+    `<div class="info-item">节气 ${safe(ch.tn)}</div>`+
+    `<div class="info-item">值符宫 ${safe(ch.timePalace)}</div>`+
+    `<div class="info-item">旬首宫 ${safe(ch.xunPalace)}</div>`;
   const grid=document.getElementById('palaceGrid');grid.innerHTML='';
   PORD.forEach(p=>{
     const div=document.createElement('div');div.className='p-cell';
-    const ganName=GAN[ch.di[p]];
-    const star=ch.tianStar[p]||'—';
-    const door=ch.tianDoor[p]||'—';
-    const shen=ch.shen[p]||'—';
+    const ganName=safe(GAN[ch.di[p]]);
+    const star=safe(ch.tianStar[p]);
+    const door=safe(ch.tianDoor[p]);
+    const shen=safe(ch.shen[p]);
     div.innerHTML=`<b>${p}宫</b><br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
     grid.appendChild(div);
   });
