@@ -1,253 +1,296 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>奇门总池(前/后池)+自动起局</title>
+<title>奇门选号·宫位全映射版（双色球/大乐透）</title>
 <style>
-  :root{
-    --bg:#07101e; --card:#0b1730; --line:#1f3050; --text:#e6f4ff;
-    --muted:#8aa6c4; --btn:#1e88ff; --front:#4cc9f0; --back:#ffb86b; --warn:#ffd166;
-  }
-  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:12px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+  :root{--bg:#07102a;--box:#0d1740;--line:#2b3f7a;--text:#e6ecff;--blue:#7cc4ff;--orange:#ffb86b;--hot:#ffd84d;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:12px}
+  .card{background:var(--box);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px}
   h2{font-size:17px;margin:0 0 8px}
-  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
-  label{color:var(--muted)}
-  select,input{background:#07101e;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 9px;outline:none}
-  input[readonly]{color:var(--muted)}
-  input[type=number]{width:90px}
-  button{background:var(--btn);color:#fff;border:0;border-radius:10px;padding:11px 14px;font-size:15px;cursor:pointer;width:100%}
-  button:disabled{opacity:.55;cursor:wait}
-  pre{white-space:pre-wrap;word-break:break-all;margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;line-height:1.55}
-  .tag-front{color:var(--front);border:1px solid rgba(76,201,240,.5);background:rgba(76,201,240,.08);border-radius:6px;padding:1px 6px;margin-right:6px}
-  .tag-back{color:var(--back);border:1px solid rgba(255,184,107,.5);background:rgba(255,184,107,.08);border-radius:6px;padding:1px 6px;margin-right:6px}
-  .num-front{color:var(--front)}
-  .num-back{color:var(--back)}
-  .note{color:var(--warn);font-size:12px;margin-top:8px}
-  .muted{color:var(--muted)}
+  label{display:block;margin:6px 0}
+  input,select{background:#050b22;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;font-size:15px}
+  .row{display:flex;gap:8px;align-items:center}
+  .row>*{flex:1}
+  button{background:#2f80ff;color:#fff;border:0;border-radius:12px;padding:12px;font-size:16px;width:100%;margin-top:8px}
+  button:disabled{opacity:.6}
+  .num-front{color:var(--blue)}
+  .num-back{color:var(--orange)}
+  .hot{color:var(--hot);font-weight:700;text-shadow:0 0 6px rgba(255,216,77,.45)}
+  pre{white-space:pre-wrap;word-break:break-all;margin:0;font:13px/1.55 ui-monospace,Consolas,monospace}
+  .map-line{margin:2px 0}
+  .tip{color:#ffd591;font-size:13px}
+  .small{font-size:13px;opacity:.85}
 </style>
 </head>
 <body>
 
 <div class="card">
   <h2>参数（起局时间自动=下一期开奖时间）</h2>
-  <div class="row">
-    <label>彩种</label>
+  <label>彩种
     <select id="lotType">
       <option value="ssq">双色球（二/四/日 21:15，前33后16，前6后1）</option>
       <option value="dlt">大乐透（一/三/六 21:25，前35后12，前5后2）</option>
     </select>
-    <label>输出注数</label>
-    <input type="number" id="outN" value="5" min="1" max="10" />
-  </div>
-  <div class="row">
-    <label>起局时间(自动)</label>
-    <input type="text" id="dtInput" readonly />
-  </div>
-  <div class="row">
-    <label>采样轮次</label>
-    <input type="number" id="sampleN" value="800" min="50" max="3000" />
-    <label><input type="checkbox" id="chkQimen" checked /> 起奇门</label>
-    <label><input type="checkbox" id="chkWang" checked /> 旺相加权</label>
-  </div>
+  </label>
+  <label>输出注数（1~10）<input id="outN" type="number" min="1" max="10" value="5"></label>
+  <label>起局时间(自动)<input id="dtInput" readonly></label>
+  <label>采样轮次（建议手机300~800；可到2000）<input id="sampleN" type="number" min="50" max="2000" value="600"></label>
+  <label class="row"><input type="checkbox" id="chkQimen" checked> 起奇门</label>
+  <label class="row"><input type="checkbox" id="chkWang" checked> 旺相加权</label>
+  <label class="row"><input type="checkbox" id="chkFull" checked> 宫位全映射(1~33/35不丢/含高位)</label>
   <button id="btnCalc">计算（自动起局→奇门总池→九宫围号→注单）</button>
-  <div class="note">仅本地计算/展示“奇门总池(前池/后池)”与缩水注单；不联网、不下注、不保证命中；彩票随机，请理性参与。</div>
+  <div class="tip" style="margin-top:8px">仅本地计算/展示“奇门总池(前池/后池)”与缩水注单；不联网、不下注、不保证命中；彩票随机，请理性参与。</div>
 </div>
 
-<div class="card"><h2>奇门局信息</h2><pre id="juInfo">等待计算...</pre></div>
+<div class="card">
+  <h2>九宫映射表（全映射）</h2>
+  <pre id="mapOut"></pre>
+</div>
+
+<div class="card">
+  <h2>奇门局信息</h2>
+  <pre id="juInfo"></pre>
+</div>
 
 <div class="card">
   <h2>奇门总池</h2>
-  <div style="margin-top:6px"><span class="tag-front">前池</span><span class="muted">（围号后候选）</span></div>
-  <pre id="frontPoolOut"></pre>
-  <div style="margin-top:10px"><span class="tag-back">后池</span><span class="muted">（围号后候选）</span></div>
-  <pre id="backPoolOut"></pre>
+  <div><b class="num-front">前池/前区候选</b>：<span id="frontPoolOut"></span></div>
+  <div style="margin-top:6px"><b class="num-back">后池/后区候选</b>：<span id="backPoolOut"></span></div>
 </div>
 
-<div class="card"><h2>缩水结果（注单）</h2><pre id="shrinkOut">-</pre></div>
+<div class="card">
+  <h2>缩水结果（注单）</h2>
+  <pre id="shrinkOut"></pre>
+</div>
 
 <script>
-/* ===== 开奖时间表（自动下一期） ===== */
-const DRAW_CFG = {
-  ssq: { name:'双色球', front:33, back:16, fpick:6, bpick:1,
-         days:[2,4,0], hour:21, min:15 }, // 二/四/日
-  dlt: { name:'大乐透', front:35, back:12, fpick:5, bpick:2,
-         days:[1,3,6], hour:21, min:25 }, // 一/三/六
+/* ===== 彩种配置 ===== */
+const DRAW_CFG={
+  ssq:{name:'双色球',front:33,back:16,fpick:6,bpick:1,drawDays:[2,4,0],drawTime:'21:15'},
+  dlt:{name:'大乐透',front:35,back:12,fpick:5,bpick:2,drawDays:[1,3,6],drawTime:'21:25'}
 };
-function pad(n){return n<10?'0'+n:n}
-function fmtDT(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())} (周${'日一二三四五六'[d.getDay()]})`}
-function nextDrawDate(type, now=new Date()){
-  const c=DRAW_CFG[type];
-  let d=new Date(now); d.setSeconds(0,0);
-  // 先对齐到今天开奖时刻
-  let candidate=new Date(d); candidate.setHours(c.hour,c.min,0,0);
-  if(candidate<=now){ candidate.setDate(candidate.getDate()+1); }
-  // 找最近开奖日
-  for(let i=0;i<14;i++){
-    if(c.days.includes(candidate.getDay())) return candidate;
-    candidate.setDate(candidate.getDate()+1);
+
+/* ===== 九宫→前区全映射（不丢高位） ===== */
+// 采用“每宫4个/按+9递进”覆盖全范围，超出部分挂末宫/相邻处理；后区按1~12/16分宫
+function gongFrontMap(frontMax){
+  // 1~9宫基础映射（到33/35都覆盖）
+  const m={};
+  for(let g=1;g<=9;g++){
+    m[g]=[];
+    let start=g;
+    while(start<=frontMax){ m[g].push(start); start+=9; }
   }
-  return candidate;
+  // 保证33/35都在：33属6宫(6+9*3=33)，35可归8宫(8+9*3=35)；上面循环已覆盖，无需额外
+  return m;
+}
+function gongBackMap(backMax){
+  // 后区简单按 (n-1)%9+1 归宫，或按1~12/16分布
+  const m={};
+  for(let g=1;g<=9;g++)m[g]=[];
+  for(let n=1;n<=backMax;n++){
+    const g=((n-1)%9)+1;
+    m[g].push(n);
+  }
+  return m;
 }
 
-/* ===== 简化奇门（自洽骨架，非商业逐秒一致） ===== */
+/* ===== 起局（简化，足够本地演示） ===== */
+const JIEQI=['立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至','小寒','大寒'];
 function makeQimenPan(dt){
-  const wd='日一二三四五六';
-  // 用月份近似节气（仅骨架）
-  const m=dt.getMonth()+1, day=dt.getDate();
-  let jieQi='近似节气';
-  if((m===3&&day>=21)||(m===4&&day<20)) jieQi='春分/清明间';
-  else if((m===4&&day>=20)||(m===5&&day<21)) jieQi='清明/立夏间';
-  else if((m===5&&day>=21)||(m===6&&day<22)) jieQi='立夏/芒种间';
-  else if((m===6&&day>=22)||(m===7&&day<23)) jieQi='芒种/小暑间';
-  else if((m===7&&day>=23)||(m===8&&day<23)) jieQi='小暑/立秋间';
-  else if((m===8&&day>=23)||(m===9&&day<23)) jieQi='立秋/白露间';
-  else if((m===9&&day>=23)||(m===10&&day<24)) jieQi='白露/寒露间';
-  else if((m===10&&day>=24)||(m===11&&day<22)) jieQi='寒露/立冬间';
-  else if((m===11&&day>=22)||(m===12&&day<22)) jieQi='立冬/大雪间';
-  else if((m===12&&day>=22)||(m===1&&day<20)) jieQi='大雪/小寒间';
-  else if((m===1&&day>=20)||(m===2&&day<19)) jieQi='小寒/立春间';
-  else if((m===2&&day>=19)||(m===3&&day<21)) jieQi='立春/惊蛰间';
-  else jieQi='节气近似';
-  const yy = (dt.getHours()>=23||dt.getHours()<11)?'阳':'阴'; // 极简
-  const juBase = ((dt.getDay()+dt.getHours())%9)+1;
-  const shiGanGong = ((dt.getHours()%9)+1);
-  const riGanGong = ((dt.getDay()%9)+1)||1;
-  const zhiFuGong = ((juBase+2)%9)||9;
-  const zhiShiGong = ((juBase+3)%9)||9;
-  const kong=[((juBase+5)%9)||9];
-  const maXing=[((dt.getDay()+4)%9)||9];
-  const sanQiDeShi=[{qi:'乙',gong:shiGanGong},{qi:'丙',gong:riGanGong}];
-  const wuBuYu = (dt.getHours()%2===0);
-  return {jieQi,yy,juBase,shiGanGong,riGanGong,zhiFuGong,zhiShiGong,kong,maXing,sanQiDeShi,wuBuYu,
-          dayGZ:'简式',hourGZ:'简式',yuNuGong:null};
+  const d=new Date(dt);
+  const y=d.getFullYear(),mo=d.getMonth()+1,da=d.getDate(),h=d.getHours(),mi=d.getDate();
+  const idx=((mo*31+da+h)%24);
+  const jieQi=JIEQI[idx%JIEQI.length];
+  const yy=(idx%2===0)?'阳':'阴';
+  const juBase=((idx%9)+1);
+  const shiGanGong=((h+mi/60|0)+idx)%9+1;
+  const riGanGong=((da+idx)%9+1);
+  const zhiFuGong=((idx*3+mo)%9+1);
+  const zhiShiGong=((idx*5+da)%9+1);
+  const kong=[((idx*2)%9+1),(((idx*2)+5)%9+1)];
+  const maXing=[((idx*7)%9+1)];
+  const wuBuYu=((h%10)==5);
+  const sanQiDeShi=[{qi:'乙',gong:((idx+1)%9+1)},{qi:'丙',gong:((idx+3)%9+1)},{qi:'丁',gong:((idx+5)%9+1)}];
+  return {jieQi,yy,juBase,shiGanGong,riGanGong,zhiFuGong,zhiShiGong,kong,maXing,wuBuYu,sanQiDeShi};
 }
 
-/* ===== 总池（前/后）+ 九宫围号 ===== */
-function gongOf(n,max){
-  if(max<=9) return ((n-1)%9)+1;
-  // 前区按1-35/1-33映射到九宫（简化）
-  return ((Math.ceil(n/4)-1)%9)+1;
+/* ===== 下一期开奖时间 ===== */
+function nextDrawDate(type,from){
+  const cfg=DRAW_CFG[type];
+  const d=new Date(from); d.setSeconds(0);d.setMilliseconds(0);
+  for(let i=0;i<14;i++){
+    const day=d.getDay();
+    if(cfg.drawDays.includes(day)){
+      const [hh,mm]=cfg.drawTime.split(':').map(Number);
+      d.setHours(hh,mm,0,0);
+      if(d>from) return d;
+    }
+    d.setDate(d.getDate()+1);
+    d.setHours(0,0,0,0);
+  }
+  return d;
 }
-function backGong(n){ return ((n-1)%9)+1; }
+const fmtDT=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' ('+['日','一','二','三','四','五','六'][d.getDay()]+')';
+const pad=n=>String(n).padStart(2,'0');
 
-function buildTotalPool(pan, cfg, opt, sampleN){
-  const frontSet=new Set(), backSet=new Set();
-  const frontW={}, backW={};
-  const centerGongs = pan? [pan.shiGanGong, pan.riGanGong, pan.zhiFuGong].filter(Boolean) : [5];
+/* ===== 建池（核心：全映射+围宫加权） ===== */
+function buildPools(pan,cfg,opt,sampleN){
+  const frontMap=gongFrontMap(cfg.front);
+  const backMap=gongBackMap(cfg.back);
+  const allFront=[...Array(cfg.front)].map((_,i)=>i+1);
+  const allBack=[...Array(cfg.back)].map((_,i)=>i+1);
+
+  const fW={},bW={};
+  allFront.forEach(n=>fW[n]=1); allBack.forEach(n=>bW[n]=1);
+
+  let hotGongs=[];
+  if(opt.qimen&&pan){
+    hotGongs=[pan.shiGanGong,pan.riGanGong,pan.zhiFuGong,...pan.sanQiDeShi.map(s=>s.gong)];
+    const boost=opt.wang?3.2:2.2;
+    const mid=opt.wang?1.6:1.3;
+    for(const g of hotGongs){
+      (frontMap[g]||[]).forEach(n=>fW[n]=(fW[n]||1)*boost);
+      (backMap[g]||[]).forEach(n=>bW[n]=(bW[n]||1)*boost);
+    }
+    // 邻宫略加权，避免只钉死3宫
+    const neigh=g=>[((g-2+9)%9+1),((g%9)+1),((g%9)+1),((g+1-1)%9+1)].filter((v,i,arr)=>arr.indexOf(v)===i);
+    for(const g of hotGongs){
+      for(const ng of neigh(g)){
+        (frontMap[ng]||[]).forEach(n=>fW[n]=Math.max(fW[n],(fW[n]||1)*mid));
+        (backMap[ng]||[]).forEach(n=>bW[n]=Math.max(bW[n],(bW[n]||1)*mid));
+      }
+    }
+    // 空亡略降
+    (pan.kong||[]).forEach(g=>{
+      (frontMap[g]||[]).forEach(n=>fW[n]*=0.6);
+      (backMap[g]||[]).forEach(n=>bW[n]*=0.6);
+    });
+  }
+
+  // 若“非全映射/强围宫”模式：只把围宫集合当候选（会少高位若映射只取首段则旧表现），这里为了兼容保留“全映射”为主
+  // 采样
+  const pickW=(wMap,max,k)=>{
+    const keys=[];for(let i=1;i<=max;i++)keys.push(i);
+    const out=new Set();let g=0;
+    while(out.size<k && g++<max*80){
+      let tot=0;for(const x of keys)tot+=(wMap[x]||0);
+      if(tot<=0)break;
+      let r=Math.random()*tot,acc=0,sel=keys[0];
+      for(const x of keys){acc+=(wMap[x]||0);if(r<=acc){sel=x;break;}}
+      out.add(sel);
+    }
+    return [...out].sort((a,b)=>a-b);
+  };
+
+  const frontPoolSet=new Set(), backPoolSet=new Set();
   for(let s=0;s<sampleN;s++){
-    for(let i=0;i<cfg.front;i++){
-      const n=i+1;
-      const g=gongOf(n,cfg.front);
-      let w=1;
-      if(opt.qimen && centerGongs.includes(g)) w+=3;
-      if(opt.wang) w+= (s%3);
-      if(Math.random()<w/(w+6)){ frontSet.add(n); frontW[n]=(frontW[n]||0)+w; }
-    }
-    for(let i=0;i<(cfg.back||0);i++){
-      const n=i+1;
-      const g=backGong(n);
-      let w=1;
-      if(opt.qimen && centerGongs.includes(g)) w+=3;
-      if(opt.wang) w+=(s%2);
-      if(Math.random()<w/(w+6)){ backSet.add(n); backW[n]=(backW[n]||0)+w; }
-    }
+    pickW(fW,cfg.front, Math.min(12,cfg.front)).forEach(x=>frontPoolSet.add(x));
+    pickW(bW,cfg.back, Math.min(8,cfg.back)).forEach(x=>backPoolSet.add(x));
   }
+  // 全映射模式下：至少保留“围宫展开全集”进入候选展示（再按权重着色），避免UI只显示采样偶然结果
+  if(opt.full&&opt.qimen&&pan){
+    const expFront=new Set();
+    hotGongs.forEach(g=>{(frontMap[g]||[]).forEach(n=>expFront.add(n))});
+    expFront.forEach(n=>frontPoolSet.add(n));
+    const expBack=new Set();
+    hotGongs.forEach(g=>{(backMap[g]||[]).forEach(n=>expBack.add(n))});
+    expBack.forEach(n=>backPoolSet.add(n));
+  }
+  const frontPool=[...frontPoolSet].sort((a,b)=>a-b);
+  const backPool=[...backPoolSet].sort((a,b)=>a-b);
+
   return {
-    frontPool:[...frontSet].sort((a,b)=>a-b),
-    backPool:[...backSet].sort((a,b)=>a-b),
-    frontW, backW,
-    log:`采样${sampleN} 中心宫=${centerGongs.join(',')}`
+    frontMap,backMap,
+    fW,bW,bWmap:bW,
+    frontPool,backPool,
+    hotGongs:new Set(hotGongs),
+    pan
   };
 }
 
-function shrinkByGong(pool, pan, frontMax, backMax){
-  const keepGongs = [pan.shiGanGong, pan.riGanGong, pan.zhiFuGong, ...(pan.sanQiDeShi||[]).map(s=>s.gong)].filter(Boolean);
-  const uniq=[...new Set(keepGongs)];
-  const frontKeep = pool.frontPool.filter(n=>uniq.includes(gongOf(n,frontMax)));
-  const backKeep = pool.backPool.filter(n=>uniq.includes(backGong(n)));
-  return {
-    keepGongs:uniq,
-    frontKeep: frontKeep.length? frontKeep : pool.frontPool.slice(0,Math.min(20,frontMax)),
-    backKeep: backKeep.length? backKeep : pool.backPool.slice(0,Math.min(10,backMax||10))
+/* ===== 注单生成 ===== */
+function genTickets(P,cfg,outN){
+  const pickW=(wMap,max,k)=>{
+    const keys=[];for(let i=1;i<=max;i++)keys.push(i);
+    const out=new Set();let g=0;
+    while(out.size<k && g++<max*80){
+      let tot=0;for(const x of keys)tot+=(wMap[x]||0);
+      if(tot<=0)break;
+      let r=Math.random()*tot,acc=0,sel=keys[0];
+      for(const x of keys){acc+=(wMap[x]||0);if(r<=acc){sel=x;break;}}
+      out.add(sel);
+    }
+    return [...out].sort((a,b)=>a-b);
   };
-}
-
-function pickWeighted(cand, k, wMap){
-  const out=[]; const set=new Set();
-  if(k<=0||!cand.length) return out;
-  let guard=0, maxGuard=10000;
-  while(out.length<k && set.size<cand.length && guard++<maxGuard){
-    let total=0; for(const x of cand) total+=(wMap[x]||1);
-    let r=Math.random()*total, acc=0, sel=cand[0];
-    for(const x of cand){ acc+=(wMap[x]||1); if(r<=acc){sel=x;break;} }
-    if(!set.has(sel)){set.add(sel);out.push(sel);}
-  }
-  // 不足则补足
-  for(let n of cand){ if(out.length>=k) break; if(!out.includes(n)) out.push(n); }
-  return out.sort((a,b)=>a-b);
-}
-
-function generateTickets(shrunk, frontW, backW, cfg, outN){
-  const out=[];
+  const res=[];
   for(let i=0;i<outN;i++){
-    const f = pickWeighted(shrunk.frontKeep, cfg.fpick, frontW).slice(0,cfg.fpick);
-    let b=[];
-    if(cfg.bpick>0) b = pickWeighted(shrunk.backKeep, cfg.bpick, backW).slice(0,cfg.bpick);
-    out.push({front:f, back:b});
+    const front=pickW(P.fW,cfg.front,cfg.fpick);
+    const back=cfg.bpick?pickW(P.bW,cfg.back,cfg.bpick):[];
+    res.push({front,back});
   }
-  return out;
+  return res;
 }
 
-function fmtPool(arr,cls){
-  if(!arr.length) return '<span class="muted">(空)</span>';
-  return arr.map(n=>`<span class="${cls}">${pad(n)}</span>`).join(' ');
+/* ===== 渲染 ===== */
+function renderMap(frontMap,backMap,hotSet){
+  const a=[...Array(9)].map((_,i)=>i+1).map(g=>{
+    return `宫${g}${hotSet.has(g)?'★':''}: 前[${frontMap[g].map(pad).join(' ')}] 后[${backMap[g].map(pad).join(' ')}]`;
+  }).join('\n');
+  return a;
+}
+function renderPool(arr,hotSet,map,cls){
+  return arr.map(n=>{
+    let g=Object.keys(map).find(k=>map[k].includes(n));
+    const hot=hotSet.has(Number(g));
+    return `<span class="${hot?'hot ':''}${cls}">${pad(n)}</span>`;
+  }).join(' ');
 }
 function fmtTicket(t,cfg){
-  return `前[${t.front.map(pad).join(',')}]`+(cfg.bpick?` 后[${t.back.map(pad).join(',')}]`:'');
+  const f=t.front.map(pad).join(',');
+  const b=t.back.map(pad).join(',');
+  return cfg.bpick?`前[${f}] 后[${b}]`:`前[${f}] 蓝[${b}]`;
 }
 
-/* ===== 主计算（让出主线程防卡死） ===== */
+/* ===== 运行 ===== */
 let running=false;
-function runCalculation(){
-  if(running) return;
-  running=true;
-  const btn=document.getElementById('btnCalc');
-  btn.disabled=true; btn.textContent='计算中，稍候…';
-  document.getElementById('juInfo').textContent='计算中…';
-  document.getElementById('frontPoolOut').innerHTML='';
-  document.getElementById('backPoolOut').innerHTML='';
-  document.getElementById('shrinkOut').textContent='-';
-
+function run(){
+  if(running)return; running=true;
+  const btn=document.getElementById('btnCalc'); btn.disabled=true; btn.textContent='计算中…';
   setTimeout(()=>{
     try{
-      const lotType=document.getElementById('lotType').value;
-      const cfg=DRAW_CFG[lotType];
-      const dt=nextDrawDate(lotType, new Date());
+      const t=document.getElementById('lotType').value;
+      const cfg=DRAW_CFG[t];
+      const dt=nextDrawDate(t,new Date());
       document.getElementById('dtInput').value=fmtDT(dt);
       const qimen=document.getElementById('chkQimen').checked;
       const wang=document.getElementById('chkWang').checked;
-      const sampleN=Math.max(50,Math.min(3000,parseInt(document.getElementById('sampleN').value||800)));
+      const full=document.getElementById('chkFull').checked;
+      const sampleN=Math.max(50,Math.min(2000,parseInt(document.getElementById('sampleN').value||600)));
       const outN=Math.max(1,Math.min(10,parseInt(document.getElementById('outN').value||5)));
-      const pan = qimen? makeQimenPan(dt):null;
-      const pool = buildTotalPool(pan, cfg, {qimen,wang}, sampleN);
-      const shrunk = shrinkByGong(pool, pan||{shiGanGong:5,riGanGong:5,zhiFuGong:5,sanQiDeShi:[{gong:5}]}, cfg.front, cfg.back);
-      const tickets = generateTickets(shrunk, pool.frontW, pool.backW, cfg, outN);
+      const pan=qimen?makeQimenPan(dt):null;
+      const P=buildPools(pan,cfg,{qimen,wang,full},sampleN);
 
-      let jt=`彩种: ${cfg.name}\n起局时间(下一期): ${fmtDT(dt)}\n`;
+      document.getElementById('mapOut').textContent=renderMap(P.frontMap,P.backMap,P.hotGongs);
+
+      let jt=`彩种:${cfg.name}\n起局(下一期):${fmtDT(dt)}\n`;
       if(pan){
-        jt+=`节气(简化): ${pan.jieQi} | ${pan.yy}遁${pan.juBase}局\n`;
-        jt+=`时干宫:${pan.shiGanGong} 日干宫:${pan.riGanGong} 值符宫:${pan.zhiFuGong} 值使宫:${pan.zhiShiGong}\n`;
-        jt+=`空亡:${pan.kong.join(',')} 马星:${pan.maXing.join(',')}\n五不遇:${pan.wuBuYu?'是':'否'}\n`;
+        jt+=`节气:${pan.jieQi} ${pan.yy}遁${pan.juBase}局\n时干宫:${pan.shiGanGong} 日干宫:${pan.riGanGong} 值符宫:${pan.zhiFuGong} 值使宫:${pan.zhiShiGong}\n`;
+        jt+=`三奇得使:${pan.sanQiDeShi.map(s=>s.qi+'@'+s.gong).join(',')}\n空亡:${pan.kong.join(',')} 马星:${pan.maXing.join(',')}\n五不遇:${pan.wuBuYu?'是':'否'}\n`;
+        jt+=`围/加权宫:${[...P.hotGongs].join(',')}\n`;
       }else{ jt+='(未启用奇门，等权采样)\n'; }
       document.getElementById('juInfo').textContent=jt;
 
-      document.getElementById('frontPoolOut').innerHTML = fmtPool(shrunk.frontKeep,'num-front');
-      document.getElementById('backPoolOut').innerHTML = cfg.back? fmtPool(shrunk.backKeep,'num-back') : '(本彩种无后池)';
+      document.getElementById('frontPoolOut').innerHTML=renderPool(P.frontPool,P.hotGongs,P.frontMap,'num-front');
+      document.getElementById('backPoolOut').innerHTML=renderPool(P.backPool,P.hotGongs,P.backMap,'num-back');
 
-      let st=`围号宫:[${shrunk.keepGongs.join(',')}]\n前池${shrunk.frontKeep.length}个 / 后池${shrunk.backKeep.length}个\n输出注单(≤${outN}):\n`;
-      tickets.forEach((t,i)=> st+=`${i+1}. ${fmtTicket(t,cfg)}\n`);
+      const tickets=genTickets(P,cfg,outN);
+      let st=`前池${P.frontPool.length}个 / 后池${P.backPool.length}个\n`;
+      st+=`输出注单(≤${outN}):\n`;
+      tickets.forEach((t,i)=>st+=`${i+1}. ${fmtTicket(t,cfg)}\n`);
       document.getElementById('shrinkOut').textContent=st;
     }catch(e){
       console.error(e);
@@ -256,20 +299,18 @@ function runCalculation(){
       running=false;
       btn.disabled=false; btn.textContent='计算（自动起局→奇门总池→九宫围号→注单）';
     }
-  }, 0);
+  },0);
 }
 
-/* ===== 绑定/初始化 ===== */
-document.getElementById('btnCalc').addEventListener('click', runCalculation);
-document.getElementById('lotType').addEventListener('change', ()=>{
-  document.getElementById('dtInput').value=fmtDT(nextDrawDate(document.getElementById('lotType').value, new Date()));
+/* ===== 绑定 ===== */
+document.getElementById('btnCalc').addEventListener('click',run);
+document.getElementById('lotType').addEventListener('change',()=>{
+  document.getElementById('dtInput').value=fmtDT(nextDrawDate(document.getElementById('lotType').value,new Date()));
 });
 function init(){
-  document.getElementById('lotType').value='ssq';
   document.getElementById('dtInput').value=fmtDT(nextDrawDate('ssq',new Date()));
-  // 不自动跑重计算，避免手机打开即卡；点按钮再算（也可放setTimeout(runCalculation,200)按需）
 }
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 </script>
 </body>
