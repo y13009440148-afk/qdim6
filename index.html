@@ -4,12 +4,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门彩票 6.1 · 回测版</title>
+<title>奇门彩票 V6.1 固定模型</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0e1a;color:#dce0f0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;padding:16px}
-.wrap{max-width:800px;margin:0 auto}
-h1{font-size:18px;font-weight:700;letter-spacing:0.5px;margin-bottom:2px;background:linear-gradient(135deg,#72d4ff,#48b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wrap{max-width:840px;margin:0 auto}
+h1{font-size:18px;font-weight:700;letter-spacing:0.5px;background:linear-gradient(135deg,#72d4ff,#48b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
 .sub{color:#7383a8;font-size:12px;margin-bottom:16px}
 .card{background:#121828;border:1px solid #232d4a;border-radius:14px;padding:16px;margin-bottom:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
@@ -23,31 +23,24 @@ input:focus,select:focus{border-color:#3b7bc9}
 .btn-primary:hover{opacity:.88}
 .btn-ghost{background:#1a233a;color:#b0c0e8;border:1px solid #2a3555}
 .btn-ghost:hover{background:#202d4a}
-.btn-warn{background:linear-gradient(135deg,#b04a20,#8a3010);color:#fff}
-.btn-warn:hover{opacity:.88}
-
 .section-title{font-size:13px;font-weight:600;color:#8899c0;margin-bottom:8px;letter-spacing:0.3px}
 .pool-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
 .ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;transition:.1s}
 .ball-front{background:#13203a;border:1px solid #2a4070;color:#b0ccff}
 .ball-back{background:#281f10;border:1px solid #705530;color:#ffd699}
 .ball-high{opacity:1;border-color:#66b8ff;box-shadow:0 0 6px rgba(70,150,255,.25)}
-.ball-mid{opacity:.65;border-color:#406090}
-.ball-low{opacity:.3;border-color:#253050}
+.ball-mid{opacity:.75;border-color:#406090}
+.ball-low{opacity:.4;border-color:#253050}
 .ball-back-high{opacity:1;border-color:#ffaa44;box-shadow:0 0 6px rgba(255,170,68,.2)}
-.ball-back-mid{opacity:.6;border-color:#906a30}
-.ball-back-low{opacity:.3;border-color:#503f20}
-.ball-hit{border-color:#00ff88 !important;background:#003020 !important;box-shadow:0 0 8px rgba(0,255,136,.3)}
-.ball-hit-back{border-color:#ffdd44 !important;background:#302010 !important;box-shadow:0 0 8px rgba(255,221,68,.3)}
-
+.ball-back-mid{opacity:.7;border-color:#906a30}
+.ball-back-low{opacity:.4;border-color:#503f20}
 .pick-card{padding:12px 14px;background:#0f1525;border-radius:12px;margin-bottom:10px}
 .pick-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .pick-num{font-size:12px;color:#6070a0}
 .pick-score{font-size:11px;color:#b0c060;background:#1a2520;padding:2px 8px;border-radius:8px}
 .pick-balls{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .sep{color:#405070;margin:0 4px;font-size:16px}
-
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin-bottom:10px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:6px;margin-bottom:10px}
 .info-item{background:#0d1225;border-radius:8px;padding:6px 10px;font-size:12px;color:#8090b8}
 .info-item strong{color:#d0dcff;font-weight:600}
 .palace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
@@ -64,37 +57,33 @@ input:focus,select:focus{border-color:#3b7bc9}
 .p-cell.daxiong b{color:#c05060}.p-cell.daxiong .cl{color:#802030}
 .p-cell.kongwang{border-color:#404060;background:#0c0c18}
 .p-cell.kongwang b{color:#707090}.p-cell.kongwang .cl{color:#404060}
-
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
-.sum-item{background:#0d1225;border-radius:10px;padding:10px 12px;text-align:center}
-.sum-item .num{font-size:22px;font-weight:700;color:#b0d0ff}
-.sum-item .lbl{font-size:11px;color:#7080a0;margin-top:2px}
-.period-row{display:flex;gap:6px;align-items:center;padding:6px 10px;background:#0d1225;border-radius:8px;margin-bottom:4px;font-size:12px}
-.period-row .date{color:#7080a0;width:80px;flex-shrink:0}
-.period-row .pool-info{color:#8090b8;flex:1}
-.period-row .hit-info{color:#b0d0a0;min-width:80px;text-align:right}
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:4px}
+.tag-zf{background:#124080;color:#90c0ff}
+.tag-sm{background:#402060;color:#c090e0}
+.tag-zs{background:#205030;color:#90d0a0}
+.tag-xw{background:#403010;color:#e0b060}
+.tag-kw{background:#303040;color:#8080a0}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>奇门彩票 6.1 · 回测</h1>
-  <div class="sub">时家转盘 · 拆补法 · 收口前≤12后≤6 · 30期回测</div>
+  <h1>奇门彩票 V6.1</h1>
+  <div class="sub">固定模型 · 值符四宫 + 伤门 + 值使 + 玄武/太阴 + 空亡降权 · 前≤14后≤5</div>
 
   <div class="card">
     <div class="row">
       <div><label>彩种</label><select id="game"><option value="ssq">双色球 21:15</option><option value="dlt">大乐透 21:25</option></select></div>
-      <div><label>开奖日期</label><input id="date" value="2026-10-22"></div>
+      <div><label>日期</label><input id="date" value="2026-10-22"></div>
       <div><label>时间</label><input id="time" value="21:15"></div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="run()">起局 → 出5注</button>
+      <button class="btn btn-primary" onclick="run()">起局 → V6.1 出5注</button>
       <button class="btn btn-ghost" onclick="demo()">今晚双色球</button>
-      <button class="btn btn-warn" onclick="runBacktest()">开始回测30期</button>
     </div>
   </div>
 
   <div class="card" id="panCard" style="display:none">
-    <div class="section-title">奇门盘</div>
+    <div class="section-title">奇门盘 · 用神标记</div>
     <div class="info-grid" id="panInfo"></div>
     <div class="palace-grid" id="palaceGrid"></div>
   </div>
@@ -106,9 +95,9 @@ input:focus,select:focus{border-color:#3b7bc9}
     <div class="section-title">后区 <span id="backCount" style="color:#d4a050"></span></div>
     <div class="pool-wrap" id="backPool"></div>
     <div style="margin-top:10px;font-size:11px;color:#506080">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2260c0;vertical-align:middle;margin-right:4px"></span> 高权重 
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#305070;vertical-align:middle;margin:0 4px 0 12px"></span> 中权重 
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1a2840;vertical-align:middle;margin:0 4px 0 12px"></span> 低权重
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2260c0;vertical-align:middle;margin-right:4px"></span> 高权 
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#305070;vertical-align:middle;margin:0 4px 0 12px"></span> 中权 
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1a2840;vertical-align:middle;margin:0 4px 0 12px"></span> 低权
       <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c08020;vertical-align:middle;margin:0 4px 0 12px"></span> 后区高权
     </div>
   </div>
@@ -118,14 +107,8 @@ input:focus,select:focus{border-color:#3b7bc9}
     <div id="pickList"></div>
   </div>
 
-  <div class="card" id="btCard" style="display:none">
-    <div class="section-title">30期回测结果</div>
-    <div class="summary-grid" id="btSummary"></div>
-    <div id="btDetail"></div>
-  </div>
-
   <div style="font-size:11px;color:#405070;text-align:center;padding:10px 0 20px">
-    模型6.1正式版 · 收口：前区≤12 后区≤6 · 权重：大吉×3.0 次吉×2.0 对冲×1.2 大凶×0.5 空亡×0.2 · 仅供研究
+    奇门数据迭代模型 V6.1 · 值符四宫+伤门+值使+玄武/太阴+空亡降权 · 前区≤14 后区≤5 · 仅供研究
   </div>
 </div>
 
@@ -188,9 +171,9 @@ function qimen(y,m,d,h,mi){
   const yuans=[0,6,9].includes(yz)?0:[2,4,7].includes(yz)?1:2;
   const ju=JUTBL[tn][yuans];
   const seq=[4,5,6,7,8,3,2,1];
-  const di={};
   const order=[1,2,3,4,5,6,7,8,9];
   const si=order.indexOf(ju);
+  const di={};
   for(let i=0;i<9;i++){
     let p;
     if(yy==='阳')p=order[(si+i)%9];
@@ -223,7 +206,56 @@ function qimen(y,m,d,h,mi){
   return {y,m,d,h,mi,yy,ju,tn,yuan:yuans,di,tianStar,tianDoor,shen,xunPalace,timePalace,palaces:[1,2,3,4,5,6,7,8,9]};
 }
 
-// ---- 映射 ----
+// ---- V6.1 用神体系 ----
+// 先天宫映射（后天→先天→后天九宫）
+const XIAN_TIAN_MAP = {
+  1:2,  // 坎→坤
+  2:4,  // 坤→巽
+  3:9,  // 震→离
+  4:7,  // 巽→兑
+  5:2,  // 中→坤
+  6:8,  // 乾→艮
+  7:1,  // 兑→坎
+  8:6,  // 艮→乾
+  9:3   // 离→震
+};
+
+function duiChong(p){return p===5?5:10-p;}
+
+function getFourPalaces(base){
+  const set=new Set();
+  set.add(base);
+  set.add(duiChong(base));
+  set.add(XIAN_TIAN_MAP[base]);
+  set.add(duiChong(XIAN_TIAN_MAP[base]));
+  return [...set];
+}
+
+function getMonthIndex(m){
+  // 正月寅=2, 二月卯=3, ..., 十二月丑=1
+  const map={1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,11:11,12:12};
+  return map[m]||1;
+}
+
+// 旺相判断：月建所在宫及其五行同气宫为旺相
+function isWangXiang(palace,month){
+  // 月建地支→宫：寅卯→3震, 巳午→9离, 申酉→7兑, 亥子→1坎, 辰戌丑未→2/5/8
+  const monthToGong = {
+    1:1,2:3,3:3,4:4,5:4,6:9,7:9,8:7,9:7,10:1,11:1,12:2
+  };
+  const mg=monthToGong[month]||2;
+  // 同五行：1/6水, 2/5/8土, 3/4木, 7/8? 7兑金, 6乾金, 9离火
+  const wuxingGroups = {
+    1:[1,6], 6:[1,6],
+    2:[2,5,8], 5:[2,5,8], 8:[2,5,8],
+    3:[3,4], 4:[3,4],
+    7:[7,6], 6:[7,6], // 金
+    9:[9]
+  };
+  const group=wuxingGroups[mg]||[mg];
+  return group.includes(palace);
+}
+
 function frontMap(g){
   if(g==='ssq')return {1:[1,10,19,28],2:[2,11,20,29],3:[3,12,21,30],4:[4,13,22,31],5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]};
   return {1:[1,10,19,28,34],2:[2,11,20,29,35],3:[3,12,21,30],4:[4,13,22,31],5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]};
@@ -233,42 +265,70 @@ function backMap(g){
   return {1:[1,6,11],2:[2,7,12],3:[3,8],4:[4,9],5:[5,10],6:[6,11],7:[7,12],8:[8,1],9:[9,2]};
 }
 
-function classify(ch){
-  const out=[];
-  const push=(p,c,w)=>out.push({p,c,w});
-  push(ch.timePalace,'大吉',3);
-  const fu=Object.keys(ch.tianStar).find(k=>ch.tianStar[k]==='天心')||ch.timePalace;
-  push(fu,'大吉',3);
-  for(const p of ch.palaces){const g=ch.di[p];if(g===1||g===2||g===3)push(p,'大吉',3);}
-  for(const p of ch.palaces)if(ch.tianDoor[p]==='生')push(p,'大吉',3);
-  push(ch.xunPalace,'次吉',2);
-  const dui={1:9,2:8,3:7,4:6,5:5,6:4,7:3,8:2,9:1};
-  out.slice().forEach(o=>{const dp=dui[o.p];if(!out.find(x=>x.p===dp))push(dp,'对冲',1.2);});
-  for(const p of ch.palaces){
-    if(ch.shen[p]==='白虎'||ch.shen[p]==='玄武')push(p,'大凶',0.5);
-    if(ch.tianDoor[p]==='死')push(p,'大凶',0.5);
-    if(ch.di[p]===6)push(p,'大凶',0.5);
-  }
-  push(5,'空亡',0.2);
-  return out;
-}
-
-function buildPool(ch,g){
-  const cls=classify(ch);
+function buildPoolV61(ch,g){
   const fm=frontMap(g),bm=backMap(g);
   const fw={},bw={};
-  cls.forEach(o=>{
-    (fm[o.p]||[]).forEach(n=>fw[n]=(fw[n]||0)+o.w);
-    (bm[o.p]||[]).forEach(n=>bw[n]=(bw[n]||0)+o.w);
+  const tags={}; // 记录每个宫位的用神标签
+  
+  // 1. 值符四宫
+  const zfPalace=ch.timePalace;
+  const zfFour=getFourPalaces(zfPalace);
+  zfFour.forEach(p=>tags[p]=(tags[p]||'')+'值符');
+  
+  // 2. 伤门四宫（伤门本宫=3震，对冲=7兑，先天=9离，先天对冲=1坎）
+  const shangMenBase=3; // 伤门本宫固定为震3
+  const smFour=getFourPalaces(shangMenBase);
+  smFour.forEach(p=>tags[p]=(tags[p]||'')+'伤门');
+  
+  // 3. 值使门落宫
+  // 值使门=值符所落之门，这里简化用旬首宫对应的门
+  const zhiShiPalace=ch.xunPalace===5?2:ch.xunPalace;
+  tags[zhiShiPalace]=(tags[zhiShiPalace]||'')+'值使';
+  
+  // 4. 玄武/太阴（择旺相者）
+  const month=ch.m;
+  const xuanWuPalace=Object.keys(ch.shen).find(k=>ch.shen[k]==='玄武')||1;
+  const taiYinPalace=Object.keys(ch.shen).find(k=>ch.shen[k]==='太阴')||4;
+  const useXuanWu=isWangXiang(+xuanWuPalace,month);
+  const useTaiYin=isWangXiang(+taiYinPalace,month);
+  if(useXuanWu || (!useTaiYin)){
+    tags[+xuanWuPalace]=(tags[+xuanWuPalace]||'')+'玄武';
+  }else{
+    tags[+taiYinPalace]=(tags[+taiYinPalace]||'')+'太阴';
+  }
+  
+  // 5. 空亡宫（旬空）
+  // 甲子旬戌亥空→乾6宫, 甲戌旬申酉空→兑7, 甲申旬午未空→离9, 甲午旬辰巳空→巽4, 甲辰旬寅卯空→震3, 甲寅旬子丑空→坎1
+  const xunKongMap = {
+    0:[6], 1:[6], 2:[7], 3:[7], 4:[9], 5:[9], 6:[4], 7:[4], 8:[3], 9:[3], 10:[1], 11:[1]
+  };
+  const xunIndex=Math.floor((ch.di[ch.timePalace]||0)/2);
+  const kongPalaces=xunKongMap[xunIndex]||[];
+  kongPalaces.forEach(p=>{tags[p]=(tags[p]||'')+'空亡';});
+  
+  // 收集所有用神宫
+  const allPalaces=new Set();
+  Object.keys(tags).forEach(k=>allPalaces.add(+k));
+  
+  // 赋值权重
+  allPalaces.forEach(p=>{
+    const t=tags[p]||'';
+    let w=1.0;
+    if(t.includes('值符')) w+=2.0;
+    if(t.includes('伤门')) w+=1.5;
+    if(t.includes('值使')) w+=1.0;
+    if(t.includes('玄武')||t.includes('太阴')) w+=0.8;
+    if(t.includes('空亡')) w*=0.6;
+    
+    (fm[p]||[]).forEach(n=>fw[n]=(fw[n]||0)+w);
+    (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
   });
-  // 收口：前区≤12，后区≤6
-  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w);
-  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w);
-  // 过滤：大凶/空亡降权后若低于阈值则排除
-  const thr=0.5;
-  frontArr=frontArr.filter(x=>x.w>=thr).slice(0,12);
-  backArr=backArr.filter(x=>x.w>=thr).slice(0,6);
-  return {front:frontArr,back:backArr,cls};
+  
+  // 收口
+  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,14);
+  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,5);
+  
+  return {front:frontArr,back:backArr,tags,allPalaces:[...allPalaces]};
 }
 
 // ---- 缩水 ----
@@ -281,8 +341,6 @@ function valid6(nums,last){
   if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===sm&&b===6-sm))return false;
   const s=nums.reduce((a,b)=>a+b,0);
   if(s<85||s>145)return false;
-  const mods=[0,1,2].map(r=>nums.filter(x=>x%3===r).length);
-  if(mods.some(v=>v<1||v>3))return false;
   const sp=Math.max(...nums)-Math.min(...nums);
   if(sp<16||sp>32)return false;
   const sorted=[...nums].sort((a,b)=>a-b);
@@ -314,46 +372,12 @@ function pick5(pool,game,last){
   return out;
 }
 
-// ---- 30期真实开奖数据（双色球 2026-09-20 ~ 2026-10-20 近30期） ----
-const SSQ_DRAWS = [
-  {date:'2026-10-20',front:[3,8,15,22,27,31],back:7},
-  {date:'2026-10-18',front:[1,9,12,20,25,30],back:14},
-  {date:'2026-10-15',front:[4,11,18,23,28,32],back:5},
-  {date:'2026-10-13',front:[2,7,14,19,26,33],back:11},
-  {date:'2026-10-11',front:[5,10,16,21,29,30],back:3},
-  {date:'2026-10-08',front:[6,13,17,24,27,31],back:9},
-  {date:'2026-10-06',front:[1,8,11,22,25,28],back:15},
-  {date:'2026-10-04',front:[3,9,15,20,26,32],back:6},
-  {date:'2026-10-01',front:[2,12,18,23,29,33],back:12},
-  {date:'2026-09-29',front:[4,7,14,19,24,30],back:8},
-  {date:'2026-09-27',front:[5,11,16,21,27,31],back:2},
-  {date:'2026-09-24',front:[6,10,13,22,28,32],back:10},
-  {date:'2026-09-22',front:[1,8,17,20,25,29],back:13},
-  {date:'2026-09-20',front:[3,9,12,18,26,30],back:4},
-  {date:'2026-09-17',front:[2,7,15,23,27,33],back:16},
-  {date:'2026-09-15',front:[4,11,14,19,24,28],back:1},
-  {date:'2026-09-13',front:[5,10,16,21,29,32],back:11},
-  {date:'2026-09-10',front:[6,8,13,20,25,31],back:7},
-  {date:'2026-09-08',front:[1,9,18,22,26,30],back:5},
-  {date:'2026-09-06',front:[3,12,15,19,27,33],back:14},
-  {date:'2026-09-03',front:[2,7,11,23,28,29],back:9},
-  {date:'2026-09-01',front:[4,10,17,21,24,32],back:6},
-  {date:'2026-08-30',front:[5,8,14,20,26,31],back:12},
-  {date:'2026-08-27',front:[1,6,16,22,25,30],back:3},
-  {date:'2026-08-25',front:[3,9,13,18,27,28],back:15},
-  {date:'2026-08-23',front:[2,11,15,19,24,33],back:8},
-  {date:'2026-08-20',front:[4,7,12,23,29,31],back:10},
-  {date:'2026-08-18',front:[5,10,14,21,26,32],back:2},
-  {date:'2026-08-16',front:[6,8,17,20,25,30],back:13},
-  {date:'2026-08-13',front:[1,9,11,22,27,29],back:4}
-];
-
 // ---- UI ----
 let LAST={ssq:null,dlt:null};
 
 function weightClass(w){
   if(w>=2.5)return 'high';
-  if(w>=1.0)return 'mid';
+  if(w>=1.5)return 'mid';
   return 'low';
 }
 
@@ -366,20 +390,29 @@ function ballHtml(n,w,isBack,isHit){
 
 function safe(x){return (x===undefined||x===null)?'—':x;}
 
-function getPalaceClass(p,clsList){
-  const item=clsList.find(o=>o.p===p);
-  if(!item)return '';
-  switch(item.c){
-    case '大吉':return 'daji';
-    case '次吉':return 'ciji';
-    case '对冲':return 'duichong';
-    case '大凶':return 'daxiong';
-    case '空亡':return 'kongwang';
-    default:return '';
-  }
+function getPalaceTagStyle(p,tags){
+  const t=tags[p]||'';
+  if(t.includes('值符'))return 'daji';
+  if(t.includes('伤门'))return 'duichong';
+  if(t.includes('值使'))return 'ciji';
+  if(t.includes('玄武')||t.includes('太阴'))return 'daxiong';
+  if(t.includes('空亡'))return 'kongwang';
+  return '';
 }
 
-function renderPan(ch,clsList){
+function tagLabel(p,tags){
+  const t=tags[p]||'';
+  let html='';
+  if(t.includes('值符'))html+='<span class="tag tag-zf">值符</span>';
+  if(t.includes('伤门'))html+='<span class="tag tag-sm">伤门</span>';
+  if(t.includes('值使'))html+='<span class="tag tag-zs">值使</span>';
+  if(t.includes('玄武'))html+='<span class="tag tag-xw">玄武</span>';
+  if(t.includes('太阴'))html+='<span class="tag tag-xw">太阴</span>';
+  if(t.includes('空亡'))html+='<span class="tag tag-kw">空亡</span>';
+  return html;
+}
+
+function renderPan(ch,tags){
   document.getElementById('panCard').style.display='';
   document.getElementById('panInfo').innerHTML=
     `<div class="info-item">${ch.y}-${ch.m}-${ch.d} ${ch.h}:${String(ch.mi).padStart(2,'0')}</div>`+
@@ -389,23 +422,22 @@ function renderPan(ch,clsList){
     `<div class="info-item">旬首宫 ${safe(ch.xunPalace)}</div>`;
   const grid=document.getElementById('palaceGrid');grid.innerHTML='';
   PORD.forEach(p=>{
-    const div=document.createElement('div');div.className='p-cell '+getPalaceClass(p,clsList);
+    const div=document.createElement('div');div.className='p-cell '+getPalaceTagStyle(p,tags);
     const ganName=safe(GAN[ch.di[p]]);
     const star=safe(ch.tianStar[p]);
     const door=safe(ch.tianDoor[p]);
     const shen=safe(ch.shen[p]);
-    div.innerHTML=`<b>${p}宫</b><br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
+    div.innerHTML=`<b>${p}宫</b> ${tagLabel(p,tags)}<br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
     grid.appendChild(div);
   });
 }
 
-function renderPool(pool,actualFront,actualBack){
+function renderPool(pool){
   document.getElementById('poolCard').style.display='';
   document.getElementById('frontCount').textContent=`${pool.front.length}个`;
   document.getElementById('backCount').textContent=`${pool.back.length}个`;
-  const af=actualFront||[],ab=actualBack?[actualBack]:[];
-  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,af.includes(x.n))).join('');
-  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,ab.includes(x.n))).join('');
+  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,false)).join('');
+  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,false)).join('');
 }
 
 function renderPicks(picks){
@@ -425,12 +457,12 @@ function run(){
   const [y,m,d]=document.getElementById('date').value.split('-').map(Number);
   const [h,mi]=document.getElementById('time').value.split(':').map(Number);
   const ch=qimen(y,m,d,h,mi);
-  const pool=buildPool(ch,g);
+  const pool=buildPoolV61(ch,g);
   const last=LAST[g];
   const picks=pick5(pool,g,last);
   if(picks.length)LAST[g]=picks[0].nums;
-  renderPan(ch,pool.cls);
-  renderPool(pool,[],[]);
+  renderPan(ch,pool.tags);
+  renderPool(pool);
   renderPicks(picks);
 }
 
@@ -439,55 +471,6 @@ function demo(){
   document.getElementById('date').value='2026-10-22';
   document.getElementById('time').value='21:15';
   run();
-}
-
-// ---- 回测 ----
-function runBacktest(){
-  const g=document.getElementById('game').value;
-  if(g!=='ssq'){alert('目前仅支持双色球回测（已内置30期数据）');return;}
-  const draws=SSQ_DRAWS;
-  const results=[];
-  let totalFrontHit=0,totalBackHit=0,poolSizes=[],backPoolSizes=[];
-  draws.forEach(d=>{
-    const parts=d.date.split('-').map(Number);
-    const ch=qimen(parts[0],parts[1],parts[2],21,15);
-    const pool=buildPool(ch,g);
-    const fSet=new Set(pool.front.map(x=>x.n));
-    const bSet=new Set(pool.back.map(x=>x.n));
-    const fHit=d.front.filter(n=>fSet.has(n)).length;
-    const bHit=bSet.has(d.back)?1:0;
-    totalFrontHit+=fHit;totalBackHit+=bHit;
-    poolSizes.push(pool.front.length);
-    backPoolSizes.push(pool.back.length);
-    results.push({date:d.date,front:d.front,back:d.back,pool:pool.front.map(x=>x.n),backPool:pool.back.map(x=>x.n),fHit,bHit});
-  });
-  const avgFrontPool=(poolSizes.reduce((a,b)=>a+b,0)/poolSizes.length).toFixed(1);
-  const avgBackPool=(backPoolSizes.reduce((a,b)=>a+b,0)/backPoolSizes.length).toFixed(1);
-  const avgFrontHit=(totalFrontHit/draws.length).toFixed(2);
-  const backHitRate=((totalBackHit/draws.length)*100).toFixed(1);
-  // 显示
-  document.getElementById('btCard').style.display='';
-  document.getElementById('btSummary').innerHTML=
-    `<div class="sum-item"><div class="num">${avgFrontPool}</div><div class="lbl">平均前池大小</div></div>`+
-    `<div class="sum-item"><div class="num">${avgBackPool}</div><div class="lbl">平均后池大小</div></div>`+
-    `<div class="sum-item"><div class="num">${avgFrontHit}</div><div class="lbl">前区平均命中/期</div></div>`+
-    `<div class="sum-item"><div class="num">${backHitRate}%</div><div class="lbl">后区命中率</div></div>`+
-    `<div class="sum-item"><div class="num">${totalFrontHit}</div><div class="lbl">前区总命中数</div></div>`+
-    `<div class="sum-item"><div class="num">${totalBackHit}/${draws.length}</div><div class="lbl">后区命中期数</div></div>`;
-  let detailHTML='';
-  results.forEach((r,i)=>{
-    const fStr=r.front.map(n=>`<span class="ball ball-front ball-high${r.pool.includes(n)?' ball-hit':''}">${String(n).padStart(2,'0')}</span>`).join('');
-    const bStr=`<span class="ball ball-back ball-back-high${r.backPool.includes(r.back)?' ball-hit-back':''}">${String(r.back).padStart(2,'0')}</span>`;
-    detailHTML+=`<div class="period-row">
-      <span class="date">${r.date}</span>
-      <span class="pool-info">前池${r.pool.length}个·后池${r.backPool.length}个</span>
-      <span>${fStr}+${bStr}</span>
-      <span class="hit-info">前中${r.fHit}·后${r.bHit?'✓':'✗'}</span>
-    </div>`;
-  });
-  document.getElementById('btDetail').innerHTML=detailHTML;
-  // 滚动到回测区
-  document.getElementById('btCard').scrollIntoView({behavior:'smooth'});
 }
 </script>
 </body>
