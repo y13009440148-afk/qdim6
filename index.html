@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门彩票 V6.1 固定模型</title>
+<title>奇门彩票 V6.1 固定模型 · 修正版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0e1a;color:#dce0f0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;padding:16px}
@@ -40,29 +39,30 @@ input:focus,select:focus{border-color:#3b7bc9}
 .pick-score{font-size:11px;color:#b0c060;background:#1a2520;padding:2px 8px;border-radius:8px}
 .pick-balls{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .sep{color:#405070;margin:0 4px;font-size:16px}
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:6px;margin-bottom:10px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:10px}
 .info-item{background:#0d1225;border-radius:8px;padding:6px 10px;font-size:12px;color:#8090b8}
 .info-item strong{color:#d0dcff;font-weight:600}
 .palace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
-.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:54px;transition:.1s}
+.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:54px;position:relative}
 .p-cell b{color:#e0e8ff}
 .p-cell .cl{color:#6080b0;font-size:10px}
-.p-cell.daji{border-color:#40b0ff;background:#0a1830;box-shadow:0 0 6px rgba(60,160,255,.2)}
-.p-cell.daji b{color:#80d0ff}.p-cell.daji .cl{color:#60a0e0}
-.p-cell.ciji{border-color:#5090d0;background:#0e1628}
-.p-cell.ciji b{color:#90c0f0}.p-cell.ciji .cl{color:#5080b0}
-.p-cell.duichong{border-color:#8060c0;background:#141030}
-.p-cell.duichong b{color:#b090e0}.p-cell.duichong .cl{color:#7050a0}
-.p-cell.daxiong{border-color:#803040;background:#1a0810}
-.p-cell.daxiong b{color:#c05060}.p-cell.daxiong .cl{color:#802030}
-.p-cell.kongwang{border-color:#404060;background:#0c0c18}
-.p-cell.kongwang b{color:#707090}.p-cell.kongwang .cl{color:#404060}
-.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:4px}
-.tag-zf{background:#124080;color:#90c0ff}
-.tag-sm{background:#402060;color:#c090e0}
-.tag-zs{background:#205030;color:#90d0a0}
-.tag-xw{background:#403010;color:#e0b060}
-.tag-kw{background:#303040;color:#8080a0}
+/* 用神标签样式 */
+.tag{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;margin:1px 1px 0 0;font-weight:600}
+.tag-zf{background:#124080;color:#80c0ff;border:1px solid #2060b0}
+.tag-sm{background:#402060;color:#c090e0;border:1px solid #6040a0}
+.tag-zs{background:#205030;color:#90d0a0;border:1px solid #307050}
+.tag-xw{background:#403010;color:#e0b060;border:1px solid #605020}
+.tag-ty{background:#103040;color:#80b0d0;border:1px solid #205070}
+.tag-kw{background:#303040;color:#8080a0;border:1px solid #505070}
+/* 用神宫边框 */
+.p-cell.zf-gong{border-color:#3080e0;background:#0a1830}
+.p-cell.sm-gong{border-color:#8050c0;background:#141030}
+.p-cell.zs-gong{border-color:#308050;background:#102820}
+.p-cell.xw-gong{border-color:#806030;background:#181408}
+.p-cell.ty-gong{border-color:#306080;background:#0a1828}
+.p-cell.kw-gong{border-color:#505070;background:#101018}
+.p-cell.zf-four{border-color:#204880;background:#0e1424}
+.p-cell.sm-four{border-color:#503880;background:#120e20}
 </style>
 </head>
 <body>
@@ -83,9 +83,21 @@ input:focus,select:focus{border-color:#3b7bc9}
   </div>
 
   <div class="card" id="panCard" style="display:none">
-    <div class="section-title">奇门盘 · 用神标记</div>
+    <div class="section-title">奇门盘 · 用神标注（只标真实落宫）</div>
     <div class="info-grid" id="panInfo"></div>
     <div class="palace-grid" id="palaceGrid"></div>
+    <div style="margin-top:8px;font-size:11px;color:#6070a0;display:flex;flex-wrap:wrap;gap:6px">
+      <span><span class="tag tag-zf">值符</span> 真实值符落宫</span>
+      <span><span class="tag tag-sm">伤门</span> 伤门落宫</span>
+      <span><span class="tag tag-zs">值使</span> 值使门落宫</span>
+      <span><span class="tag tag-xw">玄武</span> 玄武落宫</span>
+      <span><span class="tag tag-ty">太阴</span> 太阴落宫</span>
+      <span><span class="tag tag-kw">空亡</span> 空亡宫</span>
+    </div>
+    <div style="margin-top:6px;font-size:11px;color:#506080">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#204880;vertical-align:middle;margin-right:3px"></span> 值符四宫取号 
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#503880;vertical-align:middle;margin:0 3px 0 10px"></span> 伤门四宫取号
+    </div>
   </div>
 
   <div class="card" id="poolCard" style="display:none">
@@ -207,53 +219,20 @@ function qimen(y,m,d,h,mi){
 }
 
 // ---- V6.1 用神体系 ----
-// 先天宫映射（后天→先天→后天九宫）
 const XIAN_TIAN_MAP = {
-  1:2,  // 坎→坤
-  2:4,  // 坤→巽
-  3:9,  // 震→离
-  4:7,  // 巽→兑
-  5:2,  // 中→坤
-  6:8,  // 乾→艮
-  7:1,  // 兑→坎
-  8:6,  // 艮→乾
-  9:3   // 离→震
+  1:2, 2:4, 3:9, 4:7, 5:2, 6:8, 7:1, 8:6, 9:3
 };
-
 function duiChong(p){return p===5?5:10-p;}
-
 function getFourPalaces(base){
-  const set=new Set();
-  set.add(base);
-  set.add(duiChong(base));
-  set.add(XIAN_TIAN_MAP[base]);
-  set.add(duiChong(XIAN_TIAN_MAP[base]));
-  return [...set];
+  return [base, duiChong(base), XIAN_TIAN_MAP[base], duiChong(XIAN_TIAN_MAP[base])];
 }
 
-function getMonthIndex(m){
-  // 正月寅=2, 二月卯=3, ..., 十二月丑=1
-  const map={1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,11:11,12:12};
-  return map[m]||1;
-}
-
-// 旺相判断：月建所在宫及其五行同气宫为旺相
 function isWangXiang(palace,month){
-  // 月建地支→宫：寅卯→3震, 巳午→9离, 申酉→7兑, 亥子→1坎, 辰戌丑未→2/5/8
-  const monthToGong = {
-    1:1,2:3,3:3,4:4,5:4,6:9,7:9,8:7,9:7,10:1,11:1,12:2
-  };
+  const monthToGong = {1:1,2:3,3:3,4:4,5:4,6:9,7:9,8:7,9:7,10:1,11:1,12:2};
   const mg=monthToGong[month]||2;
-  // 同五行：1/6水, 2/5/8土, 3/4木, 7/8? 7兑金, 6乾金, 9离火
-  const wuxingGroups = {
-    1:[1,6], 6:[1,6],
-    2:[2,5,8], 5:[2,5,8], 8:[2,5,8],
-    3:[3,4], 4:[3,4],
-    7:[7,6], 6:[7,6], // 金
-    9:[9]
-  };
-  const group=wuxingGroups[mg]||[mg];
-  return group.includes(palace);
+  const groups = {1:[1,6],6:[1,6],2:[2,5,8],5:[2,5,8],8:[2,5,8],3:[3,4],4:[3,4],7:[7,6],9:[9]};
+  const g=groups[mg]||[mg];
+  return g.includes(palace);
 }
 
 function frontMap(g){
@@ -268,57 +247,46 @@ function backMap(g){
 function buildPoolV61(ch,g){
   const fm=frontMap(g),bm=backMap(g);
   const fw={},bw={};
-  const tags={}; // 记录每个宫位的用神标签
   
-  // 1. 值符四宫
-  const zfPalace=ch.timePalace;
-  const zfFour=getFourPalaces(zfPalace);
-  zfFour.forEach(p=>tags[p]=(tags[p]||'')+'值符');
+  // 真实用神落宫（唯一）
+  const zfReal = ch.timePalace;           // 值符真实落宫
+  const smReal = Object.keys(ch.tianDoor).find(k=>ch.tianDoor[k]==='伤')||3; // 伤门真实落宫
+  const zsReal = ch.xunPalace===5?2:ch.xunPalace; // 值使门落宫
+  const xwReal = Object.keys(ch.shen).find(k=>ch.shen[k]==='玄武')||1;
+  const tyReal = Object.keys(ch.shen).find(k=>ch.shen[k]==='太阴')||4;
   
-  // 2. 伤门四宫（伤门本宫=3震，对冲=7兑，先天=9离，先天对冲=1坎）
-  const shangMenBase=3; // 伤门本宫固定为震3
-  const smFour=getFourPalaces(shangMenBase);
-  smFour.forEach(p=>tags[p]=(tags[p]||'')+'伤门');
-  
-  // 3. 值使门落宫
-  // 值使门=值符所落之门，这里简化用旬首宫对应的门
-  const zhiShiPalace=ch.xunPalace===5?2:ch.xunPalace;
-  tags[zhiShiPalace]=(tags[zhiShiPalace]||'')+'值使';
-  
-  // 4. 玄武/太阴（择旺相者）
-  const month=ch.m;
-  const xuanWuPalace=Object.keys(ch.shen).find(k=>ch.shen[k]==='玄武')||1;
-  const taiYinPalace=Object.keys(ch.shen).find(k=>ch.shen[k]==='太阴')||4;
-  const useXuanWu=isWangXiang(+xuanWuPalace,month);
-  const useTaiYin=isWangXiang(+taiYinPalace,month);
-  if(useXuanWu || (!useTaiYin)){
-    tags[+xuanWuPalace]=(tags[+xuanWuPalace]||'')+'玄武';
-  }else{
-    tags[+taiYinPalace]=(tags[+taiYinPalace]||'')+'太阴';
-  }
-  
-  // 5. 空亡宫（旬空）
-  // 甲子旬戌亥空→乾6宫, 甲戌旬申酉空→兑7, 甲申旬午未空→离9, 甲午旬辰巳空→巽4, 甲辰旬寅卯空→震3, 甲寅旬子丑空→坎1
-  const xunKongMap = {
-    0:[6], 1:[6], 2:[7], 3:[7], 4:[9], 5:[9], 6:[4], 7:[4], 8:[3], 9:[3], 10:[1], 11:[1]
-  };
+  // 空亡宫（旬空）
+  const xunKongMap = {0:[6],1:[6],2:[7],3:[7],4:[9],5:[9],6:[4],7:[4],8:[3],9:[3],10:[1],11:[1]};
   const xunIndex=Math.floor((ch.di[ch.timePalace]||0)/2);
-  const kongPalaces=xunKongMap[xunIndex]||[];
-  kongPalaces.forEach(p=>{tags[p]=(tags[p]||'')+'空亡';});
+  const kwPalaces=xunKongMap[xunIndex]||[];
   
-  // 收集所有用神宫
-  const allPalaces=new Set();
-  Object.keys(tags).forEach(k=>allPalaces.add(+k));
+  // 取号路径（用于权重计算，不污染九宫标签）
+  const zfFour = getFourPalaces(zfReal);
+  const smFour = getFourPalaces(smReal);
   
-  // 赋值权重
-  allPalaces.forEach(p=>{
-    const t=tags[p]||'';
+  // 构建取号宫集合
+  const allPickPalaces = new Set();
+  zfFour.forEach(p=>allPickPalaces.add(p));
+  smFour.forEach(p=>allPickPalaces.add(p));
+  allPickPalaces.add(zsReal);
+  
+  // 玄武/太阴择旺相
+  const month=ch.m;
+  if(isWangXiang(+xwReal,month) || !isWangXiang(+tyReal,month)){
+    allPickPalaces.add(+xwReal);
+  } else {
+    allPickPalaces.add(+tyReal);
+  }
+  kwPalaces.forEach(p=>allPickPalaces.add(p));
+  
+  // 赋权
+  allPickPalaces.forEach(p=>{
     let w=1.0;
-    if(t.includes('值符')) w+=2.0;
-    if(t.includes('伤门')) w+=1.5;
-    if(t.includes('值使')) w+=1.0;
-    if(t.includes('玄武')||t.includes('太阴')) w+=0.8;
-    if(t.includes('空亡')) w*=0.6;
+    if(zfFour.includes(p)) w+=2.0;
+    if(smFour.includes(p)) w+=1.5;
+    if(p===zsReal) w+=1.0;
+    if(p===+xwReal||p===+tyReal) w+=0.8;
+    if(kwPalaces.includes(p)) w*=0.6;
     
     (fm[p]||[]).forEach(n=>fw[n]=(fw[n]||0)+w);
     (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
@@ -328,7 +296,12 @@ function buildPoolV61(ch,g){
   let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,14);
   let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,5);
   
-  return {front:frontArr,back:backArr,tags,allPalaces:[...allPalaces]};
+  return {
+    front:frontArr,
+    back:backArr,
+    realTags: {zfReal, smReal, zsReal, xwReal:+xwReal, tyReal:+tyReal, kwPalaces},
+    zfFour, smFour
+  };
 }
 
 // ---- 缩水 ----
@@ -360,7 +333,6 @@ function combos(arr,k){
   function rec(s,cur){if(cur.length===k){r.push(cur.slice());return;}for(let i=s;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}
   rec(0,[]);return r;
 }
-
 function pick5(pool,game,last){
   const f=pool.front.map(x=>x.n),b=pool.back.map(x=>x.n);
   const wm={};pool.front.forEach(x=>wm[x.n]=x.w);
@@ -380,54 +352,52 @@ function weightClass(w){
   if(w>=1.5)return 'mid';
   return 'low';
 }
-
 function ballHtml(n,w,isBack,isHit){
   const cls=weightClass(w);
   const base=isBack?'ball-back ball-back-'+cls:'ball-front ball-'+cls;
   const hitCls=isHit?(isBack?' ball-hit-back':' ball-hit'):'';
   return `<span class="ball ${base}${hitCls}">${String(n).padStart(2,'0')}</span>`;
 }
-
 function safe(x){return (x===undefined||x===null)?'—':x;}
 
-function getPalaceTagStyle(p,tags){
-  const t=tags[p]||'';
-  if(t.includes('值符'))return 'daji';
-  if(t.includes('伤门'))return 'duichong';
-  if(t.includes('值使'))return 'ciji';
-  if(t.includes('玄武')||t.includes('太阴'))return 'daxiong';
-  if(t.includes('空亡'))return 'kongwang';
-  return '';
-}
-
-function tagLabel(p,tags){
-  const t=tags[p]||'';
-  let html='';
-  if(t.includes('值符'))html+='<span class="tag tag-zf">值符</span>';
-  if(t.includes('伤门'))html+='<span class="tag tag-sm">伤门</span>';
-  if(t.includes('值使'))html+='<span class="tag tag-zs">值使</span>';
-  if(t.includes('玄武'))html+='<span class="tag tag-xw">玄武</span>';
-  if(t.includes('太阴'))html+='<span class="tag tag-xw">太阴</span>';
-  if(t.includes('空亡'))html+='<span class="tag tag-kw">空亡</span>';
-  return html;
-}
-
-function renderPan(ch,tags){
+function renderPan(ch,rt,zfFour,smFour){
   document.getElementById('panCard').style.display='';
   document.getElementById('panInfo').innerHTML=
     `<div class="info-item">${ch.y}-${ch.m}-${ch.d} ${ch.h}:${String(ch.mi).padStart(2,'0')}</div>`+
     `<div class="info-item">${ch.yy}遁 ${ch.ju}局</div>`+
     `<div class="info-item">节气 ${safe(ch.tn)}</div>`+
-    `<div class="info-item">值符宫 ${safe(ch.timePalace)}</div>`+
-    `<div class="info-item">旬首宫 ${safe(ch.xunPalace)}</div>`;
+    `<div class="info-item">值符落宫 ${rt.zfReal}</div>`+
+    `<div class="info-item">伤门落宫 ${rt.smReal}</div>`+
+    `<div class="info-item">值使落宫 ${rt.zsReal}</div>`;
+  
   const grid=document.getElementById('palaceGrid');grid.innerHTML='';
   PORD.forEach(p=>{
-    const div=document.createElement('div');div.className='p-cell '+getPalaceTagStyle(p,tags);
+    const div=document.createElement('div');div.className='p-cell';
+    // 根据真实用神落宫加边框
+    if(p===rt.zfReal) div.classList.add('zf-gong');
+    else if(p===rt.smReal) div.classList.add('sm-gong');
+    else if(p===rt.zsReal) div.classList.add('zs-gong');
+    else if(p===rt.xwReal) div.classList.add('xw-gong');
+    else if(p===rt.tyReal) div.classList.add('ty-gong');
+    else if(rt.kwPalaces.includes(p)) div.classList.add('kw-gong');
+    // 取号路径宫加淡背景（不标为用神）
+    else if(zfFour.includes(p)) div.classList.add('zf-four');
+    else if(smFour.includes(p)) div.classList.add('sm-four');
+    
+    // 用神标签（只标真实落宫）
+    let tags='';
+    if(p===rt.zfReal) tags+='<span class="tag tag-zf">值符</span>';
+    if(p===rt.smReal) tags+='<span class="tag tag-sm">伤门</span>';
+    if(p===rt.zsReal) tags+='<span class="tag tag-zs">值使</span>';
+    if(p===rt.xwReal) tags+='<span class="tag tag-xw">玄武</span>';
+    if(p===rt.tyReal) tags+='<span class="tag tag-ty">太阴</span>';
+    if(rt.kwPalaces.includes(p)) tags+='<span class="tag tag-kw">空亡</span>';
+    
     const ganName=safe(GAN[ch.di[p]]);
     const star=safe(ch.tianStar[p]);
     const door=safe(ch.tianDoor[p]);
     const shen=safe(ch.shen[p]);
-    div.innerHTML=`<b>${p}宫</b> ${tagLabel(p,tags)}<br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
+    div.innerHTML=`<b>${p}宫</b> ${tags}<br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
     grid.appendChild(div);
   });
 }
@@ -461,7 +431,7 @@ function run(){
   const last=LAST[g];
   const picks=pick5(pool,g,last);
   if(picks.length)LAST[g]=picks[0].nums;
-  renderPan(ch,pool.tags);
+  renderPan(ch,pool.realTags,pool.zfFour,pool.smFour);
   renderPool(pool);
   renderPicks(picks);
 }
