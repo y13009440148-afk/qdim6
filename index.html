@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -295,7 +296,7 @@ function buildPoolV61(ch,g){
   };
 }
 
-// ---- 缩水（修正版：前区组合去重 + 每注配最优后区） ----
+// ---- 缩水（修正版） ----
 function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
 function valid6(nums,last){
   if(nums.length!==6)return false;
@@ -324,66 +325,63 @@ function combos(arr,k){
   function rec(s,cur){if(cur.length===k){r.push(cur.slice());return;}for(let i=s;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}
   rec(0,[]);return r;
 }
-function pick5(pool, game, last) {
-  const f = pool.front.map(x => x.n);
-  const b = pool.back.map(x => x.n);
-  const wm = {};
-  pool.front.forEach(x => wm[x.n] = x.w);
-  const bm = {};
-  pool.back.forEach(x => bm[x.n] = x.w);
+
+// ★ 只改了这个函数：前区组合去重 + 每注配最优后区
+function pick5(pool,game,last){
+  const f=pool.front.map(x=>x.n);
+  const b=pool.back.map(x=>x.n);
+  const wm={};pool.front.forEach(x=>wm[x.n]=x.w);
+  const bm={};pool.back.forEach(x=>bm[x.n]=x.w);
 
   // 枚举所有前区6码组合
-  const cand = combos(f, 6).filter(c => valid6(c, last));
+  const cand=combos(f,6).filter(c=>valid6(c,last));
 
-  // 按组合权重排序（取前50个高分组合）
-  const scored = cand.map(c => ({
-    nums: c,
-    fw: c.reduce((a, n) => a + (wm[n] || 0), 0)
-  })).sort((a, b) => b.fw - a.fw).slice(0, 50);
+  // 按组合权重排序
+  const scored=cand.map(c=>({
+    nums:[...c].sort((a,b)=>a-b),
+    fw:c.reduce((a,n)=>a+(wm[n]||0),0)
+  })).sort((a,b)=>b.fw-a.fw);
 
-  // 对每个前区组合，选权重最高的后区，前区组合去重
-  const seenFront = new Set();
-  const out = [];
+  // 前区组合去重 + 每注选权重最高的后区
+  const seenFront=new Set();
+  const out=[];
 
-  for (const t of scored) {
-    const key = t.nums.slice().sort((a, b) => a - b).join(',');
-    if (seenFront.has(key)) continue;
+  for(const t of scored){
+    const key=t.nums.join(',');
+    if(seenFront.has(key))continue;
     seenFront.add(key);
 
     // 找权重最高的后区
-    let bestBack = null;
-    let bestBackScore = -1;
-    for (const bb of b) {
-      const bs = bm[bb] || 0;
-      if (bs > bestBackScore) {
-        bestBackScore = bs;
-        bestBack = bb;
-      }
+    let bestBack=null;
+    let bestBackScore=-1;
+    for(const bb of b){
+      const bs=bm[bb]||0;
+      if(bs>bestBackScore){bestBackScore=bs;bestBack=bb;}
     }
 
-    if (bestBack !== null) {
+    if(bestBack!==null){
       out.push({
-        nums: t.nums,
-        back: bestBack,
-        score: +(t.fw + bestBackScore).toFixed(2)
+        nums:t.nums,
+        back:bestBack,
+        score:+(t.fw+bestBackScore).toFixed(2)
       });
     }
 
-    if (out.length >= 5) break;
+    if(out.length>=5)break;
   }
 
-  // 如果还不够5注，用剩余组合补足（后区取第一个）
-  if (out.length < 5) {
-    for (const t of scored) {
-      const key = t.nums.slice().sort((a, b) => a - b).join(',');
-      if (seenFront.has(key)) continue;
+  // 兜底：如果还不够5注
+  if(out.length<5){
+    for(const t of scored){
+      const key=t.nums.join(',');
+      if(seenFront.has(key))continue;
       seenFront.add(key);
       out.push({
-        nums: t.nums,
-        back: b[0] || 1,
-        score: +(t.fw + (bm[b[0]] || 0)).toFixed(2)
+        nums:t.nums,
+        back:b[0]||1,
+        score:+(t.fw+(bm[b[0]]||0)).toFixed(2)
       });
-      if (out.length >= 5) break;
+      if(out.length>=5)break;
     }
   }
 
@@ -488,4 +486,3 @@ function demo(){
 </script>
 </body>
 </html>
-
