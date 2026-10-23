@@ -2,263 +2,316 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>奇门拆补选号(竖版/纯动态)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>奇门选号(拆补/纯动态)竖版</title>
 <style>
   :root{color-scheme:dark}
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    background:#070b1a;color:#e6e6e6;
-    font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
-    padding:14px;
-    padding-left: max(14px, env(safe-area-inset-left));
-    padding-right: max(14px, env(safe-area-inset-right));
-    padding-bottom: max(14px, env(safe-area-inset-bottom));
-    max-width:100vw;overflow-x:hidden;
-  }
-  h1{font-size:20px;margin:0 0 4px;line-height:1.25}
-  .sub{color:#d6b76a;font-size:12px;margin-bottom:10px}
-  .blk{background:#0a1538;border:1px solid #243a6e;border-radius:12px;padding:12px;margin:10px 0;width:100%}
-  .row{display:flex;flex-direction:column;gap:8px;margin:8px 0;width:100%}
-  .row-inline{display:flex;flex-direction:row;gap:10px;align-items:center;flex-wrap:wrap}
-  label.txt{font-size:14px}
-  input[type=datetime-local],select,input[type=number]{
-    width:100%;background:#0e1a3a;color:#fff;border:1px solid #2b3a66;
-    padding:10px 12px;border-radius:10px;font-size:15px;
-    -webkit-appearance:none;appearance:none;
-  }
-  .row-inline input[type=number]{width:110px}
-  .checks{display:flex;flex-direction:column;gap:8px;margin:10px 0}
-  .checks label{
-    background:#0e1a3a;border:1px solid #2b3a66;border-radius:10px;
-    padding:10px 12px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;
-    min-height:44px;
-  }
-  button{
-    width:100%;background:#235cff;color:#fff;border:0;
-    padding:14px 16px;border-radius:12px;font-size:17px;cursor:pointer;
-    touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.25);
-    min-height:48px;
-  }
-  .pan{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-  .cell{min-height:92px;background:#0e1a3a;border:1px solid #2b3a66;border-radius:10px;padding:8px;font-size:13px;line-height:1.45;word-break:break-all}
-  .cell .g{color:#d6b76a;font-weight:700}
-  .cell .k{color:#9ad7ff}
-  .cell .x{color:#ffd24d}
-  .cell .m{color:#ff6b6b}
-  .pool{font-size:14px;line-height:1.8}
-  .n{display:inline-block;min-width:28px;padding:3px 7px;margin:3px 2px;border-radius:999px;background:#16264d;color:#fff;text-align:center}
-  .bh{background:#235cff}
-  .w0{opacity:.45}
-  .w1{background:#1f3a7a}.w2{background:#2950a8}.w3{background:#356cd6}.w4{background:#4f8cff}.w5{background:#7ab2ff}
-  .w6{background:#ffd24d;color:#222}.w7{background:#ffb000;color:#222}.w8{background:#ff7a00;color:#fff}.w9{background:#ff3b3b;color:#fff}
-  pre{white-space:pre-wrap;word-break:break-all;margin:0;font-size:13px}
-  .err{color:#ff8585;font-size:13px;margin-top:8px;white-space:pre-wrap}
-  .tip{font-size:12px;color:#9aa7c7;margin-top:6px}
-  .kw{color:#ff6b6b}
+  body{margin:0;background:#070b1a;color:#e6ecff;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  .wrap{max-width:460px;margin:0 auto;padding:10px 10px 24px}
+  h1{font-size:18px;margin:8px 0 10px;text-align:center}
+  .ctrl{display:flex;flex-direction:column;gap:7px;background:#0b1737;padding:10px;border-radius:12px;border:1px solid #1f2c52;margin-bottom:8px}
+  .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .row label{font-size:13px}
+  input,select{padding:7px 8px;font-size:14px;background:#07122e;color:#e6ecff;border:1px solid #2b3a66;border-radius:8px;min-width:0}
+  input[type=number]{width:88px}
+  .chk{accent-color:#1f6cff}
+  button{padding:11px;font-size:15px;background:#1f6cff;color:#fff;border:0;border-radius:11px;cursor:pointer}
+  .summary{font-size:13px;padding:8px 10px;background:#0b1737;border:1px solid #1f2c52;border-radius:10px;margin:8px 0;line-height:1.5}
+  .pan{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:420px;margin:0 auto}
+  /* 关键：按宫号定位，不是 1~9 顺序 */
+  .cell[data-g="4"]{order:1}
+  .cell[data-g="9"]{order:2}
+  .cell[data-g="2"]{order:3}
+  .cell[data-g="3"]{order:4}
+  .cell[data-g="5"]{order:5}
+  .cell[data-g="7"]{order:6}
+  .cell[data-g="8"]{order:7}
+  .cell[data-g="1"]{order:8}
+  .cell[data-g="6"]{order:9}
+  .cell{min-height:78px;font-size:12px;line-height:1.38;padding:7px 8px;background:#0e1a3a;border:1px solid #2b3a66;border-radius:10px;box-sizing:border-box;position:relative}
+  .cell .g{color:#d6b76a;font-weight:700;font-size:13px}
+  .cell .sub{color:#9fb3ff}
+  .cell .kx{color:#ffd24d}
+  .cell.kw::after{content:"空";position:absolute;right:6px;top:5px;color:#ff7a7a;font-size:11px;border:1px solid #ff7a7a;padding:0 4px;border-radius:6px}
+  .cell.jz::after{content:"值符/值使";position:absolute;left:6px;bottom:5px;color:#7afcff;font-size:11px}
+  .pools{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .pool{background:#0b1737;border:1px solid #1f2c52;border-radius:10px;padding:8px 10px}
+  .pool b{color:#d6b76a}
+  pre{white-space:pre-wrap;word-break:break-all;padding:8px;font-size:12px;background:#07122e;border-radius:10px;border:1px solid #1f2c52}
+  .err{color:#ff8a8a;font-size:13px;padding:8px}
+  .ad-hint{font-size:11px;color:#8aa;margin-top:6px;text-align:center}
 </style>
 </head>
 <body>
-
-<h1>奇门遁甲（拆补法/纯动态）选号演示</h1>
-<div class="sub">竖版H5 · 双色球/大乐透 · 中五寄坤 · 五行生克 · 空亡转暗</div>
-
-<div class="blk">
-  <div class="row">
-    <label class="txt">时间</label>
-    <input type="datetime-local" id="dtInput" />
+<div class="wrap">
+  <h1>奇门选号演示（拆补法/纯动态·竖版）</h1>
+  <div class="ctrl">
+    <div class="row">
+      <label>彩种</label>
+      <select id="lotType">
+        <option value="ssq">双色球</option>
+        <option value="dlt">大乐透</option>
+      </select>
+      <label>时间</label>
+      <input id="dtInput" type="datetime-local">
+    </div>
+    <div class="row">
+      <label>经度</label>
+      <input id="lng" type="number" step="0.01" value="120">
+      <label><input type="checkbox" id="useSolar" class="chk"> 真太阳时(近似)</label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="swWx" class="chk" checked> 五行生克</label>
+      <label><input type="checkbox" id="swZhong" class="chk" checked> 中五寄坤</label>
+      <label><input type="checkbox" id="show18" class="chk"> 前区扩18</label>
+    </div>
+    <button id="btnCalc">起局/选号</button>
+    <div class="ad-hint">仅作排盘/选号模型演示；体彩/福彩为随机摇奖，不保证、不提高中奖率，理性/勿实投</div>
   </div>
-  <div class="row">
-    <label class="txt">彩种</label>
-    <select id="lotType">
-      <option value="ssq">双色球（红1-33取6 / 蓝1-16取1）</option>
-      <option value="dlt">大乐透（前1-35取5 / 后1-12取2）</option>
-    </select>
+
+  <div class="summary" id="summary">--</div>
+  <div id="pan" class="pan"></div>
+
+  <div class="pools">
+    <div class="pool"><b>前/红池</b> <span id="frontPoolOut"></span></div>
+    <div class="pool"><b>后/蓝池</b> <span id="backPoolOut"></span></div>
+    <div class="pool"><b>缩水方案</b><pre id="shrinkOut"></pre></div>
+    <div class="pool"><b>宫分/池明细</b><pre id="poolDetailOut"></pre></div>
   </div>
-  <div class="row-inline">
-    <label class="txt">经度</label>
-    <input type="number" id="lng" value="120" step="0.01" />
-    <label class="txt"><input type="checkbox" id="useSolar" /> 真太阳时</label>
-  </div>
-</div>
-
-<div class="blk">
-  <div class="checks">
-    <label><input type="checkbox" id="swHe10" checked /> 对宫合十</label>
-    <label><input type="checkbox" id="swXY" checked /> 先天后天体用</label>
-    <label><input type="checkbox" id="swZhong" checked /> 中五寄坤</label>
-    <label><input type="checkbox" id="swWx" checked /> 五行生克</label>
-    <label><input type="checkbox" id="swKw" checked /> 空亡转暗数</label>
-    <label><input type="checkbox" id="show18" checked /> 前池18（关则12）</label>
-  </div>
-  <button id="btnCalc">起局 → 出5注</button>
-  <div id="errOut" class="err"></div>
-  <div class="tip" id="fpCnt"></div>
-</div>
-
-<div class="blk">
-  <div>排盘九宫</div>
-  <div id="panOut" class="pan"></div>
-</div>
-
-<div class="blk">
-  <div>前区池：</div>
-  <div id="frontPoolOut" class="pool"></div>
-  <div style="margin-top:8px">后区池：</div>
-  <div id="backPoolOut" class="pool"></div>
-  <div style="margin-top:8px">池明细/分宫</div>
-  <pre id="poolDetailOut"></pre>
-</div>
-
-<div class="blk">
-  <div>生成注单</div>
-  <pre id="shrinkOut"></pre>
+  <div class="err" id="errOut"></div>
 </div>
 
 <script>
 (function(){
-  const PAI={1:{g:'坎',p:8,s:'天任',m:'休'},2:{g:'坤',p:2,s:'天芮',m:'死'},3:{g:'震',p:3,s:'天冲',m:'伤'},
-        4:{g:'巽',p:4,s:'天辅',m:'杜'},5:{g:'中',p:5,s:'天禽',m:'中'},6:{g:'乾',p:6,s:'天心',m:'开'},
-        7:{g:'兑',p:7,s:'天柱',m:'惊'},8:{g:'艮',p:8,s:'天任',m:'生'},9:{g:'离',p:9,s:'天英',m:'景'}};
-  const GNAME={1:'坎一',2:'坤二',3:'震三',4:'巽四',5:'中五',6:'乾六',7:'兑七',8:'艮八',9:'离九'};
-  const JIE={2000:{l:'立春',s:'雨水',e:'惊蛰',x:'春分',l4:'清明',l5:'谷雨',l6:'立夏',l7:'小满',l8:'芒种',l9:'夏至',l10:'小暑',l11:'大暑',l12:'立秋',l13:'处暑',l14:'白露',l15:'秋分',l16:'寒露',l17:'霜降',l18:'立冬',l19:'小雪',l20:'大雪',l21:'冬至',l22:'小寒',l23:'大寒'},
-    // 用月日近似交节（演示用）
-    jd=[{m:2,d:4,n:'立春',y:0},{m:2,d:19,n:'雨水',y:0},{m:3,d:6,n:'惊蛰',y:0},{m:3,d:21,n:'春分',y:0},{m:4,d:5,n:'清明',y:0},{m:4,d:20,n:'谷雨',y:0},{m:5,d:6,n:'立夏',y:0},{m:5,d:21,n:'小满',y:0},{m:6,d:6,n:'芒种',y:0},{m:6,d:21,n:'夏至',y:0},{m:7,d:7,n:'小暑',y:0},{m:7,d:23,n:'大暑',y:0},{m:8,d:8,n:'立秋',y:0},{m:8,d:23,n:'处暑',y:0},{m:9,d:8,n:'白露',y:0},{m:9,d:23,n:'秋分',y:0},{m:10,d:8,n:'寒露',y:0},{m:10,d:23,n:'霜降',y:0},{m:11,d:7,n:'立冬',y:0},{m:11,d:22,n:'小雪',y:0},{m:12,d:7,n:'大雪',y:0},{m:12,d:22,n:'冬至',y:0},{m:1,d:6,n:'小寒',y:1},{m:1,d:20,n:'大寒',y:1}];
-  function pad(n){return (n<10?'0':'')+n}
-  function gzYear(d){var y=d.getFullYear();var idx=((y-4)%60+60)%60;return idx}
-  function gzOf(date){var y=date.getFullYear(),m=date.getMonth()+1,day=date.getDate(),h=date.getHours();
-    var tiangan=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],dizhi=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-    // 简化：用固定月干支表近似（演示）
-    var mGZ=['丙寅','丁卯','戊辰','己巳','庚午','辛未','壬申','癸酉','甲戌','乙亥','丙子','丁丑'];
-    var yGZ=tiangan[((y-4)%10+10)%10]+dizhi[((y-4)%12+12)%12];
-    var mg=mGZ[m-1];
-    // 日干支近似：以2000-01-01为庚子做偏移
-    var base=new Date(2000,0,1,0,0,0);var days=Math.floor((date-base)/86400000);
-    var dg=tiangan[(6+days)%10]+dizhi[(0+days)%12];
-    var hg=tiangan[((dg.split('')[0]==='甲'?0:0)+Math.floor(h/2)]; // 仅占位，下面用时支
-    var hz=dizhi[Math.floor(h/2)];
-    // 时干按日干推（五子遁近似）
-    var dgIdx=tiangan.indexOf(dg[0]);var h0=(dgIdx*2+Math.floor(h/2))%10;
-    hg=tiangan[h0];
-    return {y:yGZ,m:mg,d:dg,h:hg+hz,hh:hz};
+  var GNAME={1:'坎一',2:'坤二',3:'震三',4:'巽四',5:'中五(寄坤)',6:'乾六',7:'兑七',8:'艮八',9:'离九'};
+  var PALACE_ORDER=[4,9,2,3,5,7,8,1,6];
+  var TIANGAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  var DIZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  // 六甲遁仪：甲子戊、甲戌己、甲申庚、甲午辛、甲辰壬、甲寅癸
+  var JIAXU=['甲子戊','甲戌己','甲申庚','甲午辛','甲辰壬','甲寅癸'];
+  var XING={1:'天蓬',2:'天芮',3:'天冲',4:'天辅',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'};
+  var MEN={1:'休',2:'生',3:'伤',4:'杜',5:'景',6:'死',7:'惊',8:'开',9:'中'}; // 中门常作“中/寄”
+  var SHEN=['值符','螣蛇','太阴','六合','白虎','玄武','九地','九天','值符'];
+  var WUXING_G={'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+
+  // 简化节气（仅演示；精确交节需节气表/历法库；拆补定元也按常用近似）
+  var JIEQIS=['冬至','小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪'];
+  // 阳遁/阴遁与局数口诀映射（极简，按节气起例；演示用）
+  var YANG_JU={'冬至':[1,7,4],'惊蛰':[1,7,4],'小寒':[2,8,5],'大寒':[3,9,6],'立春':[8,5,2],'雨水':[9,6,3],'春分':[3,9,6],'清明':[4,1,7],'谷雨':[5,2,8],'立夏':[4,1,7],'小满':[5,2,8],'芒种':[6,3,9]};
+  var YIN_JU={'夏至':[9,3,6],'大暑':[7,1,4],'小暑':[8,2,5],'立秋':[2,5,8],'处暑':[1,4,7],'白露':[9,3,6],'秋分':[7,1,4],'寒露':[6,9,3],'霜降':[5,8,2],'立冬':[6,9,3],'小雪':[5,8,2],'大雪':[4,7,1]};
+
+  function pad(n){return n<10?'0'+n:n}
+  function sw(id){return document.getElementById(id)}
+  function getOpts(){
+    return{
+      swWx:!!sw('swWx').checked,
+      swZhong:!!sw('swZhong').checked,
+      show18:!!sw('show18').checked
+    }
   }
-  function getJie(date){var m=date.getMonth()+1,d=date.getDate();
-    for(var i=0;i<jd.length;i++){var j=jd[i];if(j.m===m&&d>=j.d){return j.n}
-      if(j.m===m&&d<j.d&&i>0&&jd[i-1].m===m){return jd[i-1].n}}
-    return '冬至'}
-  function yinYangJu(jie){var yinJie=['夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪'];
-    var yin=yinJie.indexOf(jie)!==-1;var ju=9; // 演示默认，下面按时旬再校准
-    return {yin:yin,ju:ju}}
-  function xunShou(hgz){var xun=['甲子','甲戌','甲申','甲午','甲辰','甲寅'];var dz=hgz[1];
-    var idx=[0,1,2,3,4,5].find(i=>'子丑寅卯辰巳午未申酉戌亥'.indexOf(dz)>=i*10&&'子丑寅卯辰巳午未申酉戌亥'.indexOf(dz)<(i+1)*10);
-    return xun[idx]}
-  function kwOfXun(xun){var m={'甲子':'戌亥','甲戌':'申酉','甲申':'午未','甲午':'辰巳','甲辰':'寅卯','甲寅':'子丑'};return m[xun].split('')}
-  function panGong(gz,opt){
-    // 极简九宫落位（演示）：按时支定值符/值使，不保证与专业盘逐宫一致
-    var dz=gz.hh;var arr=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-    var i=arr.indexOf(dz);var zf=((i+0)%9)+1;var zs=((i+4)%9)+1;
-    var cells={};for(var g=1;g<=9;g++){cells[g]=Object.assign({},PAI[g],{gan:gz.y[0],zhi:dz,kw:false,score:0})}
-    cells[zf].zf=true;cells[zs].zs=true;
-    return {cells,zf,zs};
+  function parseDt(v){
+    if(!v)return new Date();
+    var [d,t]=v.split('T');var [Y,M,D]=d.split('-').map(Number);
+    var [hh,mm]=(t||'00:00').split(':').map(Number);
+    return new Date(Y,M-1,D,hh||0,mm||0,0)
   }
-  function qiMenPan(date,useSolar,lng){
-    var d=date;if(useSolar){var off=(lng-120)*4*60*1000;d=new Date(d.getTime()-off)}
-    var jie=getJie(d);var yz=yinYangJu(jie);var gz=gzX(d);var xs=xunShou(gz.h);var kw=kwOfXun(xs);
-    var p=panGong(gz,{yin:yz.yin});
-    // 空亡标宫（按地支落宫近似）
-    var dz2g={'子':1,'亥':1,'丑':8,'寅':8,'卯':3,'辰':4,'巳':4,'午':9,'未':2,'申':7,'酉':7,'戌':6,'亥':6};
-    kw.forEach(k=>{var g=dz2g[k];if(p.cells[g])p.cells[g].kw=true});
-    return Object.assign({date:d,jie:yz.yin?'阴遁':'阳遁',ju:yz.ju,xun:xs,kw:kw,gz:gz},p);
+  // 干支（简化；仅保证页面能跑；精确需历法）
+  function ganZhi(year,month,day,hour){
+    // 以基准粗略算（演示），不建议当专业排盘唯一依据
+    var baseY=1984,b=((year-baseY)*365+Math.floor((year-1984)/4)+new Date(year,month-1,day).getDay())*2;
+    var dayGZ=((b)%60+60)%60;
+    var hr=hour<23?hour:23;
+    var hourGZ=((dayGZ*12)+Math.floor(hr/2))%60;
+    var yg=(year-4)%10,ym=(year-4)%12;
+    return{yg:yg,ym:ym,dg:dayGZ%10,dz:dayGZ%12,tg:hourGZ%10,tz:hourGZ%12,dayGZ:dayGZ,hourGZ:hourGZ}
   }
-  function gzX(date){var y=date.getFullYear(),m=date.getMonth()+1,day=date.getDate(),h=date.getHours();
-    var tiangan=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'],dizhi=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-    var yGZ=tiangan[((y-4)%10+10)%10]+dizhi[((y-4)%12+12)%12];
-    var mGZ=['丙寅','丁卯','戊辰','己巳','庚午','辛未','壬申','癸酉','甲戌','乙亥','丙子','丁丑'][m-1];
-    var base=new Date(2000,0,1,0,0,0);var days=Math.floor((date-base)/86400000);
-    var dg=tiangan[(6+days)%10]+dizhi[(0+days)%12];
-    var hz=dizhi[Math.floor(h/2)];var dgIdx=tiangan.indexOf(dg[0]);var hg=tiangan[(dgIdx*2+Math.floor(h/2))%10];
-    return {y:yGZ,m:mGZ,d:dg,h:hg+hz,hh:hz};
+  function guessJie(dt){
+    // 粗按月/日给节气名（演示）；精确应查交节时刻
+    var m=dt.getMonth()+1,d=dt.getDate();
+    if((m==12&&d>=22)||(m==1&&d<6))return '冬至';
+    if((m==1&&d>=6)||(m==2&&d<4))return '小寒';
+    if((m==2&&d>=4)||(m==3&&d<6))return '立春';
+    if((m==3&&d>=6)||(m==4&&d<5))return '清明';
+    if((m==4&&d>=5)||(m==5&&d<6))return '立夏';
+    if((m==6&&d>=21)||(m==7&&d<7))return '夏至';
+    if((m==8&&d>=7)||(m==9&&d<8))return '白露';
+    if((m==9&&d>=8)||(m==10&&d<8))return '寒露';
+    if((m==11&&d>=7)||(m==12&&d<7))return '立冬';
+    return '冬至'
   }
+  function getJu(jie,idx){
+    var a=YANG_JU[jie],b=YIN_JU[jie];
+    if(a){return{yin:false,ju:a[idx%3]}}
+    if(b){return{yin:true,ju:b[idx%3]}}
+    return{yin:false,ju:1}
+  }
+  // 三奇六仪序列：戊己庚辛壬癸丁丙乙（地盘按局顺/逆飞）
+  var LIUYI=['戊','己','庚','辛','壬','癸','丁','丙','乙'];
+  function qiMenPan(dt,useSolar,lng){
+    var d=parseDt(sw('dtInput').value);
+    var gz=ganZhi(d.getFullYear(),d.getMonth()+1,d.getDate(),d.getHours());
+    var jie=guessJie(d);
+    // 拆补：用日干支/时柱粗定上中下元（演示口径）
+    var yuanIdx=(gz.dayGZ%3);
+    var juo=getJu(jie,yuanIdx);
+    var ju=juo.ju,yin=juo.yin;
+    // 旬首：时干支所在旬（六甲遁）
+    var hgz=gz.hourGZ;
+    var xunIdx=Math.floor(hgz/10);
+    var xun=JIAXU[xunIdx]; // 如 甲子戊
+    var xunDiGan=TIANGAN[xunIdx*2]; // 甲
+    var xunYi=LIUYI[xunIdx];         // 戊己庚辛壬癸
+    // 地盘：从坎一为1起按洛书宫，阳顺阴逆布 戊己庚辛壬癸丁丙乙
+    var di={};var startG=1;
+    var seq=LIUYI.slice();
+    var order=[];
+    for(var i=0;i<9;i++){
+      var g=startG;
+      if(yin){g=((startG - i -1 +9)%9)+1}else{g=((startG + i -1)%9)+1}
+      order.push(g);
+    }
+    // 更标准：按“局数”定起点（阳遁几局从几宫起戊，阴遁几局从几宫起戊）
+    var fromG=ju; // 演示：几局从几宫起戊
+    for(var i=0;i<9;i++){
+      var p;
+      if(!yin) p=((fromG + i -1)%9)+1;
+      else     p=((fromG - i -1 +9)%9)+1;
+      di[p]=seq[i];
+    }
+    // 值符/值使：旬首地盘所在宫的星/门为值符/值使（以地盘“旬首仪”落宫）
+    var zfG=Object.keys(di).find(k=>di[k]===xunYi);zfG=parseInt(zfG)||ju;
+    var zfXing=XING[zfG]||'天英';
+    var zfMen=MEN[zfG]||'景';
+    // 天盘：值符随时干（时干所在宫承载值符星/对应仪），简化：时干落宫按地盘找/以旬首代甲
+    var tg=TIANGAN[gz.tg];
+    var tz=DIZHI[gz.tz];
+    var tian={};
+    for(var k in di)tian[k]=di[k];
+    // 八神
+    var shen={};
+    var shenSeq=['值符','螣蛇','太阴','六合','白虎','玄武','九地','九天'];
+    var shenStart=parseInt(zfG);
+    for(var i=0;i<8;i++){
+      var p;
+      if(!yin)p=((shenStart+i-1)%9)+1;else p=((shenStart-i-1+9)%9)+1;
+      shen[p]=shenSeq[i];
+    }
+    // 旬空（六甲旬空：甲子旬戌亥空等）
+    var kongMap=[10,11,8,9,6,7,4,5,2,3,0,1]; // 示意
+    var kwG=[]; // 按“地支空”转宫（粗略演示）
+    var kongDz=(xunIdx*2+2)%12; // 粗
+    var dz2g={'子':1,'丑':8,'寅':8,'卯':3,'辰':4,'巳':4,'午':9,'未':2,'申':2,'酉':7,'戌':6,'亥':6};
+    kwG.push(dz2g[DIZHI[kongDz]]||1);
+    kwG.push(dz2g[DIZHI[(kongDz+1)%12]]||2);
+
+    var cells={};
+    for(var i=1;i<=9;i++){
+      cells[i]={
+        g:i,name:GNAME[i],
+        di:di[i]||'',tian:tian[i]||di[i],
+        xing:i===zfG?zfXing:(XING[i]||''),
+        men:i===zfG?zfMen:(MEN[i]||''),
+        shen:shen[i]||'',
+        wu:WUXING_G[di[i]]||'',
+        isZf:i===zfG
+      }
+    }
+    return{
+      yin:yin,ju:ju,jie:jie,xun:xun,xunYi:xunYi,
+      zfG:zfG,tg:tg,tz:tz,
+      kw:kwG,
+      cells:cells,
+      summary:(yin?'阴遁':'阳遁')+ju+'局｜'+jie+'｜旬'+xun+'｜时'+tg+tz+'｜空'+(kwG.join(','))
+    }
+  }
+
   function renderPan(pan){
-    var el=document.getElementById('panOut');el.innerHTML='';
-    for(var g=1;g<=9;g++){
-      var c=pan.cells[g];var s=`<div class="cell">
-        <div class="g">${GNAME[g]}${c.zf?' [值符]':''}${c.zs?' [值使]':''}</div>
-        <div class="k">星${c.s} 门${c.m}</div>
-        <div>${c.gan}${c.zhi}</div>
-        ${c.kw?'<div class="kw">空亡</div>':''}
-      </div>`;el.insertAdjacentHTML('beforeend',s);
-    }
+    var el=sw('pan');el.innerHTML='';
+    PALACE_ORDER.forEach(function(g){
+      var c=pan.cells[g];
+      var div=document.createElement('div');
+      div.className='cell'+( (pan.kw&&pan.kw.indexOf(g)>=0)?' kw':'')+(c.isZf?' jz':'');
+      div.setAttribute('data-g',g);
+      div.innerHTML=
+        `<div class="g">${c.name}</div>`+
+        `<div>地<span class="sub">${c.di||'-'}</span> 天<span class="sub">${c.tian||'-'}</span></div>`+
+        `<div>门${c.men||'-'} 星${c.xing||'-'}</div>`+
+        `<div>神${c.shen||'-'}</div>`+
+        `<div class="kx">${c.wu?('五行'+c.wu):''}</div>`;
+      el.appendChild(div);
+    });
+    sw('summary').textContent=pan.summary||'--';
   }
-  // 宫→号码映射（演示）
-  function mapNums(g,lot,opt){
-    var front=[],back=[];
-    var baseF={1:[1,12,23,33],2:[2,13,24],3:[3,14,25],4:[4,15,26],5:[5,16,27],6:[6,17,28],7:[7,18,29],8:[8,19,30],9:[9,20,31]};
-    var baseB={1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5],6:[6],7:[7],8:[8],9:[1]};
-    if(lot==='dlt'){baseF={1:[1,13,25,35],2:[2,14,26],3:[3,15,27],4:[4,16,28],5:[5,17,29],6:[6,18,30],7:[7,19,31],8:[8,20,32],9:[9,21,33]}};
-    front=baseF[g]||[];back=baseB[g]||[];
-    if(opt.swKw && true){/* 空亡在buildPool里处理 */}
-    return {front,back};
-  }
-  function buildPool(pan,lot,opt,frontN,backN){
-    var frontMap={},backMap={},scores={},weightOf={};
+
+  // 选号池（娱乐映射：按宫数/五行/空亡等加权，不具预测性）
+  function buildPool(pan,lot,opts){
+    var front=[],back=[],scores={},frontMap={},backMap={};
+    for(var g=1;g<=9;g++){scores[g]=0;frontMap[g]=[];backMap[g]=[]}
     for(var g=1;g<=9;g++){
-      var m=mapNums(g,lot,opt);
-      frontMap[g]=m.front;backMap[g]=m.back;
-      var sc=5;if(pan.cells[g].zf||pan.cells[g].zs)sc+=3;
-      if(pan.cells[g].kw){sc-=4;/*转暗*/}
-      scores[g]=sc;
+      if(opts.swZhong&&g===5) continue; // 中五寄坤，不单取
+      var c=pan.cells[g];
+      var s=1;
+      if(pan.kw&&pan.kw.indexOf(g)>=0)s-=0.5;
+      if(c.isZf)s+=1.2;
+      scores[g]=s;
     }
-    var f=[],b=[];
-    // 按分高优先取，空亡转暗号并入低权
-    var order=Object.keys(scores).map(Number).sort((a,b)=>scores[b]-scores[a]);
-    order.forEach(g=>{frontMap[g].forEach(n=>{if(!f.includes(n))f.push(n)});backMap[g].forEach(n=>{if(!b.includes(n))b.push(n)});});
-    // 空亡宫补充暗数
-    Object.keys(pan.cells).forEach(g=>{if(pan.cells[g].kw){frontMap[g].forEach(n=>{if(!f.includes(n))f.push(n)});}});
-    f=f.slice(0,frontN);if(f.length<(lot==='dlt'?5:6)){for(var i=1;i<=(lot==='dlt'?35:33);i++)if(!f.includes(i))f.push(i);f=f.slice(0,frontN)}
-    b=b.slice(0,backN);if(b.length<(lot==='dlt'?2:1)){for(var i=1;i<=(lot==='dlt'?12:16);i++)if(!b.includes(i))b.push(i)}
-    f.sort((a,c)=>a-c);b.sort((a,c)=>a-c);
-    return {frontPool:f,backPool:b,frontMap,backMap,scores,weightOf,levels:{}};
+    // 双色球红1-33/蓝1-16；大乐透前1-35/后1-12（仅演示分池）
+    var redMax=lot==='dlt'?35:33,blueMax=lot==='dlt'?12:16;
+    for(var g=1;g<=9;g++){
+      var v=Math.max(1,Math.round(((g*7+parseInt(pan.ju||1)*3+(pan.yin?-1:1))%redMax)));
+      frontMap[g].push(v);if(front.indexOf(v)<0)front.push(v);
+      var b=Math.max(1,Math.round(((g*5+parseInt(pan.ju||1)*2)%blueMax)));
+      backMap[g].push(b);if(back.indexOf(b)<0)back.push(b);
+    }
+    if(opts.show18&&front.length>18)front=front.slice(0,18);
+    return{frontPool:front,backPool:back,scores:scores,frontMap:frontMap,backMap:backMap}
+  }
+  function ballHtml(arr){
+    return arr.map(function(n){return '<span style="margin:0 3px;color:#d6b76a">'+pad(n)+'</span>'}).join('')
   }
   function genTickets(pool,lot,k){
-    var out=[];for(var i=0;i<k;i++){
-      var f=shuffle(pool.frontPool).slice(0,lot==='dlt'?5:6);
-      var b=shuffle(pool.backPool).slice(0,lot==='dlt'?2:1);
-      out.push({front:f.sort((a,c)=>a-c),back:b.sort((a,c)=>a-c)});
-    }return out;
+    var out=[];
+    for(var i=0;i<k;i++){
+      var f=pool.frontPool.slice().sort(()=>Math.random()-0.5).slice(0,lot==='dlt'?5:6);
+      var b=pool.backPool.slice().sort(()=>Math.random()-0.5).slice(0,lot==='dlt'?2:1);
+      out.push({front:f.sort((a,b)=>a-b),back:b.sort((a,b)=>a-b)})
+    }
+    return out
   }
-  function shuffle(a){var r=a.slice();for(var i=r.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
-  function ballHtml(arr,w,isBack){
-    return arr.map(n=>{var cls='n';var wv=w[n]||(isBack?3:5);cls+=' w'+(Math.min(9,wv));return `<span class="${cls}">${pad(n)}</span>`}).join('');
-  }
-  function getOpts(){return{swHe10:!!sw('swHe10'),swXY:!!sw('swXY'),swZhong:!!sw('swZhong'),swWx:!!sw('swWx'),swKw:!!sw('swKw')}}
-  function sw(id){return document.getElementById(id)}
-  function parseDt(v){if(!v)return new Date();var [d,t]=v.split('T');var [Y,M,D]=d.split('-').map(Number);var [hh,mm]=(t||'00:00').split(':').map(Number);return new Date(Y,M-1,D,hh||0,mm||0,0)}
+
   function run(){
     var err=sw('errOut');err.textContent='';
     try{
-      var lot=sw('lotType').value;var dt=parseDt(sw('dtInput').value);
-      var useSolar=!!sw('useSolar').checked;var lng=parseFloat(sw('lng').value)||120;
-      var opts=getOpts();var show18=!!sw('show18').checked;var frontN=show18?18:12;var backN=lot==='dlt'?6:6;
-      var pan=qiMenPan(dt,useSolar,lng);renderPan(pan);
-      var pool=buildPool(pan,lot,opts,frontN,backN);var tickets=genTickets(pool,lot,5);
-      sw('frontPoolOut').innerHTML=ballHtml(pool.frontPool,{},false);
-      sw('backPoolOut').innerHTML=ballHtml(pool.backPool,{},true);
-      sw('fpCnt').textContent=`${(pan.yin?'阴遁':'阳遁')+pan.ju}局 旬${pan.xun} 空${pan.kw.join(',')||'-'} | 前${pool.frontPool.length}/后${pool.backPool.length}`;
+      var lot=sw('lotType').value;
+      var dt=parseDt(sw('dtInput').value);
+      var useSolar=!!sw('useSolar').checked;
+      var lng=parseFloat(sw('lng').value)||120;
+      var opts=getOpts();
+      var pan=qiMenPan(dt,useSolar,lng);
+      renderPan(pan);
+      var pool=buildPool(pan,lot,opts);
+      sw('frontPoolOut').innerHTML=ballHtml(pool.frontPool);
+      sw('backPoolOut').innerHTML=ballHtml(pool.backPool);
       var det='';for(var g=1;g<=9;g++)det+=`${GNAME[g]} 分${pool.scores[g].toFixed(1)} 前[${pool.frontMap[g].join(',')}] 后[${pool.backMap[g].join(',')}]\n`;
       sw('poolDetailOut').textContent=det;
-      sw('shrinkOut').textContent=tickets.map((t,i)=>{var f=t.front.map(pad).join(' ');var b=t.back.map(pad).join(' ');return `${i+1}. ${lot==='dlt'?`前区 ${f} ｜ 后区 ${b}`:`红球 ${f} ｜ 蓝球 ${b}`}`}).join('\n');
+      var tickets=genTickets(pool,lot,5);
+      sw('shrinkOut').textContent=tickets.map(function(t,i){
+        var f=t.front.map(pad).join(' '),b=t.back.map(pad).join(' ');
+        return i+1+'. '+(lot==='dlt'?`前区 ${f}｜后区 ${b}`:`红球 ${f}｜蓝球 ${b}`)
+      }).join('\n');
     }catch(e){err.textContent='计算异常：'+e.message+'\n'+(e.stack||'');console.error(e)}
   }
+
   sw('btnCalc').addEventListener('click',run);
-  // 也绑一个 touchend 兜底（防某些 WebView 吞 click）
   sw('btnCalc').addEventListener('touchend',function(e){e.preventDefault();run();});
+
   (function init(){
-    var now=new Date();sw('dtInput').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    var now=new Date();
+    sw('dtInput').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
     run();
   })();
 })();
 </script>
 </body>
 </html>
+
