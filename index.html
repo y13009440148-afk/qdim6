@@ -3,390 +3,305 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>奇门取数尺 · 双色球/大乐透 候选池（真实计算）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>奇门取数尺·双色球/大乐透候选池</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0b1020;color:#e6e8ef;font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px;max-width:800px;margin:auto}
-  h1{color:#f6c453;font-size:20px;margin:8px 0 4px}
-  .sub{color:#9aa3c7;font-size:13px;margin-bottom:14px}
-  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
-  input,button{background:#151b30;color:#e6e8ef;border:1px solid #2c3553;border-radius:8px;padding:8px 12px;font-size:14px}
-  button{color:#f6c453;cursor:pointer;font-weight:600}
+  :root{--bg:#070b1a;--gold:#f6c453;--dim:#9aa3c7;--line:#2c3553;--card:#0f1430;--red:#a8232c;--blue:#1f4ed8;--front:#b45309;--back:#047857}
+  body{margin:0;background:var(--bg);color:#e6e8ef;font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px;max-width:760px;margin:auto}
+  h1{color:var(--gold);font-size:20px;margin:8px 0}
+  .sub{color:var(--dim);font-size:13px;margin:6px 0 14px;line-height:1.5}
+  .row{display:flex;gap:10px;align-items:center;margin:10px 0;flex-wrap:wrap}
+  input,button{background:#151b30;color:#e6e8ef;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:14px;font-family:inherit}
+  button{color:var(--gold);cursor:pointer}
   button:hover{background:#1d2541}
-  .card{border-left:4px solid #f6c453;padding:10px 14px;margin:14px 0;background:#10162a;border-radius:0 8px 8px 0}
-  .card h2{font-size:16px;color:#f6c453;margin-bottom:8px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;font-size:13px}
-  .pal-item{padding:4px 8px;background:#1a2240;border-radius:6px}
-  .pal-high{border-left:3px solid #fbbf24}
-  .pal-mid{border-left:3px solid #6b7280}
-  .pal-low{border-left:3px solid #374151}
-  .ball{display:inline-block;min-width:28px;text-align:center;padding:2px 8px;margin:3px;border-radius:999px;font-size:13px;font-weight:600}
-  .b-red{background:#a8232c;color:#fff}
-  .b-blue{background:#1f4ed8;color:#fff}
-  .b-front{background:#b45309;color:#fff}
-  .b-back{background:#047857;color:#fff}
-  .tag{font-size:11px;color:#94a3b8;margin-left:6px}
-  .note{color:#9aa3c7;font-size:12px;margin-top:6px}
-  .warn{color:#fbbf24;font-size:13px;margin:6px 0}
-  .final-note{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-  .final-note > div{background:#1a2240;padding:8px 12px;border-radius:8px;font-size:14px;flex:1 1 160px}
-  .cond-label{font-size:13px;color:#cfd6ee;margin-right:12px}
-  .cond-label input{margin-right:4px;vertical-align:middle}
+  .card{margin-top:16px;background:var(--card);border-left:4px solid var(--gold);border-radius:10px;padding:10px 12px}
+  .card h2{font-size:16px;margin:4px 0 10px;color:var(--gold)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:13px}
+  .pal{border:1px solid var(--line);border-radius:8px;padding:7px;background:#111733;line-height:1.5}
+  .pal .t{color:var(--gold);font-weight:600}
+  .ball{display:inline-block;min-width:26px;text-align:center;padding:2px 6px;margin:3px;border-radius:999px;font-size:13px;font-family:inherit}
+  .b-red{background:var(--red);color:#fff}
+  .b-blue{background:var(--blue);color:#fff}
+  .b-front{background:var(--front);color:#fff}
+  .b-back{background:var(--back);color:#fff}
+  .warn{color:#ffb86c;margin-top:6px}
+  .note{color:var(--dim);font-size:12px;margin-top:8px}
+  .cond-label{margin-right:10px;font-size:13px;color:#cfd6ee;user-select:none}
+  .empty{color:#ffb86c;padding:10px 0}
+  @media(max-width:520px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 
-<h1>奇门取数尺 · 双色球/大乐透 候选池</h1>
-<div class="sub">九宫权重评分 + 空亡转暗 + 马星对宫，前区16~18 后区6~8，最终5注</div>
+<h1>奇门取数尺·双色球/大乐透候选池</h1>
+<div class="sub">九宫权重评分 + 空亡转暗 + 马星对宫；前区截 16~18，后区 6~8，最终在候选池内缩水出5注。<br>仅作术数/编程演示，不保证中奖，不用于投注依据。</div>
 
 <div class="row">
   <span>公历日期</span>
-  <input type="datetime-local" id="dt" value="2026-10-22T21:15" />
+  <input type="datetime-local" id="dt" />
+  <span>经度(可选)</span>
+  <input id="lng" placeholder="如116.4" style="width:110px" />
+</div>
+<div class="row">
   <button onclick="runMain()">起局并取数</button>
   <button onclick="setNow()">设为当前时间</button>
+  <button onclick="autoDrawTime()">按开奖时刻填充</button>
 </div>
 
-<div id="resultArea"></div>
+<div id="out"></div>
 
 <script>
-// ===== 基础数据 =====
-const TIAN_GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
-const DI_ZHI   = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-const MEN_MAP  = {1:'休',2:'死',3:'伤',4:'杜',6:'开',7:'惊',8:'生',9:'景'}; // 中5寄坤
-const STAR_MAP = {1:'天蓬',2:'天芮',3:'天冲',4:'天辅',6:'天心',7:'天柱',8:'天任',9:'天英'};
-const GOD_MAP  = {1:'值符',2:'腾蛇',3:'太阴',4:'六合',6:'白虎',7:'玄武',8:'九地',9:'九天'};
-// 每宫映射数（双色球1-33 / 大乐透1-35，这里兼容双色球，大乐透同理扩展）
-const PAL_NUMS = {
+/* ========== 工具 ========== */
+const pad=n=>String(n).padStart(2,'0');
+const sumDig=n=>{let s=n;while(s>9)s=Math.floor(s/10)+(s%10);return s};
+const isPrime=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
+const shuffle=(a,seed)=>{let r=seed||Math.random();for(let i=a.length-1;i>0;i--){r=Math.sin(r*9301+49297)*233280;r-=Math.floor(r);const j=Math.floor(r*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const combSmall=function(arr,k){const res=[];function dfs(s,cur){if(cur.length===k){res.push([...cur]);return}for(let i=s;i<arr.length;i++){cur.push(arr[i]);dfs(i+1,cur);cur.pop()}}dfs(0,[]);return res};
+const sampleCombos=function(arr,k,n){const out=[];const len=arr.length;if(combSmall(arr,k).length<=n)return combSmall(arr,k);for(let i=0;i<n;i++){const cp=[...arr];shuffle(cp,i+1);out.push(cp.slice(0,k).sort((a,b)=>a-b))}return out};
+
+/* ========== 干支/节气简易（够排演示局） ========== */
+const TGS=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const DZS=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const JIE=['立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
+const JIE_MONTH=[2,3,4,5,6,7,8,9,10,11,12,1];
+function ganZhi(year,month,day,hour){
+  // 简化：以日干支按固定偏移；仅用于演示起局，不替代专业历法
+  const base=((year-1984)*365+Math.floor((year-1984)/4)+month*30+day)%60;
+  const dayIdx=(base+5)%60;
+  const hIdx=Math.floor(hour/2)%12;
+  const dG=TGS[dayIdx%10],dZ=DZS[dayIdx%12];
+  const sG=TGS[(dayIdx*2+hIdx)%10],sZ=DZS[hIdx];
+  return {gan:dG,zhi:dZ,shiGan:sG,shiZhi:sZ,gz:`${dG}${dZ}`,sz:`${sG}${sZ}`};
+}
+function inJie(month,day){
+  // 粗按月份定阴阳遁/局数演示
+  const idx=JIE_MONTH.indexOf(month);
+  const ju=((idx+1)*2)%9||9;
+  const yin=[10,11,12,1,2,3].includes(month);
+  return {ju,yin};
+}
+
+/* ========== 奇门九宫结构（中五寄坤） ========== */
+const PAL_NUM={
   1:[1,6,10,16,19,28,31],
   2:[2,5,8,11,20,29,32],
   3:[3,12,21,30],
   4:[4,13,22,31],
   6:[6,9,15,24,33],
-  7:[7,16,25,34],
+  7:[7,16,25,34,35],
   8:[8,17,26,35],
   9:[9,18,27]
 };
-const OPP_PAL = {1:9,2:7,3:8,4:9,6:1,7:2,8:3,9:4};
-const MAX_FRONT = 33; // 双色球红，大乐透改为35
+const OPP={1:9,2:7,3:8,4:9,6:1,7:2,8:3,9:4};
+const MEN={1:'休',2:'生',3:'伤',4:'杜',6:'开',7:'惊',8:'死',9:'景'};
+const STAR={1:'天心',2:'天芮',3:'天冲',4:'天辅',6:'天心',7:'天柱',8:'天任',9:'天英'};
+const GOD={1:'六合',2:'太阴',3:'腾蛇',4:'勾陈',6:'值符',7:'九天',8:'九地',9:'朱雀'};
+const JI_MEN=['开','休','生'];
+const JI_STAR=['天心','天辅','天任','天冲'];
+const JI_GOD=['值符','六合','太阴','九天'];
 
-// ===== 排盘（简化但可复算） =====
-function calcDayGanZhi(y,m,d){
-  const base = new Date(1900,0,1);
-  const dt = new Date(y,m-1,d);
-  const days = Math.floor((dt-base)/86400000);
-  return { gan: TIAN_GAN[(4+days)%10], zhi: DI_ZHI[(0+days)%12] };
-}
-function calcTermIdx(y,m,d){
-  // 粗略按日序模拟，正式应用需节气表
-  const monthDays = [0,31,28,31,30,31,30,31,31,30,31,30,31];
-  let doy = d;
-  for(let i=1;i<m;i++) doy += monthDays[i];
-  return Math.floor(doy/15.2) % 24;
-}
-function qimenBoard(y,m,d,h,mi){
-  const gz = calcDayGanZhi(y,m,d);
-  const term = calcTermIdx(y,m,d);
-  const hour = h + mi/60;
-  // 阴阳遁（冬至阳、夏至阴）
-  const yin = (m>=6 && (m>6 || d>=22)) ? true : false;
-  const ju = (term % 9) + 1;
-  // 时干支（简化）
-  const shiGanIdx = (TIAN_GAN.indexOf(gz.gan) + Math.floor(hour/2)) % 10;
-  const shiZhiIdx = (DI_ZHI.indexOf(gz.zhi) + Math.floor(hour/2)) % 12;
-  const shiGan = TIAN_GAN[shiGanIdx];
-  const shiZhi = DI_ZHI[shiZhiIdx];
-  // 值符值使（按旬首定，简化）
-  const xunShouIdx = Math.floor(shiZhiIdx/2)*2;
-  const zfPal = (xunShouIdx % 9) + 1;
-  const zsPal = ((xunShouIdx+2) % 9) + 1;
-  // 空亡（旬首地支对冲）
-  const kongZhi = DI_ZHI[(xunShouIdx+6)%12];
-  const kongPals = [];
-  for(let p=1;p<=9;p++){
-    if(p===5) continue;
-    if(DI_ZHI[(xunShouIdx+p)%12]===kongZhi) kongPals.push(p);
+function qimen(y,m,d,h,mi,lng){
+  const gz=ganZhi(y,m,d,h);
+  const {ju,yin}=inJie(m,m);
+  // 演示：值符/值使按日时干支映射宫（非专业排盘全部细项，但可复算）
+  const zfPal=((gz.gz.charCodeAt(0)+gz.sz.charCodeAt(0))%8)||6;
+  const zsPal=((gz.sz.charCodeAt(0)+h)%8)||1;
+  // 空亡：按时柱取（演示取时支相关两宫）
+  const kongBase=(gz.sz.charCodeAt(0)+d)%12;
+  const kongPals=[((kongBase)%8)||1, ((kongBase+4)%8)||6];
+  // 马星按日支
+  const maMap={'寅':3,'午':9,'戌':7,'申':7,'子':1,'辰':4,'巳':4,'酉':2,'丑':8,'未':8,'卯':3,'亥':1};
+  const maStarZhi=gz.zhi; const maPal=maMap[gz.zhi]||1;
+  // 各宫门/星/神（演示循环）
+  const men={},star={},god={},score={};
+  for(const p of [1,2,3,4,6,7,8,9]){
+    men[p]=MEN[((p+zfPal)%9)||p]||'杜';
+    star[p]=STAR[((p+zsPal)%9)||p]||'天辅';
+    god[p]=GOD[((p+kongBase)%9)||p]||'勾陈';
+    let s=0;
+    if(p===zfPal)s+=40;
+    if(p===zsPal)s+=30;
+    if(JI_MEN.includes(men[p]))s+=20;
+    if(JI_STAR.includes(star[p]))s+=10;
+    if(JI_GOD.includes(god[p]))s+=8;
+    if(p===maPal)s+=12;
+    if(kongPals.includes(p))s-=25;
+    score[p]=s;
   }
-  // 马星（寅午戌马在申，申子辰马在寅，巳酉丑马在亥，亥卯未马在巳）
-  const maMap = {'寅':7,'午':7,'戌':7,'申':1,'子':1,'辰':1,'巳':4,'酉':4,'丑':4,'亥':8,'卯':8,'未':8};
-  const maStarZhi = maMap[gz.zhi] || 1;
-  // 每宫门（简化，实际按飞宫）
-  const palMen = {};
-  for(let p=1;p<=9;p++){
-    if(p===5) continue;
-    palMen[p] = MEN_MAP[p] || '死';
-  }
-  const palStars = {};
-  for(let p=1;p<=9;p++){
-    if(p===5) continue;
-    palStars[p] = STAR_MAP[p] || '天芮';
-  }
-  const palGods = {};
-  for(let p=1;p<=9;p++){
-    if(p===5) continue;
-    palGods[p] = GOD_MAP[p] || '值符';
-  }
-  return {
-    y,m,d,h,mi, term, yin, ju,
-    gz, shiGan, shiZhi, zfPal, zsPal,
-    kongPals, maStarZhi, palMen, palStars, palGods
-  };
+  return {y,m,d,h,mi,lng,gz,ju,yin,zfPal,zsPal,kongPals,maPal,maStarZhi,men,star,god,score};
 }
 
-// ===== 宫分计算 =====
-function scorePal(board, p){
-  if(p===5) return -999; // 中五寄坤不计独立
-  let s = 0;
-  if(p === board.zfPal) s += 45;
-  if(p === board.zsPal) s += 35;
-  const men = board.palMen[p] || '';
-  if(['开','休','生'].includes(men)) s += 20;
-  const star = board.palStars[p] || '';
-  if(['天心','天辅','天任','天冲'].includes(star)) s += 10;
-  const god = board.palGods[p] || '';
-  if(['太阴','六合','九地','九天'].includes(god)) s += 10;
-  if(['白虎','玄武','腾蛇'].includes(god)) s -= 10;
-  if(['死','惊','伤'].includes(men)) s -= 15;
-  // 门迫击刑（简化）
-  if(men==='死' && [2,5,8].includes(p)) s -= 10;
-  if(board.kongPals.includes(p)) s -= 25; // 空亡降权
-  if(p === board.maStarZhi) s += 15; // 马星加权
-  return s;
+/* ========== 取数尺 ========== */
+function darkFromPal(p,board,maxFront){
+  const op=OPP[p]||1;
+  const v=p+(OPP[p]||0)+((board.score[p]||0))+((board.score[op]||0));
+  const d=sumDig(v);
+  // 映射到前区范围
+  const mapTo=d===0?1:d;
+  let r=mapTo;
+  while(r>maxFront)r-=9;
+  if(r<1)r+=9;
+  return r;
 }
-
-// ===== 空亡暗数 =====
-function darkNum(board, p, maxVal){
-  const opp = OPP_PAL[p] || 1;
-  const starIdx = Object.keys(STAR_MAP).indexOf(String(p)) + 1;
-  const menIdx  = Object.keys(MEN_MAP).indexOf(String(p)) + 1;
-  let sum = p + opp + (starIdx||1) + (menIdx||1);
-  while(sum > 9) sum = Math.floor(sum/10) + (sum%10);
-  // 映射到 1-maxVal
-  return (sum <= maxVal) ? sum : (sum % maxVal) + 1;
-}
-
-// ===== 构建候选池 =====
-function buildPool(board, type){
-  const maxFront = (type==='ssq') ? 33 : 35;
-  const maxBack  = (type==='ssq') ? 16 : 12;
-  const frontLen = (type==='ssq') ? 6 : 5;
-  const backLen  = (type==='ssq') ? 1 : 2;
-
-  // 所有宫（1-9跳过5）
-  const pals = [1,2,3,4,6,7,8,9];
-  const scored = pals.map(p => ({p, s: scorePal(board, p)}))
-                     .sort((a,b) => b.s - a.s);
-
-  // 分层：前3高分、中3、后3
-  const high = scored.slice(0,3);
-  const mid  = scored.slice(3,6);
-  const low  = scored.slice(6,9);
-
-  let frontPool = [];
-  let backPool  = [];
-
-  // 前区取数
-  high.forEach(item => {
-    const nums = PAL_NUMS[item.p] || [];
-    // 取前3个
-    frontPool.push(...nums.slice(0,3));
+function buildPool(board,type){
+  const maxFront=type==='ssq'?33:35;
+  const maxBack=type==='ssq'?16:12;
+  let frontSet=new Set();
+  let backSet=new Set();
+  // 前区：按宫取
+  for(const p of [1,2,3,4,6,7,8,9]){
+    const nums=PAL_NUM[p].filter(n=>n<=maxFront);
+    const sc=board.score[p];
+    if(board.kongPals.includes(p)){
+      // 空亡转暗，只取暗数1个/少量
+      frontSet.add(darkFromPal(p,board,maxFront));
+    } else {
+      // 高分宫多取，低分宫少取
+      const take=sc>=50?Math.min(nums.length,4):sc>=30?Math.min(nums.length,3):Math.min(nums.length,1);
+      nums.slice(0,take).forEach(n=>frontSet.add(n));
+      // 值符/值使/马星补对宫
+      if(p===board.zfPal||p===board.zsPal||p===board.maPal){
+        const op=OPP[p];
+        PAL_NUM[op].filter(n=>n<=maxFront).slice(0,1).forEach(n=>frontSet.add(n));
+      }
+    }
+  }
+  // 保证前区16~18
+  let front=[...frontSet].sort((a,b)=>a-b);
+  if(front.length<16){
+    // 补：按权重补宫数
+    const all=[];
+    for(const p of [1,2,3,4,6,7,8,9]){
+      PAL_NUM[p].filter(n=>n<=maxFront&&!frontSet.has(n)).forEach(n=>all.push({n,s:board.score[p]||0}));
+    }
+    all.sort((a,b)=>b.s-a.s);
+    for(const x of all){frontSet.add(x.n);if(frontSet.size>=17)break}
+    front=[...frontSet].sort((a,b)=>a-b);
+  }
+  if(front.length>18){
+    // 按权重保留
+    const ranked=front.map(n=>{let p=0;for(const k in PAL_NUM)if(PAL_NUM[k].includes(n))p=+k;return {n,s:board.score[p]||0}})
+      .sort((a,b)=>b.s-a.s).slice(0,17).map(x=>x.n);
+    front=[...new Set(ranked)].sort((a,b)=>a-b);
+  }
+  // 后区：值符/值使/空亡暗/马星/对宫
+  const backSrc=[board.zfPal,board.zsPal,board.maPal,OPP[board.zfPal],OPP[board.zsPal]];
+  backSrc.forEach(p=>{
+    let v=sumDig(p+(board.score[p]||0));
+    while(v>maxBack)v-=9;
+    if(v>=1&&v<=maxBack)backSet.add(v);
   });
-  mid.forEach(item => {
-    const nums = PAL_NUMS[item.p] || [];
-    frontPool.push(...nums.slice(0,2));
-  });
-  low.forEach(item => {
-    // 低分宫只取暗数
-    const dn = darkNum(board, item.p, maxFront);
-    frontPool.push(dn);
-  });
-  // 补足空亡暗数（若空亡宫不在低分区）
-  board.kongPals.forEach(p => {
-    if(!frontPool.includes(darkNum(board, p, maxFront))){
-      frontPool.push(darkNum(board, p, maxFront));
-    }
-  });
-
-  // 去重、排序、截到16~18
-  frontPool = [...new Set(frontPool)].filter(n => n>=1 && n<=maxFront).sort((a,b)=>a-b);
-  if(frontPool.length < 16){
-    // 补对宫数
-    for(let p of pals){
-      if(frontPool.length >= 18) break;
-      const opp = OPP_PAL[p];
-      const add = PAL_NUMS[opp] ? PAL_NUMS[opp][0] : opp;
-      if(!frontPool.includes(add) && add>=1 && add<=maxFront) frontPool.push(add);
-    }
-    frontPool.sort((a,b)=>a-b);
+  board.kongPals.forEach(p=>{let v=sumDig(p*2);while(v>maxBack)v-=9;if(v>=1&&v<=maxBack)backSet.add(v)});
+  // 保证6~8
+  let back=[...backSet].sort((a,b)=>a-b);
+  if(back.length<6){
+    for(let i=1;i<=maxBack;i++){backSet.add(i);if(backSet.size>=6)break}
+    back=[...backSet].sort((a,b)=>a-b);
   }
-  if(frontPool.length > 18) frontPool = frontPool.slice(0,18);
-  if(frontPool.length < 16) frontPool = frontPool.concat(
-    Array.from({length:16-frontPool.length}, (_,i)=> (i+1) )
-  ).filter((v,i,a)=>a.indexOf(v)===i).slice(0,18);
-
-  // 后区取数（值符宫、值使宫、空亡暗宫、马星空宫、对宫）
-  const backSources = new Set();
-  backSources.add(board.zfPal);
-  backSources.add(board.zsPal);
-  board.kongPals.forEach(p => backSources.add(darkNum(board, p, maxBack)));
-  backSources.add(board.maStarZhi);
-  backSources.add(OPP_PAL[board.zfPal] || 1);
-  backSources.forEach(p => {
-    const nums = PAL_NUMS[p] || [p];
-    backPool.push(...nums.slice(0,2));
-  });
-  backPool = [...new Set(backPool)].filter(n => n>=1 && n<=maxBack).sort((a,b)=>a-b);
-  if(backPool.length < 6){
-    for(let i=1;i<=maxBack;i++){
-      if(backPool.length >= 8) break;
-      if(!backPool.includes(i)) backPool.push(i);
-    }
-    backPool.sort((a,b)=>a-b);
-  }
-  if(backPool.length > 8) backPool = backPool.slice(0,8);
-
-  return { front: frontPool, back: backPool, scored };
+  if(back.length>8)back=back.slice(0,8);
+  return {front,back,type};
 }
 
-// ===== 统计缩水条件 =====
-function isPrime(n){ return [2,3,5,7,11,13,17,19,23,29,31].includes(n); }
-
-function filterCombos(pool, frontLen, opts, maxVal){
-  const candidates = [];
-  // 随机采样组合（避免全组合爆炸）
-  const attempts = 50000;
-  for(let i=0;i<attempts;i++){
-    const shuffled = [...pool.front].sort(()=>Math.random()-0.5);
-    const pick = shuffled.slice(0,frontLen).sort((a,b)=>a-b);
-    if(candidates.some(c=>c.join(',')===pick.join(','))) continue;
-    // 条件检查
-    let pass = true;
-    if(opts.oe){
-      const odd = pick.filter(n=>n%2===1).length;
-      if(odd===0 || odd===frontLen) pass=false;
-    }
-    if(pass && opts.bs){
-      const half = Math.ceil(maxVal/2);
-      const big = pick.filter(n=>n>half).length;
-      if(big===0 || big===frontLen) pass=false;
-    }
-    if(pass && opts.mod3){
-      const m = [0,0,0];
-      pick.forEach(n=>m[n%3]++);
-      if(m.some(x=>x===0)) pass=false;
-    }
-    if(pass && opts.prime){
-      const pc = pick.filter(n=>isPrime(n)).length;
-      if(pc<2) pass=false;
-    }
-    if(pass && opts.zone){
-      const zoneSize = Math.ceil(maxVal/3);
-      const z = [0,0,0];
-      pick.forEach(n=>{ const idx=Math.min(2,Math.floor((n-1)/zoneSize)); z[idx]++; });
-      if(z.some(x=>x===0)) pass=false;
-    }
-    if(pass && !opts.conn){
-      let hasConn = false;
-      for(let j=0;j<pick.length-1;j++){ if(pick[j]+1===pick[j+1]){hasConn=true;break;} }
-      if(hasConn) pass=false;
-    }
-    if(pass){
-      const sum = pick.reduce((a,b)=>a+b,0);
-      const odd = pick.filter(n=>n%2===1).length;
-      const weight = (sum%3===0?3:0) + (sum%7===0?2:0) + (odd>=2?2:0) + (pool.front.includes(pick[0])?1:0);
-      candidates.push({ combo: pick, sum, weight });
-    }
-    if(candidates.length >= 50) break;
-  }
-  return candidates.sort((a,b)=>b.weight - a.weight).slice(0,5);
+/* ========== 开奖日判定 ========== */
+function getDrawNote(y,m,d,h,mi){
+  const dt=new Date(y,m-1,d);
+  const dow=dt.getDay();
+  const ssq=[2,4,0],dlt=[1,3,6];
+  if(ssq.includes(dow)&&h===21&&mi===15) return {type:'ssq',note:''};
+  if(dlt.includes(dow)&&h===21&&mi===25) return {type:'dlt',note:''};
+  if(ssq.includes(dow)) return {type:'ssq',note:'当前是双色球开奖日但非21:15开奖时刻，按同局演示取数（非投注依据）'};
+  if(dlt.includes(dow)) return {type:'dlt',note:'当前是大乐透开奖日但非21:25开奖时刻，按同局演示取数（非投注依据）'};
+  return {type:'ssq',note:'非开奖日，按双色球取数尺演示兜底（非投注依据）'};
 }
 
-// ===== 主函数 =====
-function runMain(){
-  const dtStr = document.getElementById('dt').value;
-  if(!dtStr){ alert('请选择日期时间'); return; }
-  const [datePart, timePart] = dtStr.split('T');
-  const [y,m,d] = datePart.split('-').map(Number);
-  const [h,mi] = timePart.split(':').map(Number);
-
-  const board = qimenBoard(y,m,d,h,mi);
-  // 自动判定彩种（双色球：周二/四/日21:15；大乐透：周一/三/六21:25）
-  const dow = new Date(y,m-1,d).getDay();
-  const ssqDays = [2,4,0]; // 周二四日
-  const dltDays = [1,3,6]; // 周一三六
-  let type = 'ssq';
-  let drawNote = '';
-  if(ssqDays.includes(dow) && h>=21 && mi>=15){
-    type = 'ssq';
-  } else if(dltDays.includes(dow) && h>=21 && mi>=25){
-    type = 'dlt';
-  } else {
-    drawNote = '非标准开奖时刻，默认按双色球演示';
-    type = 'ssq';
+/* ========== 过滤/出注 ========== */
+function checkCond(c,opt,type){
+  const fl=type==='ssq'?6:5;
+  if(c.length!==fl)return false;
+  const odd=c.filter(x=>x%2===1).length;
+  if(opt.oe){
+    if(type==='ssq'&&!(odd>=2&&odd<=4))return false;
+    if(type==='dlt'&&!(odd>=2&&odd<=3))return false;
   }
+  const big=c.filter(x=>x>(type==='ssq'?16:17)).length;
+  if(opt.bs){
+    if(type==='ssq'&&!(big>=2&&big<=4))return false;
+    if(type==='dlt'&&!(big>=2&&big<=3))return false;
+  }
+  const mod3=[0,0,0];c.forEach(x=>mod3[x%3]++);
+  if(opt.mod3&&(mod3[0]===0||mod3[1]===0||mod3[2]===0))return false;
+  const pr=c.filter(isPrime).length;
+  if(opt.prime){
+    if(type==='ssq'&&!(pr>=1&&pr<=3))return false;
+  }
+  const z1=c.filter(x<=11).length,z2=c.filter(x>11&&x<=22).length,z3=c.filter(x>22).length;
+  if(opt.zone){
+    if(type==='ssq'&&(z1===0||z3===0))return false;
+  }
+  if(!opt.conn){
+    for(let i=0;i<c.length-1;i++)if(c[i]+1===c[i+1])return false;
+  }
+  return true;
+}
+function scoreCombo(c,board){
+  const sum=c.reduce((a,b)=>a+b,0);
+  let s=0;
+  const odd=c.filter(x=>x%2===1).length;s+=(odd===3||odd===4?2:1);
+  const mod3=[0,0,0];c.forEach(x=>mod3[x%3]++);s+=(mod3[0]>=1&&mod3[1]>=1&&mod3[2]>=1?2:0);
+  // 与奇门高分宫贴近加分
+  for(const n of c){for(const p of [1,2,3,4,6,7,8,9])if(PAL_NUM[p].includes(n))s+=(board.score[p]||0)/40}
+  s+=(sum>=(type==='ssq'?70:60)&&sum<=(type==='ssq'?130:110)?2:0);
+  return {combo:c,sum,s};
+}
 
-  const pool = buildPool(board, type);
-  const maxFront = (type==='ssq') ? 33 : 35;
-  const frontLen = (type==='ssq') ? 6 : 5;
-  const backLen  = (type==='ssq') ? 1 : 2;
+/* ========== 渲染 ========== */
+function render(board,pool,finalList,drawNote,type){
+  const out=document.getElementById('out');
+  const palHtml=[1,2,3,4,6,7,8,9].map(p=>`
+    <div class="pal">
+      <div class="t">${p}宫</div>
+      <div>门${board.men[p]||'-'} 星${board.star[p]||'-'} 神${board.god[p]||'-'}</div>
+      <div>分${board.score[p]||0}${board.kongPals.includes(p)?' 空亡':''}${p===board.maPal?' 马':''}</div>
+      <div>${PAL_NUM[p].filter(n=>n<=(type==='ssq'?33:35)).map(n=>`<span class="ball ${type==='ssq'?'b-red':'b-front'}">${pad(n)}</span>`).join('')}</div>
+    </div>`).join('');
 
-  // 读取缩水选项
-  const opts = {
-    oe:   document.getElementById('opt_oe').checked,
-    bs:   document.getElementById('opt_bs').checked,
-    mod3: document.getElementById('opt_mod3').checked,
-    prime:document.getElementById('opt_prime').checked,
-    zone: document.getElementById('opt_zone').checked,
-    conn: document.getElementById('opt_conn').checked
-  };
+  const frontBalls=pool.front.map(n=>`<span class="ball ${type==='ssq'?'b-red':'b-front'}">${pad(n)}</span>`).join('');
+  const backBalls=pool.back.map(n=>`<span class="ball ${type==='ssq'?'b-blue':'b-back'}">${pad(n)}</span>`).join('');
 
-  const finalCombos = filterCombos(pool, frontLen, opts, maxFront);
-
-  // 渲染
-  const area = document.getElementById('resultArea');
-
-  // 奇门排盘摘要
-  const palHtml = pool.scored.map(item => {
-    const cls = pool.scored.indexOf(item)<3 ? 'pal-high' : (pool.scored.indexOf(item)<6 ? 'pal-mid' : 'pal-low');
-    const kongTag = board.kongPals.includes(item.p) ? ' 🈳' : '';
-    const maTag = (item.p===board.maStarZhi) ? ' 🐎' : '';
-    return `<div class="pal-item ${cls}">宫${item.p} 分${item.s}${kongTag}${maTag} → ${PAL_NUMS[item.p]?.slice(0,3).join(',')||'-'}</div>`;
-  }).join('');
-
-  // 候选池
-  const frontBalls = pool.front.map(n => `<span class="ball ${type==='ssq'?'b-red':'b-front'}">${String(n).padStart(2,'0')}</span>`).join('');
-  const backBalls = pool.back.map(n => `<span class="ball ${type==='ssq'?'b-blue':'b-back'}">${String(n).padStart(2,'0')}</span>`).join('');
-
-  // 最终5注
-  let finalHtml = '';
-  if(finalCombos.length===0){
-    finalHtml = '<div class="warn">未找到满足条件的组合，请放宽缩水条件</div>';
-  } else {
-    finalCombos.forEach((item, idx) => {
-      const bk = pool.back.slice(idx % pool.back.length, idx % pool.back.length + backLen);
-      while(bk.length < backLen) bk.push(pool.back[0]);
-      const frontStr = item.combo.map(n => `<span class="ball ${type==='ssq'?'b-red':'b-front'}">${String(n).padStart(2,'0')}</span>`).join('');
-      const backStr = bk.map(n => `<span class="ball ${type==='ssq'?'b-blue':'b-back'}">${String(n).padStart(2,'0')}</span>`).join('');
-      finalHtml += `<div>第${idx+1}注：${frontStr} + ${backStr} <span class="tag">和=${item.sum}</span></div>`;
+  let finalHtml='';
+  if(finalList.length===0){
+    finalHtml='<div class="empty">未筛出满足条件的组合，已回退显示随机候选（请调整条件/仍仅演示）</div>';
+    const fallback=sampleCombos(pool.front,type==='ssq'?6:5,5);
+    fallback.forEach((c,i)=>{
+      const bk=pool.back.slice(i%pool.back.length);
+      const bf=c.map(n=>`<span class="ball ${type==='ssq'?'b-red':'b-front'}">${pad(n)}</span>`).join('');
+      const bb=bk.slice(0,type==='ssq'?1:2).map(n=>`<span class="ball ${type==='ssq'?'b-blue':'b-back'}">${pad(n)}</span>`).join('');
+      finalHtml+=`<div>第${i+1}注：${bf} + ${bb} <span class="tag">和=${c.reduce((a,b)=>a+b,0)}</span></div>`;
+    });
+  }else{
+    finalList.forEach((it,i)=>{
+      const bf=it.combo.map(n=>`<span class="ball ${type==='ssq'?'b-red':'b-front'}">${pad(n)}</span>`).join('');
+      const bk=it.back.map(n=>`<span class="ball ${type==='ssq'?'b-blue':'b-back'}">${pad(n)}</span>`).join('');
+      finalHtml+=`<div>第${i+1}注：${bf} + ${bk} <span class="tag">和=${it.sum}/分${it.s.toFixed(1)}</span></div>`;
     });
   }
 
-  area.innerHTML = `
+  out.innerHTML=`
     <div class="card">
-      <h2>奇门排盘</h2>
+      <h2>奇门排盘/取数依据</h2>
       <div style="font-size:13px;margin-bottom:8px">
-        ${board.gz.gan}${board.gz.zhi}日 ${board.shiGan}${board.shiZhi}时 | 
-        值符宫${board.zfPal} 值使宫${board.zsPal} | 
-        空亡：${board.kongPals.join(',')} | 
-        马星：${board.maStarZhi}宫 | 
-        局${board.ju} ${board.yin?'阴':'阳'}遁
-        ${drawNote ? `<div class="warn">${drawNote}</div>` : ''}
+        ${board.gz.gz}日 ${board.gz.sz}时 |
+        值符宫${board.zfPal} 值使宫${board.zsPal} |
+        空亡${board.kongPals.join(',')} |
+        马星${board.maPal}(${board.maStarZhi}) |
+        ${board.yin?'阴遁':'阳遁'}局${board.ju}
+        ${drawNote?`<div class="warn">${drawNote}</div>`:''}
       </div>
       <div class="grid">${palHtml}</div>
     </div>
 
     <div class="card">
-      <h2>候选池（前区${pool.front.length}个 / 后区${pool.back.length}个）</h2>
+      <h2>候选池（前区${pool.front.length} / 后区${pool.back.length}）</h2>
       <div style="margin:6px 0">前区：${frontBalls}</div>
       <div>后区：${backBalls}</div>
     </div>
@@ -394,34 +309,85 @@ function runMain(){
     <div class="card">
       <h2>缩水条件</h2>
       <div style="margin-bottom:8px">
-        <label class="cond-label"><input type="checkbox" id="opt_oe" checked> 奇偶比</label>
-        <label class="cond-label"><input type="checkbox" id="opt_bs" checked> 大小比</label>
-        <label class="cond-label"><input type="checkbox" id="opt_mod3" checked> 除3余</label>
-        <label class="cond-label"><input type="checkbox" id="opt_prime" checked> 质合</label>
-        <label class="cond-label"><input type="checkbox" id="opt_zone" checked> 区间</label>
-        <label class="cond-label"><input type="checkbox" id="opt_conn"> 允许连号</label>
-        <button onclick="runMain()" style="margin-left:10px">重新过滤</button>
+        <label class="cond-label"><input type="checkbox" id="opt_oe" checked>奇偶</label>
+        <label class="cond-label"><input type="checkbox" id="opt_bs" checked>大小</label>
+        <label class="cond-label"><input type="checkbox" id="opt_mod3" checked>除3余</label>
+        <label class="cond-label"><input type="checkbox" id="opt_prime" checked>质合</label>
+        <label class="cond-label"><input type="checkbox" id="opt_zone" checked>区间</label>
+        <label class="cond-label"><input type="checkbox" id="opt_conn">允许连号</label>
+        <button onclick="runMain()">重新过滤</button>
       </div>
     </div>
 
     <div class="card">
-      <h2>最终5注（候选池内按条件缩水 + 权重排序）</h2>
+      <h2>最终5注（候选池内缩水+权重）</h2>
       ${finalHtml}
       <div class="note">* 仅作术数演示，不保证中奖，不用于投注依据</div>
     </div>
   `;
 }
 
+/* ========== 主流程 ========== */
+function readOpts(){
+  const g=id=>document.getElementById(id);
+  return {
+    oe:g('opt_oe')?g('opt_oe').checked:true,
+    bs:g('opt_bs')?g('opt_bs').checked:true,
+    mod3:g('opt_mod3')?g('opt_mod3').checked:true,
+    prime:g('opt_prime')?g('opt_prime').checked:true,
+    zone:g('opt_zone')?g('opt_zone').checked:true,
+    conn:g('opt_conn')?g('opt_conn').checked:false
+  };
+}
+function parseDt(v){
+  const [d,t]=v.split('T');
+  const [y,m,dd]=d.split('-').map(Number);
+  const [h,mi]=t.split(':').map(Number);
+  return {y,m,d:dd,h,mi};
+}
+function runMain(){
+  const v=document.getElementById('dt').value;
+  if(!v){alert('先选公历日期时间');return}
+  const p=parseDt(v);
+  const lng=document.getElementById('lng').value.trim();
+  const board=qimen(p.y,p.m,p.d,p.h,p.mi,lng);
+  const dr=getDrawNote(p.y,p.m,p.d,p.h,p.mi);
+  const type=dr.type;
+  const pool=buildPool(board,type);
+  const fl=type==='ssq'?6:5;
+  const bl=type==='ssq'?1:2;
+  const opts=readOpts();
+  let samples=sampleCombos(pool.front,fl,20000);
+  let filt=samples.filter(c=>checkCond(c,opts,type));
+  if(filt.length<5)filt=samples;
+  let scored=filt.map(c=>scoreCombo(c,board));
+  scored.sort((a,b)=>b.s-a.s);
+  const finalList=scored.slice(0,5).map(it=>{
+    const backArr=pool.back.slice();
+    // 后区简单按权重取（演示）
+    const bk=backArr.slice(0,bl);
+    return {...it,back:bk};
+  });
+  render(board,pool,finalList,dr.note,type);
+}
 function setNow(){
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  document.getElementById('dt').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const now=new Date();
+  const pad2=n=>String(n).padStart(2,'0');
+  document.getElementById('dt').value=`${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}T${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  runMain();
+}
+function autoDrawTime(){
+  const now=new Date();
+  const dow=now.getDay();
+  const pad2=n=>String(n).padStart(2,'0');
+  let h=21,mi=15;
+  if([2,4,0].includes(dow)){h=21;mi=15}
+  else if([1,3,6].includes(dow)){h=21;mi=25}
+  document.getElementById('dt').value=`${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}T${pad2(h)}:${pad2(mi)}`;
   runMain();
 }
 
-window.onload = function(){
-  runMain();
-};
+window.onload=function(){setNow()};
 </script>
 </body>
 </html>
