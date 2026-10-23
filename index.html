@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -105,11 +104,9 @@
 /* ========== 基础常量（简化排盘，仅做本地娱乐模型） ========== */
 const GAN='甲乙丙丁戊己庚辛壬癸';
 const PORD=[1,2,3,4,5,6,7,8,9];
-// 洛书对宫
 const DUI_GONG={1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
-// 先天数（常用配法示意，非唯一流派）：按卦序取象数映射
-const QIAN_TIAN_NUM={1:1,2:8,3:3,4:4,5:5,6:2,7:7,8:6,9:9}; // 仅作“体用偏重”系数用
-// 五行（按号码尾/数意简易映射，娱乐）
+const QIAN_TIAN_NUM={1:1,2:8,3:3,4:4,5:5,6:2,7:7,8:6,9:9};
+
 function wuxingOfNum(n){
   const m=n%10;
   if([1,6].includes(m)) return '水';
@@ -120,17 +117,14 @@ function wuxingOfNum(n){
 }
 function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
 
-/* 宫→号码映射（示例；你可按自己“全中攻/宫位取数”替换） */
 function frontMap(game){
-  // 大乐透前区1-35；双色球红1-33
   if(game==='dlt'){
     return {
       1:[1,9,17,25,33], 2:[2,10,18,26,34], 3:[3,11,19,27,35],
       4:[4,12,20,28],   5:[5,13,21,29],    6:[6,14,22,30],
-      7:[7,15,23,31],   8:[8,16,24,32],    9:[1,5,9,13,17,21,25,29,33] // 中宫可参与
+      7:[7,15,23,31],   8:[8,16,24,32],    9:[1,5,9,13,17,21,25,29,33]
     };
   }
-  // ssq
   return {
     1:[1,9,17,25],  2:[2,10,18,26], 3:[3,11,19,27],
     4:[4,12,20,28], 5:[5,13,21,29], 6:[6,14,22,30],
@@ -138,21 +132,17 @@ function frontMap(game){
   };
 }
 function backMap(game){
-  if(game==='dlt') return { // 后区1-12，按宫取部分
-    1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5],6:[6],7:[7],8:[8],9:[1,12]
-  };
-  return { // 双色球蓝1-16
-    1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5,13],6:[6,14],7:[7,15],8:[8,16],9:[1]
-  };
+  if(game==='dlt'){
+    return {1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5],6:[6],7:[7],8:[8],9:[1,12]};
+  }
+  return {1:[1,9],2:[2,10],3:[3,11],4:[4,12],5:[5,13],6:[6,14],7:[7,15],8:[8,16],9:[1]};
 }
 
-/* ========== 简化奇门排盘（仅本地模型，保证不对接） ========== */
+/* ========== 简化奇门排盘 ========== */
 function qimen(y,m,d,h,mi){
-  // 这里用“伪/节令遁局”占位，重点在后续加权结构可跑；要精确排盘请替换为你自己的排盘模块
   const yy = ((m+d)%2===0)?'阳遁':'阴遁';
-  const ju = ( (y+m+d+h)%9 || 9 );
-  const timePalace = ( (h+Math.floor(mi/30))%9 || 9 );
-  // 值符/伤门/值使/玄武/太阴：用日期时间做稳定散列（非预测）
+  const ju = ((y+m+d+h)%9 || 9);
+  const timePalace = ((h+Math.floor(mi/30))%9 || 9);
   const seed = (y*10000+m*100+d+h*10+mi);
   const pick=(arr)=>arr[seed%arr.length];
   const zfReal = pick([1,2,3,4,5,6,7,8,9]);
@@ -160,28 +150,25 @@ function qimen(y,m,d,h,mi){
   const zsReal = pick([1,2,3,4,5,6,7,8,9]);
   const xwReal = pick([1,2,3,4,5,6,7,8,9]);
   const tyReal = pick([1,2,3,4,5,6,7,8,9]);
-  // 旬空（按六甲旬示意）
   const xunMap={0:[6,7],1:[5,6],2:[4,5],3:[3,4],4:[2,3],5:[1,2]};
   const kwPalaces = xunMap[seed%6]||[6,7];
   return {
     y,m,d,h,mi,yy,ju,timePalace,
-    zfReal,smReal,zsReal,xwReal,tyReal,kwPalaces,
-    di:{1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8}, // 占位
+    zfReal,smReal,zsReal,xwReal:+xwReal,tyReal:+tyReal,kwPalaces,
+    di:{1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8},
     tianStar:{1:'天蓬',2:'天芮',3:'天冲',4:'天辅',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'},
     tianDoor:{1:'休',2:'死',3:'伤',4:'杜',5:'开',6:'惊',7:'景',8:'生',9:'开'},
     shen:{1:'值符',2:'螣蛇',3:'太阴',4:'六合',5:'白虎',6:'玄武',7:'九地',8:'九天',9:'值符'}
   };
 }
-function getFourPalaces(p){ // 宫+邻（简化）
+function getFourPalaces(p){
   const m={1:[1,2,4],2:[2,1,3,5],3:[3,2,6],4:[4,1,5,7],5:[5,2,4,6,8],6:[6,3,5,9],7:[7,4,8],8:[8,5,7,9],9:[9,6,8]};
   return m[p]||[p];
 }
-function isWangXiang(p,month){ // 简化
-  return (p+month)%2===0;
-}
+function isWangXiang(p,month){return (p+month)%2===0;}
 function safe(x){return (x===undefined||x===null)?'—':x;}
 
-/* ========== 建池（含对宫/二八/先天体用/空亡转暗） ========== */
+/* ========== 建池 ========== */
 function buildPoolV61(ch, game, opts){
   opts=opts||{};
   const fm=frontMap(game), bm=backMap(game);
@@ -193,22 +180,18 @@ function buildPoolV61(ch, game, opts){
   zfFour.forEach(p=>allPick.add(p));
   smFour.forEach(p=>allPick.add(p));
   allPick.add(zsReal);
-  // 用神选择（简化）
   const month=ch.m||ch.d||1;
   if(isWangXiang(xwReal,month)||!isWangXiang(tyReal,month)) allPick.add(+xwReal); else allPick.add(+tyReal);
 
-  // 中宫二八分寄
   let zhongLink=9;
   if(opts.zhongErBa){
     if(ch.yy==='阳遁') zhongLink=8; else zhongLink=2;
   }
-  // 对宫扩展
   const extPalaces=new Set(allPick);
   if(opts.useDuiGong){
     allPick.forEach(p=>{ const g=DUI_GONG[p]; if(g) extPalaces.add(g); });
     if(zhongLink!==9) extPalaces.add(DUI_GONG[zhongLink]||zhongLink);
   }
-  // 空亡处理
   const useKongAsMain=!opts.useKongZhuanAn;
   kwPalaces.forEach(p=>{ if(useKongAsMain) extPalaces.add(p); else extPalaces.add(DUI_GONG[p]||p); });
 
@@ -221,7 +204,6 @@ function buildPoolV61(ch, game, opts){
     if(p===zsReal) wn+=1.0;
     if(p===+xwReal||p===+tyReal) wn+=0.8;
     if(kwPalaces.includes(p)) wn*=0.6;
-    // 先天/后天体用
     if(opts.useQianTian){
       const q=QIAN_TIAN_NUM[p]||p;
       wn += (q%2===1?0.15:0.08);
@@ -240,11 +222,9 @@ function buildPoolV61(ch, game, opts){
   usePalaces.forEach(p=>addFront(p,1.0));
   usePalaces.forEach(p=>addBack(p,1.0));
 
-  // 放宽：前区取18（大乐透可候选多些也按18截；双色球红33内），后区取6
   let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,18);
   let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,6);
 
-  // 保证大乐透前区范围1-35、后区1-12；双色球前1-33、后1-16（映射已控制，这里兜底）
   frontArr=frontArr.filter(x=> game==='dlt'? (x.n>=1&&x.n<=35) : (x.n>=1&&x.n<=33));
   backArr=backArr.filter(x=> game==='dlt'? (x.n>=1&&x.n<=12) : (x.n>=1&&x.n<=16));
 
@@ -263,7 +243,7 @@ function validDlt(nums,last){
   const sm=nums.filter(x=>x<=17).length;
   if(![[3,2],[2,3],[1,4],[4,1]].some(([a,b])=>a===sm&&b===5-sm))return false;
   const s=nums.reduce((a,b)=>a+b,0);
-  if(s<70||s>130)return false; // 大乐透放宽/适配
+  if(s<70||s>130)return false;
   const sp=Math.max(...nums)-Math.min(...nums);
   if(sp<14||sp>34)return false;
   const sorted=[...nums].sort((a,b)=>a-b);
@@ -332,7 +312,6 @@ function pick5(pool, game, last, opts){
       if(ks.length>=3)wxB+=0.2;
       if(Math.max(...Object.values(cnt))<=(isDlt?3:4))wxB+=0.2;
     }
-    // 对宫结构加分（若选号含“对宫成对映射”更贴合“合十”）
     let duiB=0;
     if(opts.useDuiGong){
       c.forEach(n=>{
@@ -356,12 +335,12 @@ function pick5(pool, game, last, opts){
 
   const out=[];
   const seen=new Set();
+  const seenBack=new Set();
   const overlap=(a,b)=>{const s=new Set(b);return a.filter(x=>s.has(x)).length};
   const bNums=pool.back.map(x=>x.n);
   const backRank=bNums.slice().sort((x,y)=>(bw[y]||0)-(bw[x]||0));
 
   function pickDltBack(){
-    // 优先不重复组合；不够时允许
     const all2=combos2(backRank);
     all2.sort((a,b)=>(bw[b[0]]+bw[b[1]])-(bw[a[0]]+bw[a[1]]));
     for(const x of all2){
@@ -370,9 +349,7 @@ function pick5(pool, game, last, opts){
     }
     return {arr:all2[0]||[backRank[0],backRank[1]||backRank[0]],k:all2[0]?.join(',')};
   }
-  const seenBack=new Set();
 
-  // 先严格分散
   for(const t of scored){
     if(out.length>=5)break;
     if(seen.has(t.nums.join(',')))continue;
@@ -388,7 +365,6 @@ function pick5(pool, game, last, opts){
     }
     seen.add(t.nums.join(','));
   }
-  // 不够再放宽
   if(out.length<5){
     for(const t of scored){
       if(out.length>=5)break;
@@ -481,8 +457,36 @@ function getOpts(){
     useKongZhuanAn:document.getElementById('optKongAn').checked
   };
 }
+
 function run(){
   const g=document.getElementById('game').value;
   const dt=document.getElementById('date').value, tm=document.getElementById('time').value;
   if(!dt||!tm){document.getElementById('warn').textContent='请选择日期时间';return}
- 
+  document.getElementById('warn').textContent='';
+
+  const [y,m,d]=dt.split('-').map(Number);
+  const [h,mi]=tm.split(':').map(Number);
+
+  const ch=qimen(y,m,d,h,mi);
+  const opts=getOpts();
+  const pool=buildPoolV61(ch,g,opts);
+  const last=LAST[g];
+  const picks=pick5(pool,g,last,opts);
+
+  if(picks.length) LAST[g]=picks[0].nums;
+
+  renderPan(ch,pool.realTags,pool.zfFour,pool.smFour);
+  renderPool(pool);
+  renderPicks(picks,g);
+}
+
+function demo(){
+  document.getElementById('game').value='dlt';
+  document.getElementById('date').value='2026-10-22';
+  document.getElementById('time').value='21:15';
+  run();
+}
+</script>
+</body>
+</html>
+
