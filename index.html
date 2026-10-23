@@ -65,7 +65,6 @@ const DZS=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','�
 const JIE=['立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
 const JIE_MONTH=[2,3,4,5,6,7,8,9,10,11,12,1];
 function ganZhi(year,month,day,hour){
-  // 简化：以日干支按固定偏移；仅用于演示起局，不替代专业历法
   const base=((year-1984)*365+Math.floor((year-1984)/4)+month*30+day)%60;
   const dayIdx=(base+5)%60;
   const hIdx=Math.floor(hour/2)%12;
@@ -74,7 +73,6 @@ function ganZhi(year,month,day,hour){
   return {gan:dG,zhi:dZ,shiGan:sG,shiZhi:sZ,gz:`${dG}${dZ}`,sz:`${sG}${sZ}`};
 }
 function inJie(month,day){
-  // 粗按月份定阴阳遁/局数演示
   const idx=JIE_MONTH.indexOf(month);
   const ju=((idx+1)*2)%9||9;
   const yin=[10,11,12,1,2,3].includes(month);
@@ -103,16 +101,12 @@ const JI_GOD=['值符','六合','太阴','九天'];
 function qimen(y,m,d,h,mi,lng){
   const gz=ganZhi(y,m,d,h);
   const {ju,yin}=inJie(m,m);
-  // 演示：值符/值使按日时干支映射宫（非专业排盘全部细项，但可复算）
   const zfPal=((gz.gz.charCodeAt(0)+gz.sz.charCodeAt(0))%8)||6;
   const zsPal=((gz.sz.charCodeAt(0)+h)%8)||1;
-  // 空亡：按时柱取（演示取时支相关两宫）
   const kongBase=(gz.sz.charCodeAt(0)+d)%12;
   const kongPals=[((kongBase)%8)||1, ((kongBase+4)%8)||6];
-  // 马星按日支
   const maMap={'寅':3,'午':9,'戌':7,'申':7,'子':1,'辰':4,'巳':4,'酉':2,'丑':8,'未':8,'卯':3,'亥':1};
   const maStarZhi=gz.zhi; const maPal=maMap[gz.zhi]||1;
-  // 各宫门/星/神（演示循环）
   const men={},star={},god={},score={};
   for(const p of [1,2,3,4,6,7,8,9]){
     men[p]=MEN[((p+zfPal)%9)||p]||'杜';
@@ -136,7 +130,6 @@ function darkFromPal(p,board,maxFront){
   const op=OPP[p]||1;
   const v=p+(OPP[p]||0)+((board.score[p]||0))+((board.score[op]||0));
   const d=sumDig(v);
-  // 映射到前区范围
   const mapTo=d===0?1:d;
   let r=mapTo;
   while(r>maxFront)r-=9;
@@ -148,28 +141,22 @@ function buildPool(board,type){
   const maxBack=type==='ssq'?16:12;
   let frontSet=new Set();
   let backSet=new Set();
-  // 前区：按宫取
   for(const p of [1,2,3,4,6,7,8,9]){
     const nums=PAL_NUM[p].filter(n=>n<=maxFront);
     const sc=board.score[p];
     if(board.kongPals.includes(p)){
-      // 空亡转暗，只取暗数1个/少量
       frontSet.add(darkFromPal(p,board,maxFront));
     } else {
-      // 高分宫多取，低分宫少取
       const take=sc>=50?Math.min(nums.length,4):sc>=30?Math.min(nums.length,3):Math.min(nums.length,1);
       nums.slice(0,take).forEach(n=>frontSet.add(n));
-      // 值符/值使/马星补对宫
       if(p===board.zfPal||p===board.zsPal||p===board.maPal){
         const op=OPP[p];
         PAL_NUM[op].filter(n=>n<=maxFront).slice(0,1).forEach(n=>frontSet.add(n));
       }
     }
   }
-  // 保证前区16~18
   let front=[...frontSet].sort((a,b)=>a-b);
   if(front.length<16){
-    // 补：按权重补宫数
     const all=[];
     for(const p of [1,2,3,4,6,7,8,9]){
       PAL_NUM[p].filter(n=>n<=maxFront&&!frontSet.has(n)).forEach(n=>all.push({n,s:board.score[p]||0}));
@@ -179,12 +166,10 @@ function buildPool(board,type){
     front=[...frontSet].sort((a,b)=>a-b);
   }
   if(front.length>18){
-    // 按权重保留
     const ranked=front.map(n=>{let p=0;for(const k in PAL_NUM)if(PAL_NUM[k].includes(n))p=+k;return {n,s:board.score[p]||0}})
       .sort((a,b)=>b.s-a.s).slice(0,17).map(x=>x.n);
     front=[...new Set(ranked)].sort((a,b)=>a-b);
   }
-  // 后区：值符/值使/空亡暗/马星/对宫
   const backSrc=[board.zfPal,board.zsPal,board.maPal,OPP[board.zfPal],OPP[board.zsPal]];
   backSrc.forEach(p=>{
     let v=sumDig(p+(board.score[p]||0));
@@ -192,7 +177,6 @@ function buildPool(board,type){
     if(v>=1&&v<=maxBack)backSet.add(v);
   });
   board.kongPals.forEach(p=>{let v=sumDig(p*2);while(v>maxBack)v-=9;if(v>=1&&v<=maxBack)backSet.add(v)});
-  // 保证6~8
   let back=[...backSet].sort((a,b)=>a-b);
   if(back.length<6){
     for(let i=1;i<=maxBack;i++){backSet.add(i);if(backSet.size>=6)break}
@@ -243,12 +227,11 @@ function checkCond(c,opt,type){
   }
   return true;
 }
-function scoreCombo(c,board){
+function scoreCombo(c,board,type){
   const sum=c.reduce((a,b)=>a+b,0);
   let s=0;
   const odd=c.filter(x=>x%2===1).length;s+=(odd===3||odd===4?2:1);
   const mod3=[0,0,0];c.forEach(x=>mod3[x%3]++);s+=(mod3[0]>=1&&mod3[1]>=1&&mod3[2]>=1?2:0);
-  // 与奇门高分宫贴近加分
   for(const n of c){for(const p of [1,2,3,4,6,7,8,9])if(PAL_NUM[p].includes(n))s+=(board.score[p]||0)/40}
   s+=(sum>=(type==='ssq'?70:60)&&sum<=(type==='ssq'?130:110)?2:0);
   return {combo:c,sum,s};
@@ -360,11 +343,10 @@ function runMain(){
   let samples=sampleCombos(pool.front,fl,20000);
   let filt=samples.filter(c=>checkCond(c,opts,type));
   if(filt.length<5)filt=samples;
-  let scored=filt.map(c=>scoreCombo(c,board));
+  let scored=filt.map(c=>scoreCombo(c,board,type));
   scored.sort((a,b)=>b.s-a.s);
   const finalList=scored.slice(0,5).map(it=>{
     const backArr=pool.back.slice();
-    // 后区简单按权重取（演示）
     const bk=backArr.slice(0,bl);
     return {...it,back:bk};
   });
