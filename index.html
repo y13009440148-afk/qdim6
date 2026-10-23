@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -43,15 +42,21 @@
   <input id="lng" placeholder="如116.4" style="width:110px" />
 </div>
 <div class="row">
-  <button onclick="runMain()">起局并取数</button>
-  <button onclick="setNow()">设为当前时间</button>
-  <button onclick="autoDrawTime()">按开奖时刻填充</button>
+  <button id="btnRun">起局并取数</button>
+  <button id="btnNow">设为当前时间</button>
+  <button id="btnDraw">按开奖时刻填充</button>
 </div>
 
 <div id="out"></div>
 
 <script>
-/* ========== 工具 ========== */
+// ========== 全局错误捕获 ==========
+window.onerror = function(msg, url, line, col, error) {
+  alert('JavaScript错误: ' + msg + '\n位置: ' + url + ':' + line + ':' + col);
+  return false;
+};
+
+// ========== 工具 ==========
 const pad=n=>String(n).padStart(2,'0');
 const sumDig=n=>{let s=n;while(s>9)s=Math.floor(s/10)+(s%10);return s};
 const isPrime=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
@@ -59,7 +64,7 @@ const shuffle=(a,seed)=>{let r=seed||Math.random();for(let i=a.length-1;i>0;i--)
 const combSmall=function(arr,k){const res=[];function dfs(s,cur){if(cur.length===k){res.push([...cur]);return}for(let i=s;i<arr.length;i++){cur.push(arr[i]);dfs(i+1,cur);cur.pop()}}dfs(0,[]);return res};
 const sampleCombos=function(arr,k,n){const out=[];const len=arr.length;if(combSmall(arr,k).length<=n)return combSmall(arr,k);for(let i=0;i<n;i++){const cp=[...arr];shuffle(cp,i+1);out.push(cp.slice(0,k).sort((a,b)=>a-b))}return out};
 
-/* ========== 干支/节气简易（够排演示局） ========== */
+// ========== 干支/节气简易 ==========
 const TGS=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 const DZS=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 const JIE=['立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
@@ -79,7 +84,7 @@ function inJie(month,day){
   return {ju,yin};
 }
 
-/* ========== 奇门九宫结构（中五寄坤） ========== */
+// ========== 奇门九宫结构 ==========
 const PAL_NUM={
   1:[1,6,10,16,19,28,31],
   2:[2,5,8,11,20,29,32],
@@ -125,7 +130,7 @@ function qimen(y,m,d,h,mi,lng){
   return {y,m,d,h,mi,lng,gz,ju,yin,zfPal,zsPal,kongPals,maPal,maStarZhi,men,star,god,score};
 }
 
-/* ========== 取数尺 ========== */
+// ========== 取数尺 ==========
 function darkFromPal(p,board,maxFront){
   const op=OPP[p]||1;
   const v=p+(OPP[p]||0)+((board.score[p]||0))+((board.score[op]||0));
@@ -186,7 +191,7 @@ function buildPool(board,type){
   return {front,back,type};
 }
 
-/* ========== 开奖日判定 ========== */
+// ========== 开奖日判定 ==========
 function getDrawNote(y,m,d,h,mi){
   const dt=new Date(y,m-1,d);
   const dow=dt.getDay();
@@ -198,7 +203,7 @@ function getDrawNote(y,m,d,h,mi){
   return {type:'ssq',note:'非开奖日，按双色球取数尺演示兜底（非投注依据）'};
 }
 
-/* ========== 过滤/出注 ========== */
+// ========== 过滤/出注 ==========
 function checkCond(c,opt,type){
   const fl=type==='ssq'?6:5;
   if(c.length!==fl)return false;
@@ -237,7 +242,7 @@ function scoreCombo(c,board,type){
   return {combo:c,sum,s};
 }
 
-/* ========== 渲染 ========== */
+// ========== 渲染 ==========
 function render(board,pool,finalList,drawNote,type){
   const out=document.getElementById('out');
   const palHtml=[1,2,3,4,6,7,8,9].map(p=>`
@@ -298,7 +303,7 @@ function render(board,pool,finalList,drawNote,type){
         <label class="cond-label"><input type="checkbox" id="opt_prime" checked>质合</label>
         <label class="cond-label"><input type="checkbox" id="opt_zone" checked>区间</label>
         <label class="cond-label"><input type="checkbox" id="opt_conn">允许连号</label>
-        <button onclick="runMain()">重新过滤</button>
+        <button id="btnReFilter">重新过滤</button>
       </div>
     </div>
 
@@ -310,7 +315,7 @@ function render(board,pool,finalList,drawNote,type){
   `;
 }
 
-/* ========== 主流程 ========== */
+// ========== 主流程 ==========
 function readOpts(){
   const g=id=>document.getElementById(id);
   return {
@@ -329,28 +334,32 @@ function parseDt(v){
   return {y,m,d:dd,h,mi};
 }
 function runMain(){
-  const v=document.getElementById('dt').value;
-  if(!v){alert('先选公历日期时间');return}
-  const p=parseDt(v);
-  const lng=document.getElementById('lng').value.trim();
-  const board=qimen(p.y,p.m,p.d,p.h,p.mi,lng);
-  const dr=getDrawNote(p.y,p.m,p.d,p.h,p.mi);
-  const type=dr.type;
-  const pool=buildPool(board,type);
-  const fl=type==='ssq'?6:5;
-  const bl=type==='ssq'?1:2;
-  const opts=readOpts();
-  let samples=sampleCombos(pool.front,fl,20000);
-  let filt=samples.filter(c=>checkCond(c,opts,type));
-  if(filt.length<5)filt=samples;
-  let scored=filt.map(c=>scoreCombo(c,board,type));
-  scored.sort((a,b)=>b.s-a.s);
-  const finalList=scored.slice(0,5).map(it=>{
-    const backArr=pool.back.slice();
-    const bk=backArr.slice(0,bl);
-    return {...it,back:bk};
-  });
-  render(board,pool,finalList,dr.note,type);
+  try {
+    const v=document.getElementById('dt').value;
+    if(!v){alert('先选公历日期时间');return}
+    const p=parseDt(v);
+    const lng=document.getElementById('lng').value.trim();
+    const board=qimen(p.y,p.m,p.d,p.h,p.mi,lng);
+    const dr=getDrawNote(p.y,p.m,p.d,p.h,p.mi);
+    const type=dr.type;
+    const pool=buildPool(board,type);
+    const fl=type==='ssq'?6:5;
+    const bl=type==='ssq'?1:2;
+    const opts=readOpts();
+    let samples=sampleCombos(pool.front,fl,20000);
+    let filt=samples.filter(c=>checkCond(c,opts,type));
+    if(filt.length<5)filt=samples;
+    let scored=filt.map(c=>scoreCombo(c,board,type));
+    scored.sort((a,b)=>b.s-a.s);
+    const finalList=scored.slice(0,5).map(it=>{
+      const backArr=pool.back.slice();
+      const bk=backArr.slice(0,bl);
+      return {...it,back:bk};
+    });
+    render(board,pool,finalList,dr.note,type);
+  } catch(e) {
+    alert('运行出错: ' + e.message + '\n' + e.stack);
+  }
 }
 function setNow(){
   const now=new Date();
@@ -369,7 +378,14 @@ function autoDrawTime(){
   runMain();
 }
 
-window.onload=function(){setNow()};
+// ========== 用addEventListener绑定按钮 ==========
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btnRun').addEventListener('click', runMain);
+  document.getElementById('btnNow').addEventListener('click', setNow);
+  document.getElementById('btnDraw').addEventListener('click', autoDrawTime);
+  document.getElementById('btnReFilter').addEventListener('click', runMain);
+  setNow();
+});
 </script>
 </body>
 </html>
