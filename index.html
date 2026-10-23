@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -203,33 +204,45 @@ function getDrawNote(y,m,d,h,mi){
   return {type:'ssq',note:'非开奖日，按双色球取数尺演示兜底（非投注依据）'};
 }
 
-// ========== 过滤/出注 ==========
+// ========== 过滤/出注 (修复版) ==========
 function checkCond(c,opt,type){
   const fl=type==='ssq'?6:5;
   if(c.length!==fl)return false;
+
   const odd=c.filter(x=>x%2===1).length;
   if(opt.oe){
     if(type==='ssq'&&!(odd>=2&&odd<=4))return false;
     if(type==='dlt'&&!(odd>=2&&odd<=3))return false;
   }
-  const big=c.filter(x=>x>(type==='ssq'?16:17)).length;
+
+  const big=c.filter(x=>(type==='ssq'?x>16:x>17)).length;
   if(opt.bs){
     if(type==='ssq'&&!(big>=2&&big<=4))return false;
     if(type==='dlt'&&!(big>=2&&big<=3))return false;
   }
-  const mod3=[0,0,0];c.forEach(x=>mod3[x%3]++);
+
+  const mod3=[0,0,0];
+  c.forEach(x=>mod3[x%3]++);
   if(opt.mod3&&(mod3[0]===0||mod3[1]===0||mod3[2]===0))return false;
+
   const pr=c.filter(isPrime).length;
   if(opt.prime){
     if(type==='ssq'&&!(pr>=1&&pr<=3))return false;
   }
-  const z1=c.filter(x<=11).length,z2=c.filter(x>11&&x<=22).length,z3=c.filter(x>22).length;
+
+  const z1=c.filter(x=>x<=11).length;
+  const z2=c.filter(x=>x>11&&x<=22).length;
+  const z3=c.filter(x=>x>22).length;
   if(opt.zone){
     if(type==='ssq'&&(z1===0||z3===0))return false;
   }
+
   if(!opt.conn){
-    for(let i=0;i<c.length-1;i++)if(c[i]+1===c[i+1])return false;
+    for(let i=0;i<c.length-1;i++){
+      if(c[i]+1===c[i+1])return false;
+    }
   }
+
   return true;
 }
 function scoreCombo(c,board,type){
@@ -378,7 +391,7 @@ function autoDrawTime(){
   runMain();
 }
 
-// ========== 用addEventListener绑定按钮 ==========
+// ========== 绑定 ==========
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnRun').addEventListener('click', runMain);
   document.getElementById('btnNow').addEventListener('click', setNow);
