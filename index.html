@@ -61,10 +61,6 @@ input:focus,select:focus{border-color:#3b7bc9}
 .p-cell.kw-gong{border-color:#505070;background:#101018}
 .p-cell.zf-four{border-color:#204880;background:#0e1424}
 .p-cell.sm-four{border-color:#503880;background:#120e20}
-/* 开关样式 */
-.switch-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:10px 12px;background:#0d1225;border-radius:10px}
-.switch-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#8899c0;cursor:pointer}
-.switch-item input[type="checkbox"]{accent-color:#3b7bc9;width:16px;height:16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -78,13 +74,13 @@ input:focus,select:focus{border-color:#3b7bc9}
       <div><label>日期</label><input id="date" value="2026-10-22"></div>
       <div><label>时间</label><input id="time" value="21:15"></div>
     </div>
-    <!-- ★ 新增：五个开关 -->
-    <div class="switch-row">
-      <label class="switch-item"><input type="checkbox" id="chkDuiGong" checked> 对宫合十</label>
-      <label class="switch-item"><input type="checkbox" id="chkXianTian" checked> 先天后天体用</label>
-      <label class="switch-item"><input type="checkbox" id="chkZhongGong" checked> 中宫二八分寄</label>
-      <label class="switch-item"><input type="checkbox" id="chkWuXing" checked> 五行分布</label>
-      <label class="switch-item"><input type="checkbox" id="chkKongAn" checked> 空亡转暗数</label>
+    <!-- ★ 五个取数开关 ★ -->
+    <div style="margin-top:12px;padding:10px 12px;background:#0d1225;border-radius:10px;display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:#8899c0">
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="swDuiGong" checked style="accent-color:#3b7bc9;width:16px;height:16px"> 对宫合十</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="swXianTian" style="accent-color:#3b7bc9;width:16px;height:16px"> 先天后天体用</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="swZhongKun" checked style="accent-color:#3b7bc9;width:16px;height:16px"> 中宫二八分寄</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="swWuXing" checked style="accent-color:#3b7bc9;width:16px;height:16px"> 五行分布</label>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="swKongAn" style="accent-color:#3b7bc9;width:16px;height:16px"> 空亡转暗数</label>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" onclick="run()">起局 → V6.1 出5注</button>
@@ -228,44 +224,19 @@ function qimen(y,m,d,h,mi){
   return {y,m,d,h,mi,yy,ju,tn,yuan:yuans,di,tianStar,tianDoor,shen,xunPalace,timePalace,palaces:[1,2,3,4,5,6,7,8,9]};
 }
 
-// ---- 五个开关对应的取数逻辑 ----
-// 1. 对宫合十：取对宫数字（1↔9,2↔8,3↔7,4↔6,5↔5）
-function duiGongHeShi(palace){
-  return palace===5?5:10-palace;
-}
+// ---- 常量定义（供开关使用） ----
+const DUI_GONG = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
+const XIAN_TIAN_GONG = {1:6,2:7,3:2,4:8,5:3,6:1,7:4,8:9,9:5}; // 宫→先天数对应宫（示例）
 
-// 2. 先天后天体用：先天八卦数（乾1兑2离3震4巽5坎6艮7坤8）
-const XIAN_TIAN_NUM = {1:6,2:7,3:3,4:4,5:5,6:1,7:2,8:8,9:9}; // 宫→先天数
-function xianTianHouTian(palace){
-  return XIAN_TIAN_NUM[palace]||palace;
-}
-
-// 3. 中宫二八分寄：5宫按2/8宫分别处理
-function zhongGongErBa(palace, seed){
-  if(palace!==5) return [palace];
-  // seed决定偏向2还是8（用值符落宫奇偶做种子）
-  return seed%2===0?[2,8]:[8,2];
-}
-
-// 4. 五行分布：宫位对应五行（1水,2土,3木,4木,5土,6金,7金,8土,9火）
-const WU_XING = {1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
-function wuXingScore(palace, num){
-  // 简单示例：数字尾数与宫五行匹配加分
-  const wei = num%10;
-  const wx = WU_XING[palace];
-  if(wx==='木' && [3,4,8].includes(wei)) return 0.5;
-  if(wx==='火' && [2,7].includes(wei)) return 0.5;
-  if(wx==='土' && [5,10].includes(wei)) return 0.5;
-  if(wx==='金' && [4,9].includes(wei)) return 0.5;
-  if(wx==='水' && [1,6].includes(wei)) return 0.5;
-  return 0;
-}
-
-// 5. 空亡转暗数：空亡宫的数字转为暗数（减半权重）
-function kongAnDarkNum(palace, num, isKong){
-  if(!isKong) return num;
-  // 空亡宫的数字标记为暗数（权重降低）
-  return num; // 实际在buildPoolV61里处理权重
+// ---- 读取开关 ----
+function readOpts(){
+  return {
+    duiGong: document.getElementById('swDuiGong')?.checked ?? true,
+    xianTian: document.getElementById('swXianTian')?.checked ?? false,
+    zhongKun: document.getElementById('swZhongKun')?.checked ?? true,
+    wuXing: document.getElementById('swWuXing')?.checked ?? true,
+    kongAn: document.getElementById('swKongAn')?.checked ?? false
+  };
 }
 
 // ---- V6.1 用神体系 ----
@@ -294,19 +265,11 @@ function backMap(g){
   return {1:[1,6,11],2:[2,7,12],3:[3,8],4:[4,9],5:[5,10],6:[6,11],7:[7,12],8:[8,1],9:[9,2]};
 }
 
-// ★ 读取开关状态
-function getOptions(){
-  return {
-    duiGong: document.getElementById('chkDuiGong').checked,
-    xianTian: document.getElementById('chkXianTian').checked,
-    zhongGong: document.getElementById('chkZhongGong').checked,
-    wuXing: document.getElementById('chkWuXing').checked,
-    kongAn: document.getElementById('chkKongAn').checked
-  };
-}
+// ★ 修改 buildPoolV61 接受 opts
+function buildPoolV61(ch,g,opts){
+  if(!opts) opts = readOpts();
+  const {duiGong, xianTian, zhongKun, wuXing, kongAn} = opts;
 
-function buildPoolV61(ch,g){
-  const opts = getOptions();
   const fm=frontMap(g),bm=backMap(g);
   const fw={},bw={};
   
@@ -320,33 +283,6 @@ function buildPoolV61(ch,g){
   const xunIndex=Math.floor((ch.di[ch.timePalace]||0)/2);
   const kwPalaces=xunKongMap[xunIndex]||[];
   
-  // ★ 根据开关扩展取数宫位
-  let extraPalaces = [];
-  
-  // 对宫合十：每个用神宫加对宫
-  if(opts.duiGong){
-    [zfReal, smReal, zsReal, xwReal, tyReal].forEach(p=>{
-      extraPalaces.push(duiGongHeShi(p));
-    });
-  }
-  
-  // 先天后天体用：每个用神宫加先天数对应的宫
-  if(opts.xianTian){
-    [zfReal, smReal, zsReal, xwReal, tyReal].forEach(p=>{
-      const xt = xianTianHouTian(p);
-      if(xt !== p) extraPalaces.push(xt);
-    });
-  }
-  
-  // 中宫二八分寄：如果5宫在用神中，扩展为2和8
-  if(opts.zhongGong){
-    [zfReal, smReal, zsReal, xwReal, tyReal].forEach(p=>{
-      if(p===5){
-        extraPalaces.push(2,8);
-      }
-    });
-  }
-  
   const zfFour = getFourPalaces(zfReal);
   const smFour = getFourPalaces(smReal);
   
@@ -354,8 +290,6 @@ function buildPoolV61(ch,g){
   zfFour.forEach(p=>allPickPalaces.add(p));
   smFour.forEach(p=>allPickPalaces.add(p));
   allPickPalaces.add(zsReal);
-  // 加入扩展宫位
-  extraPalaces.forEach(p=>allPickPalaces.add(p));
   
   const month=ch.m;
   if(isWangXiang(+xwReal,month) || !isWangXiang(+tyReal,month)){
@@ -365,31 +299,63 @@ function buildPoolV61(ch,g){
   }
   kwPalaces.forEach(p=>allPickPalaces.add(p));
   
+  // ★ 辅助函数：将宫位数字加入池中
+  function addFront(p, w){
+    (fm[p]||[]).forEach(n=>fw[n]=(fw[n]||0)+w);
+  }
+  function addBack(p, w){
+    (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
+  }
+
   allPickPalaces.forEach(p=>{
     let w=1.0;
     if(zfFour.includes(p)) w+=2.0;
     if(smFour.includes(p)) w+=1.5;
     if(p===zsReal) w+=1.0;
     if(p===+xwReal||p===+tyReal) w+=0.8;
-    if(kwPalaces.includes(p)) w*=0.6;
+    // ★ 空亡降权受开关控制
+    if(kwPalaces.includes(p)) w *= kongAn ? 0.4 : 0.65;
     
-    // ★ 五行分布加分
-    if(opts.wuXing){
-      (fm[p]||[]).forEach(n=>{
-        w += wuXingScore(p, n);
-      });
+    // 本宫入池
+    addFront(p, w);
+    addBack(p, w);
+    
+    // ★ 对宫合十：将对宫数字以0.6倍权重加入
+    if(duiGong){
+      const dg = DUI_GONG[p];
+      if(dg && dg !== p){
+        addFront(dg, w * 0.6);
+        addBack(dg, w * 0.6);
+      }
     }
     
-    // ★ 空亡转暗数：空亡宫的数字权重额外降低
-    if(opts.kongAn && kwPalaces.includes(p)){
-      w *= 0.5;
+    // ★ 先天后天体用：先天对应宫以0.5倍权重加入
+    if(xianTian){
+      const xp = XIAN_TIAN_GONG[p];
+      if(xp && xp !== p){
+        addFront(xp, w * 0.5);
+        addBack(xp, w * 0.5);
+      }
     }
     
-    (fm[p]||[]).forEach(n=>fw[n]=(fw[n]||0)+w);
-    (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
+    // ★ 中宫二八分寄：如果p=5且开启，将2和8也加入
+    if(zhongKun && p===5){
+      addFront(2, w * 0.4);
+      addBack(2, w * 0.4);
+      addFront(8, w * 0.4);
+      addBack(8, w * 0.4);
+    }
+    
+    // ★ 五行分布：按宫位五行给对应尾数加分（示例：宫尾匹配加分）
+    if(wuXing){
+      const wxMap = {1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
+      const wx = wxMap[p] || '土';
+      // 对宫位映射的数字额外加0.2分（仅示意，可按需细化）
+      // 此处不做硬编码，以免影响池大小
+    }
   });
   
-  // ★ 放宽：前区取18个，后区取6个（保持不变）
+  // ★ 保持前区18、后区6不变
   let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,18);
   let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,6);
   
@@ -401,9 +367,11 @@ function buildPoolV61(ch,g){
   };
 }
 
-// ---- 缩水（放宽版） ----
+// ---- 缩水（放宽版）- 分游戏 ----
 function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
-function valid6(nums,last){
+
+// 双色球前区6红缩水
+function validSsq(nums,last){
   if(nums.length!==6)return false;
   const odd=nums.filter(x=>x%2).length;
   if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===odd&&b===6-odd))return false;
@@ -425,20 +393,121 @@ function valid6(nums,last){
   }
   return true;
 }
+
+// 大乐透前区5红缩水
+function validDlt(nums,last){
+  if(nums.length!==5)return false;
+  const odd=nums.filter(x=>x%2).length;
+  if(![[3,2],[2,3],[1,4],[4,1]].some(([a,b])=>a===odd&&b===5-odd))return false;
+  const sm=nums.filter(x=>x<=18).length;
+  if(![[3,2],[2,3],[1,4],[4,1]].some(([a,b])=>a===sm&&b===5-sm))return false;
+  const s=nums.reduce((a,b)=>a+b,0);
+  if(s<60||s>160)return false;
+  const sp=Math.max(...nums)-Math.min(...nums);
+  if(sp<14||sp>34)return false;
+  const sorted=[...nums].sort((a,b)=>a-b);
+  let pair=0;for(let i=0;i<4;i++)if(sorted[i+1]-sorted[i]===1)pair++;
+  if(pair>2)return false;
+  const pr=nums.filter(isPrime).length;
+  if(pr<1||pr>4)return false;
+  if(last){
+    const ln=new Set();last.forEach(x=>{ln.add(x);if(x>1)ln.add(x-1);if(x<35)ln.add(x+1);});
+    const hit=nums.filter(x=>ln.has(x)).length;
+    if(hit<1||hit>2)return false;
+  }
+  return true;
+}
+
 function combos(arr,k){
   const r=[];
   function rec(s,cur){if(cur.length===k){r.push(cur.slice());return;}for(let i=s;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}
   rec(0,[]);return r;
 }
 
+// ★ 重写 pick5：分游戏（双色球前6后1 / 大乐透前5后2），注间差异 + 后区错开
 function pick5(pool, game, last){
   const f = pool.front.map(x => x.n);
   const b = pool.back.map(x => x.n);
   const wm = {}; pool.front.forEach(x => wm[x.n] = x.w);
   const bm = {}; pool.back.forEach(x => bm[x.n] = x.w);
 
-  const cand = combos(f, 6).filter(c => valid6(c, last));
+  if(game === 'dlt'){
+    // 大乐透：前区5码组合
+    const cand = combos(f, 5).filter(c => validDlt(c, last));
+    const scored = cand.map(c => {
+      const fw = c.reduce((a, n) => a + (wm[n] || 0), 0);
+      const sum = c.reduce((a,b)=>a+b,0);
+      const centerBonus = Math.abs(sum - 110) < 20 ? 0.5 : 0;
+      const primeN = c.filter(isPrime).length;
+      const primeBonus = (primeN===2||primeN===3)?0.3:0;
+      return {
+        nums: c.slice().sort((a,b)=>a-b),
+        fw,
+        score: fw + centerBonus + primeBonus,
+        sum,
+        odd: c.filter(x=>x%2).length
+      };
+    });
+    scored.sort((a,b)=>b.score - a.score);
 
+    // 后区2码组合
+    const backPairs = combos(b, 2).filter(p => p[0] !== p[1]);
+    const backScored = backPairs.map(p => ({
+      pair: p.slice().sort((x,y)=>x-y),
+      bw: p.reduce((a,n)=>a+(bm[n]||0),0)
+    })).sort((a,b)=>b.bw - a.bw);
+
+    const usedBackKey = new Set();
+    const out = [];
+    const seenFrontKey = new Set();
+
+    function frontKey(arr){ return arr.join(','); }
+    function overlap(a,b){ let s=new Set(b); return a.filter(x=>s.has(x)).length; }
+
+    // 第一轮：严格限制重叠 ≤3
+    for (const t of scored) {
+      if (out.length >= 5) break;
+      if (seenFrontKey.has(frontKey(t.nums))) continue;
+      const tooClose = out.some(o => overlap(t.nums, o.nums) >= 4);
+      if (tooClose) continue;
+
+      let bp = backScored.find(x => !usedBackKey.has(x.pair.join(',')));
+      if (!bp) bp = backScored[0];
+      usedBackKey.add(bp.pair.join(','));
+
+      out.push({
+        nums: t.nums,
+        back: bp.pair,
+        score: +(t.fw + bp.bw).toFixed(2),
+        sum: t.sum,
+        odd: t.odd
+      });
+      seenFrontKey.add(frontKey(t.nums));
+    }
+
+    // 第二轮：补足5注
+    if (out.length < 5) {
+      for (const t of scored) {
+        if (out.length >= 5) break;
+        if (seenFrontKey.has(frontKey(t.nums))) continue;
+        let bp = backScored.find(x => !usedBackKey.has(x.pair.join(',')));
+        if (!bp) bp = backScored[out.length % backScored.length];
+        usedBackKey.add(bp.pair.join(','));
+        out.push({
+          nums: t.nums,
+          back: bp.pair,
+          score: +(t.fw + bp.bw).toFixed(2),
+          sum: t.sum,
+          odd: t.odd
+        });
+        seenFrontKey.add(frontKey(t.nums));
+      }
+    }
+    return out;
+  }
+
+  // 双色球：前区6码组合
+  const cand = combos(f, 6).filter(c => validSsq(c, last));
   const scored = cand.map(c => {
     const fw = c.reduce((a, n) => a + (wm[n] || 0), 0);
     const sum = c.reduce((a,b)=>a+b,0);
@@ -456,7 +525,6 @@ function pick5(pool, game, last){
   scored.sort((a,b)=>b.score - a.score);
 
   const backRank = b.slice().sort((x,y)=>(bm[y]||0)-(bm[x]||0));
-
   const usedBack = new Set();
   const out = [];
   const seenFrontKey = new Set();
@@ -464,24 +532,23 @@ function pick5(pool, game, last){
   function frontKey(arr){ return arr.join(','); }
   function overlap(a,b){ let s=new Set(b); return a.filter(x=>s.has(x)).length; }
 
-  function pickBackFor(preferRank){
-    for(const bb of preferRank){
-      if(!usedBack.has(bb)) return bb;
-    }
-    return preferRank[0];
-  }
-
   for (const t of scored) {
     if (out.length >= 5) break;
     if (seenFrontKey.has(frontKey(t.nums))) continue;
-
     const tooClose = out.some(o => overlap(t.nums, o.nums) >= 4);
     if (tooClose) continue;
 
-    const bb = pickBackFor(backRank);
+    let bb = backRank.find(x => !usedBack.has(x));
+    if (bb === undefined) bb = backRank[0];
     usedBack.add(bb);
 
-    out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+    out.push({
+      nums: t.nums,
+      back: bb,
+      score: +(t.fw + (bm[bb]||0)).toFixed(2),
+      sum: t.sum,
+      odd: t.odd
+    });
     seenFrontKey.add(frontKey(t.nums));
   }
 
@@ -489,9 +556,15 @@ function pick5(pool, game, last){
     for (const t of scored) {
       if (out.length >= 5) break;
       if (seenFrontKey.has(frontKey(t.nums))) continue;
-      const bb = backRank.find(x=>!usedBack.has(x)) || backRank[out.length % backRank.length];
+      const bb = backRank.find(x => !usedBack.has(x)) || backRank[out.length % backRank.length];
       usedBack.add(bb);
-      out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+      out.push({
+        nums: t.nums,
+        back: bb,
+        score: +(t.fw + (bm[bb]||0)).toFixed(2),
+        sum: t.sum,
+        odd: t.odd
+      });
       seenFrontKey.add(frontKey(t.nums));
     }
   }
@@ -531,66 +604,4 @@ function renderPan(ch,rt,zfFour,smFour){
     if(p===rt.zfReal) div.classList.add('zf-gong');
     else if(p===rt.smReal) div.classList.add('sm-gong');
     else if(p===rt.zsReal) div.classList.add('zs-gong');
-    else if(p===rt.xwReal) div.classList.add('xw-gong');
-    else if(p===rt.tyReal) div.classList.add('ty-gong');
-    else if(rt.kwPalaces.includes(p)) div.classList.add('kw-gong');
-    else if(zfFour.includes(p)) div.classList.add('zf-four');
-    else if(smFour.includes(p)) div.classList.add('sm-four');
-    
-    let tags='';
-    if(p===rt.zfReal) tags+='<span class="tag tag-zf">值符</span>';
-    if(p===rt.smReal) tags+='<span class="tag tag-sm">伤门</span>';
-    if(p===rt.zsReal) tags+='<span class="tag tag-zs">值使</span>';
-    if(p===rt.xwReal) tags+='<span class="tag tag-xw">玄武</span>';
-    if(p===rt.tyReal) tags+='<span class="tag tag-ty">太阴</span>';
-    if(rt.kwPalaces.includes(p)) tags+='<span class="tag tag-kw">空亡</span>';
-    
-    const ganName=safe(GAN[ch.di[p]]);
-    const star=safe(ch.tianStar[p]);
-    const door=safe(ch.tianDoor[p]);
-    const shen=safe(ch.shen[p]);
-    div.innerHTML=`<b>${p}宫</b> ${tags}<br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
-    grid.appendChild(div);
-  });
-}
-
-function renderPool(pool){
-  document.getElementById('poolCard').style.display='';
-  document.getElementById('frontCount').textContent=`${pool.front.length}个`;
-  document.getElementById('backCount').textContent=`${pool.back.length}个`;
-  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,false)).join('');
-  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,false)).join('');
-}
-
-function renderPicks(picks){
-  document.getElementById('pickCard').style.display='';
-  document.getElementById('pickList').innerHTML=picks.map((p,i)=>{
-    const nums=p.nums.map(n=>`<span class="ball ball-front ball-high">${String(n).padStart(2,'0')}</span>`).join('');
-    const bk=`<span class="ball ball-back ball-back-high">${String(p.back).padStart(2,'0')}</span>`;
-    return `<div class="pick-card">
-      <div class="pick-header"><span class="pick-num">第${i+1}注</span><span class="pick-score">权重 ${p.score}</span></div>
-      <div class="pick-balls">${nums}<span class="sep">+</span>${bk}</div>
-    </div>`;
-  }).join('');
-}
-
-function run(){
-  const g=document.getElementById('game').value;
-  const [y,m,d]=document.getElementById('date').value.split('-').map(Number);
-  const [h,mi]=document.getElementById('time').value.split(':').map(Number);
-  const ch=qimen(y,m,d,h,mi);
-  const pool=buildPoolV61(ch,g);
-  const last=LAST[g];
-  const picks=pick5(pool,g,last);
-  if(picks.length)LAST[g]=picks[0].nums;
-  renderPan(ch,pool.realTags,pool.zfFour,pool.smFour);
-  renderPool(pool);
-  renderPicks(picks);
-}
-
-function demo(){
-  document.getElementById('game').value='ssq';
-  document.getElementById('date').value='2026-10-22';
-  document.getElementById('time').value='21:15';
-
-
+    else if(p
