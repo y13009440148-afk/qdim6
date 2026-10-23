@@ -1,413 +1,596 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>奇门彩票缩水（校正版：顶九履一/阴遁/拆补/中五寄坤）</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>奇门彩票 V6.1 固定模型 · 缩水优化版</title>
 <style>
-:root{--bg:#070b1a;--card:#0e1430;--line:#243164;--gold:#ffd875;--cyan:#7ee0ff;--red:#ff6b8a;--green:#7cffb2;--purple:#b388ff;}
-*box-sizing:border-box}
-body{margin:0;background:var(--bg);color:#e8ecff;font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:12px}
-h1{font-size:18px;margin:8px 0}
-.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
-.bar input,select{background:#050818;color:#e8ecff;border:1px solid var(--line);border-radius:6px;padding:6px}
-button{background:linear-gradient(135deg,#2b3a8a,#5b2bb0);color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
-button.sec{background:#16213f}
-.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
-.cell{min-height:88px;padding:8px;border:1px solid var(--line);border-radius:10px;background:#08102a;position:relative}
-.cell b{color:var(--gold)}
-.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:999px;margin:2px 2px;background:#1b2757}
-.tag-zf{background:var(--purple);color:#fff}
-.tag-zs{background:var(--red);color:#fff}
-.tag-xw{background:#223a6e}
-.tag-ty{background:#1f4f6e}
-.tag-kw{background:#444;color:#ddd}
-.tag-men{background:var(--green);color:#052}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px}
-.ball{display:inline-block;min-width:28px;text-align:center;padding:4px 6px;border-radius:999px;margin:3px;background:#122;color:#cff}
-.ball-front{background:#1d2c66;color:#dbe7ff}
-.ball-back{background:#3a1d66;color:#e9d8ff}
-.warn{color:#ffb38a}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-label{font-size:13px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e1a;color:#dce0f0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5;padding:16px}
+.wrap{max-width:840px;margin:0 auto}
+h1{font-size:18px;font-weight:700;letter-spacing:0.5px;background:linear-gradient(135deg,#72d4ff,#48b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
+.sub{color:#7383a8;font-size:12px;margin-bottom:16px}
+.card{background:#121828;border:1px solid #232d4a;border-radius:14px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.row > div{flex:1;min-width:120px}
+label{display:block;font-size:12px;color:#7383a8;margin-bottom:4px}
+input,select{width:100%;background:#090d1a;border:1px solid #232d4a;border-radius:10px;padding:8px 10px;color:#dce0f0;font-size:14px;outline:none}
+input:focus,select:focus{border-color:#3b7bc9}
+.btn-row{display:flex;gap:10px;margin-top:12px}
+.btn{flex:1;padding:10px 0;border:0;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.btn-primary{background:linear-gradient(135deg,#2468d6,#184bb0);color:#fff}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{background:#1a233a;color:#b0c0e8;border:1px solid #2a3555}
+.btn-ghost:hover{background:#202d4a}
+.section-title{font-size:13px;font-weight:600;color:#8899c0;margin-bottom:8px;letter-spacing:0.3px}
+.pool-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
+.ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;transition:.1s}
+.ball-front{background:#13203a;border:1px solid #2a4070;color:#b0ccff}
+.ball-back{background:#281f10;border:1px solid #705530;color:#ffd699}
+.ball-high{opacity:1;border-color:#66b8ff;box-shadow:0 0 6px rgba(70,150,255,.25)}
+.ball-mid{opacity:.75;border-color:#406090}
+.ball-low{opacity:.4;border-color:#253050}
+.ball-back-high{opacity:1;border-color:#ffaa44;box-shadow:0 0 6px rgba(255,170,68,.2)}
+.ball-back-mid{opacity:.7;border-color:#906a30}
+.ball-back-low{opacity:.4;border-color:#503f20}
+.pick-card{padding:12px 14px;background:#0f1525;border-radius:12px;margin-bottom:10px}
+.pick-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pick-num{font-size:12px;color:#6070a0}
+.pick-score{font-size:11px;color:#b0c060;background:#1a2520;padding:2px 8px;border-radius:8px}
+.pick-balls{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.sep{color:#405070;margin:0 4px;font-size:16px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:10px}
+.info-item{background:#0d1225;border-radius:8px;padding:6px 10px;font-size:12px;color:#8090b8}
+.info-item strong{color:#d0dcff;font-weight:600}
+.palace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}
+.p-cell{background:#0d1225;border:1px solid #1a2440;border-radius:8px;padding:6px;font-size:11px;min-height:54px;position:relative}
+.p-cell b{color:#e0e8ff}
+.p-cell .cl{color:#6080b0;font-size:10px}
+.tag{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;margin:1px 1px 0 0;font-weight:600}
+.tag-zf{background:#124080;color:#80c0ff;border:1px solid #2060b0}
+.tag-sm{background:#402060;color:#c090e0;border:1px solid #6040a0}
+.tag-zs{background:#205030;color:#90d0a0;border:1px solid #307050}
+.tag-xw{background:#403010;color:#e0b060;border:1px solid #605020}
+.tag-ty{background:#103040;color:#80b0d0;border:1px solid #205070}
+.tag-kw{background:#303040;color:#8080a0;border:1px solid #505070}
+.p-cell.zf-gong{border-color:#3080e0;background:#0a1830}
+.p-cell.sm-gong{border-color:#8050c0;background:#141030}
+.p-cell.zs-gong{border-color:#308050;background:#102820}
+.p-cell.xw-gong{border-color:#806030;background:#181408}
+.p-cell.ty-gong{border-color:#306080;background:#0a1828}
+.p-cell.kw-gong{border-color:#505070;background:#101018}
+.p-cell.zf-four{border-color:#204880;background:#0e1424}
+.p-cell.sm-four{border-color:#503880;background:#120e20}
+/* 开关样式 */
+.switch-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:10px 12px;background:#0d1225;border-radius:10px}
+.switch-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#8899c0;cursor:pointer}
+.switch-item input[type="checkbox"]{accent-color:#3b7bc9;width:16px;height:16px;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>奇门彩票缩水（校正：顶九履一 / 阴遁 / 拆补 / 中五寄坤）</h1>
-  <div class="bar">
-    <select id="game">
-      <option value="dlt">大乐透</option>
-      <option value="ssq">双色球</option>
-    </select>
-    <input type="date" id="date" />
-    <input type="time" id="time" />
-    <button id="genBtn">起局/缩水</button>
-    <button class="sec" id="demoBtn">演示 2026-10-22 21:15</button>
-    <span id="warn" class="warn"></span>
-  </div>
-  <div class="bar row">
-    <label><input type="checkbox" id="optDuiGong" checked>对宫合十</label>
-    <label><input type="checkbox" id="optQianTian">先天卦加权</label>
-    <label><input type="checkbox" id="optErBa">中五寄坤(默认开)</label>
-    <label><input type="checkbox" id="optWuxing" checked>五行加权</label>
-    <label><input type="checkbox" id="optKongAn">空亡转暗降权</label>
-    <label><input type="checkbox" id="optZhenTaiYang">真太阳时(大连≈-10分)</label>
+  <h1>奇门彩票 V6.1</h1>
+  <div class="sub">固定模型 · 值符四宫 + 伤门 + 值使 + 玄武/太阴 + 空亡降权 · 前≤18后≤6（放宽）</div>
+
+  <div class="card">
+    <div class="row">
+      <div><label>彩种</label><select id="game"><option value="ssq">双色球 21:15</option><option value="dlt">大乐透 21:25</option></select></div>
+      <div><label>日期</label><input id="date" value="2026-10-22"></div>
+      <div><label>时间</label><input id="time" value="21:15"></div>
+    </div>
+    <!-- ★ 新增：五个开关 -->
+    <div class="switch-row">
+      <label class="switch-item"><input type="checkbox" id="chkDuiGong" checked> 对宫合十</label>
+      <label class="switch-item"><input type="checkbox" id="chkXianTian" checked> 先天后天体用</label>
+      <label class="switch-item"><input type="checkbox" id="chkZhongGong" checked> 中宫二八分寄</label>
+      <label class="switch-item"><input type="checkbox" id="chkWuXing" checked> 五行分布</label>
+      <label class="switch-item"><input type="checkbox" id="chkKongAn" checked> 空亡转暗数</label>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="run()">起局 → V6.1 出5注</button>
+      <button class="btn btn-ghost" onclick="demo()">今晚双色球</button>
+    </div>
   </div>
 
-  <div id="panHead" class="card"></div>
-  <div class="grid9" id="panGrid"></div>
+  <div class="card" id="panCard" style="display:none">
+    <div class="section-title">奇门盘 · 用神标注（只标真实落宫）</div>
+    <div class="info-grid" id="panInfo"></div>
+    <div class="palace-grid" id="palaceGrid"></div>
+    <div style="margin-top:8px;font-size:11px;color:#6070a0;display:flex;flex-wrap:wrap;gap:6px">
+      <span><span class="tag tag-zf">值符</span> 真实值符落宫</span>
+      <span><span class="tag tag-sm">伤门</span> 伤门落宫</span>
+      <span><span class="tag tag-zs">值使</span> 值使门落宫</span>
+      <span><span class="tag tag-xw">玄武</span> 玄武落宫</span>
+      <span><span class="tag tag-ty">太阴</span> 太阴落宫</span>
+      <span><span class="tag tag-kw">空亡</span> 空亡宫</span>
+    </div>
+    <div style="margin-top:6px;font-size:11px;color:#506080">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#204880;vertical-align:middle;margin-right:3px"></span> 值符四宫取号 
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#503880;vertical-align:middle;margin:0 3px 0 10px"></span> 伤门四宫取号
+    </div>
+  </div>
 
   <div class="card" id="poolCard" style="display:none">
-    <div>候选池（放宽）<span id="frontCount"></span> / 后区<span id="backCount"></span></div>
-    <div id="frontPool"></div>
-    <div id="backPool"></div>
+    <div class="section-title">奇门总池 · 前区 <span id="frontCount" style="color:#7390c0"></span></div>
+    <div class="pool-wrap" id="frontPool"></div>
+    <div style="margin-top:12px"></div>
+    <div class="section-title">后区 <span id="backCount" style="color:#d4a050"></span></div>
+    <div class="pool-wrap" id="backPool"></div>
+    <div style="margin-top:10px;font-size:11px;color:#506080">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2260c0;vertical-align:middle;margin-right:4px"></span> 高权 
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#305070;vertical-align:middle;margin:0 4px 0 12px"></span> 中权 
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1a2840;vertical-align:middle;margin:0 4px 0 12px"></span> 低权
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c08020;vertical-align:middle;margin:0 4px 0 12px"></span> 后区高权
+    </div>
   </div>
+
   <div class="card" id="pickCard" style="display:none">
-    <div>推荐</div>
+    <div class="section-title">加权缩水 · 推荐5注</div>
     <div id="pickList"></div>
+  </div>
+
+  <div style="font-size:11px;color:#405070;text-align:center;padding:10px 0 20px">
+    奇门数据迭代模型 V6.1 · 值符四宫+伤门+值使+玄武/太阴+空亡降权 · 前区≤18 后区≤6 · 注间差异增强 · 仅供研究
   </div>
 </div>
 
 <script>
-/* ========== 1. 洛书九宫（顶九履一） ========== */
-// 显示布局（上南下北）：
-// 4巽 9离 2坤
-// 3震 5中 7兑
-// 8艮 1坎 6乾
-const LUOSHU_LAYOUT = [4,9,2,3,5,7,8,1,6]; // 按3x3行展开
-const PALACE_NAME = {1:'坎',2:'坤',3:'震',4:'巽',5:'中/寄坤',6:'乾',7:'兑',8:'艮',9:'离'};
-const DUI_GONG = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
-// 九星（按常用顺位/值符跟随）
-const STARS = ['天蓬','天芮','天冲','天辅','天禽','天心','天柱','天任','天英'];
-// 八门
-const MEN = ['休','生','伤','杜','景','死','惊','开'];
-// 八神（阳顺/阴逆围绕值符）
-const GODS_YANG = ['值符','螣蛇','太阴','六合','白虎','玄武','九地','九天'];
-const GODS_YIN  = ['值符','螣蛇','太阴','六合','白虎','玄武','九地','九天']; // 序列同，方向逆走
+// ---- 基础历法 ----
+const GAN='甲乙丙丁戊己庚辛壬癸'.split(''), ZHI='子丑寅卯辰巳午未申酉戌亥'.split('');
+function jdFromDate(y,m,d,h,mi){
+  const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3;
+  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045+(h-12)/24+mi/1440;
+}
+function solarTermJD(year,k){
+  const T=(jdFromDate(2000,1,1,12,0)-2451545)/36525;
+  const A=[485,203,199,182,156,136,77,74,63,52,38,28,24,19,16,14,12,11,10,8,7,6,6,0];
+  const B=[324.96,337.17,342.31,27.78,73.14,333.84,99.83,351.27,297.82,271.18,265.52,243.02,230.45,235.68,256.78,292.29,222.45,224.11,348.24,78.58,286.59,196.79,17.98,52.02];
+  const C=[1934.136,32964.467,20.185,445267.112,45036.886,67555.328,35999.063,72714.453,48525.952,128189.001,38966.642,86019.925,45157.878,22518.443,155.42,3034.746,12562.047,83941.861,126285.579,37958.714,43287.969,85453.927,37733.728,628.702];
+  const t=T+k*0.5;
+  return 2451545+A[k]*Math.cos((B[k]+C[k]*t)*Math.PI/180);
+}
+const TNAMES='小寒,大寒,立春,雨水,惊蛰,春分,清明,谷雨,立夏,小满,芒种,夏至,小暑,大暑,立秋,处暑,白露,秋分,寒露,霜降,立冬,小雪,大雪,冬至'.split(',');
+function getTermIdx(jd,year){
+  let best=-1,bestJD=-1e9;
+  for(let k=0;k<24;k++){const t=solarTermJD(year,k);if(jd>=t&&t>bestJD){bestJD=t;best=k;}}
+  if(best<0)best=23;
+  return best;
+}
+function yinYang(jd,year){
+  const idx=getTermIdx(jd,year);
+  return (idx===23||idx<=10)?'阳':'阴';
+}
+const JUTBL={
+  '冬至':[1,7,4],'小寒':[1,7,4],'大寒':[1,7,4],
+  '立春':[8,5,2],'雨水':[8,5,2],'惊蛰':[8,5,2],
+  '春分':[3,9,6],'清明':[3,9,6],'谷雨':[3,9,6],
+  '立夏':[4,1,7],'小满':[4,1,7],'芒种':[4,1,7],
+  '夏至':[9,3,6],'小暑':[9,3,6],'大暑':[9,3,6],
+  '立秋':[2,5,8],'处暑':[2,5,8],'白露':[2,5,8],
+  '秋分':[7,1,4],'寒露':[7,1,4],'霜降':[7,1,4],
+  '立冬':[6,9,3],'小雪':[6,9,3],'大雪':[6,9,3]
+};
+function gzDay(y,m,d){
+  const jd=jdFromDate(y,m,d,12,0);
+  return [(jd+49)%10,(jd+19)%12];
+}
+function fiveRat(dg){return [0,2,4,6,8,0,2,4,6,8][dg];}
+function timeZhi(h){if(h<1)return 0;if(h<3)return 1;if(h<5)return 2;if(h<7)return 3;if(h<9)return 4;if(h<11)return 5;if(h<13)return 6;if(h<15)return 7;if(h<17)return 8;if(h<19)return 9;if(h<21)return 10;return 11;}
+const PORD=[4,9,2,3,5,7,8,1,6];
+const STARS='天蓬,天芮,天冲,天辅,天禽,天心,天柱,天任,天英'.split(',');
+const DOORS='休,死,伤,杜,中,开,惊,生,景'.split(',');
+const SHENS='值符,螣蛇,太阴,六合,白虎,玄武,九地,九天'.split(',');
 
-/* ========== 2. 干支/节气/阴阳遁（以交节近似按日期段，够排盘对齐；严格需交节时刻） ========== */
-const TIANGAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
-const DIZHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-function gzIdx(gz){return TIANGAN.indexOf(gz[0])*12+DIZHI.indexOf(gz[1]);}
-function addGz(i,n){return TIANGAN[(i+n)%10]+DIZHI[(i+n)%12];}
-function ganzhiDay(Y,M,D){
-  // 简化通式（可用，不依赖库）
-  let m=M, y=Y;
-  if(m<=2){m+=12;y-=1;}
-  const c=Math.floor(y/100), y2=y%100;
-  const d=Math.floor((146097*(c/4))+(36524*(y2/4))+((m+1)*306)/10)+D-719468;
-  return addGz(0,d);
-}
-function ganzhiHour(dgz,h,mi){
-  // 五鼠遁：甲己子起甲子；乙庚丙子；丙辛戊子；丁壬庚子；戊癸壬子
-  const dg=TIANGAN.indexOf(dgz[0]);
-  const base = ([0,5,2,7,4])[dg] ?? 0; // 子时干索引
-  const totalMin = h*60+mi;
-  const ziN = Math.floor(totalMin/120); // 每2小时一时辰
-  const ziRem = (ziN*2); // 从子起偏移小时
-  const hzBase = (base + ziN)%10;
-  return TIANGAN[hzBase]+DIZHI[ziN%12];
-}
-function xunShou(hgz){
-  // 六甲旬首：甲子/甲戌/甲申/甲午/甲辰/甲寅；时柱落哪旬
-  const z=TIANGAN.indexOf(hgz[0])*12+DIZHI.indexOf(hgz[1]);
-  // 找最近<=的六甲
-  const jia=[0,10,20,30,40,50];
-  let s=jia[0];
-  for(const k of jia) if(k<=z && (z-k)<10) s=k;
-  const xs=TIANGAN[s%10]+DIZHI[s%12];
-  // 旬空：旬首地支起，空后两位（六甲空亡）
-  const kong1=(s+10)%12, kong2=(s+11)%12;
-  return {xs, kong:[DIZHI[kong1],DIZHI[kong2]]};
-}
-// 节气粗略区间（月日）-> 阴阳遁+局数（拆补常用；寒露：阴遁上6中9下3）
-function jieQi(Y,M,D){
-  const md=M*100+D;
-  // 简表（不精确交节，够你对齐“寒露段阴遁九局”）
-  if(md>=(2*100+4)&&md<(4*100+5)) return {j:'立春',yang:true,ju:8}; // 阳遁八等略
-  if(md>=(4*100+5)&&md<(5*100+6)) return {j:'清明',yang:true,ju:4};
-  if(md>=(5*100+6)&&md<(6*100+6)) return {j:'立夏',yang:true,ju:1};
-  if(md>=(6*100+6)&&md<(7*100+7)) return {j:'芒种',yang:true,ju:6};
-  if(md>=(7*100+7)&&md<(8*100+8)) return {j:'小暑',yang:true,ju:8};
-  if(md>=(8*100+8)&&md<(9*100+8)) return {j:'立秋',yang:false,ju:2};
-  if(md>=(9*100+8)&&md<(10*100+8)) return {j:'白露',yang:false,ju:9};
-  // 寒露段（约10/8-11/7）按上6中9下3；这里按“中元9”默认（拆补按节气内日数可再细分；先保口径）
-  if(md>=(10*100+8)&&md<(11*100+7)) return {j:'寒露',yang:false,ju:9};
-  if(md>=(11*100+7)&&md<(12*100+7)) return {j:'立冬',yang:false,ju:6};
-  if(md>=(12*100+7)&&md<(1*100+6)) return {j:'大雪',yang:false,ju:4};
-  if(md>=(1*100+6)&&md<(2*100+4)) return {j:'小寒',yang:false,ju:2};
-  return {j:'未知',yang:false,ju:9};
-}
-
-/* ========== 3. 地盘三奇六仪（阴逆/阳顺） ========== */
-// 洛书宫位坐标（用于显示与落宫）
-function palaceIndex(p){ // p=1..9 -> 3x3索引
-  const m={9:1,4:0,2:2,3:3,5:4,7:5,8:6,1:7,6:8};
-  return m[p];
-}
-// 戊起宫按局：阳遁顺、阴遁逆；序列 戊己庚辛壬癸丁丙乙
-const SANQI = ['戊','己','庚','辛','壬','癸','丁','丙','乙'];
-function buildDipan(ju,yang){
-  // ju为局数1-9；阳遁戊起ju顺，阴遁戊起ju逆
-  const dp={}; // 宫->干
-  let cur=ju;
+function qimen(y,m,d,h,mi){
+  const jd=jdFromDate(y,m,d,h,mi);
+  const [yg,yz]=gzDay(y,m,d);
+  const tz=timeZhi(h);
+  const tg=fiveRat(yg);
+  const timeG=(tg+tz)%10, timeZ=tz;
+  const yy=yinYang(jd,y);
+  const tidx=getTermIdx(jd,y);
+  const tn=TNAMES[tidx];
+  const yuans=[0,6,9].includes(yz)?0:[2,4,7].includes(yz)?1:2;
+  const ju=JUTBL[tn][yuans];
+  const seq=[4,5,6,7,8,3,2,1];
+  const order=[1,2,3,4,5,6,7,8,9];
+  const si=order.indexOf(ju);
+  const di={};
   for(let i=0;i<9;i++){
-    const p = cur;
-    dp[p]=SANQI[i];
-    cur = yang ? (cur%9+1) : (cur===1?9:cur-1);
+    let p;
+    if(yy==='阳')p=order[(si+i)%9];
+    else p=order[(si-i+9)%9];
+    di[p]=seq[i];
   }
-  return dp;
+  const xunGan=[0,10,8,6,4,2][((timeZ-timeG+12)%12)/2];
+  const xunYiMap={0:4,10:5,8:6,6:7,4:8,2:9};
+  const xunYi=xunYiMap[xunGan];
+  let xunPalace=null;
+  for(const p of [1,2,3,4,5,6,7,8,9])if(di[p]===xunYi)xunPalace=p;
+  if(xunPalace===5)xunPalace=2;
+  const psMap={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8};
+  const zhiFuStar=psMap[xunPalace];
+  const zhiShiDoor=xunPalace===5?5:xunPalace;
+  let timePalace=null;
+  for(const p of [1,2,3,4,6,7,8,9])if(di[p]===timeG)timePalace=p;
+  if(timePalace===null)timePalace=2;
+  const tianStar={};
+  const ring=[4,9,2,3,5,7,8,1,6];
+  const ti=ring.indexOf(timePalace);
+  for(let i=0;i<9;i++)tianStar[ring[(ti+i)%9]]=STARS[(zhiFuStar+i)%9];
+  const tianDoor={};
+  const ds=ring.indexOf(zhiShiDoor===5?2:zhiShiDoor);
+  const mOrder=[0,1,2,3,5,6,7,8,4];
+  for(let i=0;i<9;i++)tianDoor[ring[(ds+i)%9]]=DOORS[(mOrder.indexOf(zhiShiDoor===5?5:zhiShiDoor)+i)%9];
+  const shen={};
+  const ss=ring.indexOf(timePalace);
+  for(let i=0;i<8;i++)shen[ring[(ss+i)%9]]=SHENS[i];
+  return {y,m,d,h,mi,yy,ju,tn,yuan:yuans,di,tianStar,tianDoor,shen,xunPalace,timePalace,palaces:[1,2,3,4,5,6,7,8,9]};
 }
-function findDipan(dp,gan){for(const p in dp)if(dp[p]===gan)return Number(p);return null;}
 
-/* ========== 4. 主排盘（纯函数） ========== */
-function qimen(Y,M,D,h,mi,opts={}){
-  const useZhen = !!opts.useZhenTaiYang;
-  let H=h, MI=mi;
-  if(useZhen){
-    // 大连约东经121.6，北京120，差~+1.6°≈+6.4分；若按“真太阳时相对标准时”你可再调；这里示例-10分风格自行统一
-    const off = -10; 
-    let t = H*60+MI+off;
-    if(t<0){t+=1440; /* 理论应前日，这里仅防错 */ }
-    H=Math.floor(t/60)%24; MI=t%60;
+// ---- 五个开关对应的取数逻辑 ----
+// 1. 对宫合十：取对宫数字（1↔9,2↔8,3↔7,4↔6,5↔5）
+function duiGongHeShi(palace){
+  return palace===5?5:10-palace;
+}
+
+// 2. 先天后天体用：先天八卦数（乾1兑2离3震4巽5坎6艮7坤8）
+const XIAN_TIAN_NUM = {1:6,2:7,3:3,4:4,5:5,6:1,7:2,8:8,9:9}; // 宫→先天数
+function xianTianHouTian(palace){
+  return XIAN_TIAN_NUM[palace]||palace;
+}
+
+// 3. 中宫二八分寄：5宫按2/8宫分别处理
+function zhongGongErBa(palace, seed){
+  if(palace!==5) return [palace];
+  // seed决定偏向2还是8（用值符落宫奇偶做种子）
+  return seed%2===0?[2,8]:[8,2];
+}
+
+// 4. 五行分布：宫位对应五行（1水,2土,3木,4木,5土,6金,7金,8土,9火）
+const WU_XING = {1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
+function wuXingScore(palace, num){
+  // 简单示例：数字尾数与宫五行匹配加分
+  const wei = num%10;
+  const wx = WU_XING[palace];
+  if(wx==='木' && [3,4,8].includes(wei)) return 0.5;
+  if(wx==='火' && [2,7].includes(wei)) return 0.5;
+  if(wx==='土' && [5,10].includes(wei)) return 0.5;
+  if(wx==='金' && [4,9].includes(wei)) return 0.5;
+  if(wx==='水' && [1,6].includes(wei)) return 0.5;
+  return 0;
+}
+
+// 5. 空亡转暗数：空亡宫的数字转为暗数（减半权重）
+function kongAnDarkNum(palace, num, isKong){
+  if(!isKong) return num;
+  // 空亡宫的数字标记为暗数（权重降低）
+  return num; // 实际在buildPoolV61里处理权重
+}
+
+// ---- V6.1 用神体系 ----
+const XIAN_TIAN_MAP = {
+  1:2, 2:4, 3:9, 4:7, 5:2, 6:8, 7:1, 8:6, 9:3
+};
+function duiChong(p){return p===5?5:10-p;}
+function getFourPalaces(base){
+  return [base, duiChong(base), XIAN_TIAN_MAP[base], duiChong(XIAN_TIAN_MAP[base])];
+}
+
+function isWangXiang(palace,month){
+  const monthToGong = {1:1,2:3,3:3,4:4,5:4,6:9,7:9,8:7,9:7,10:1,11:1,12:2};
+  const mg=monthToGong[month]||2;
+  const groups = {1:[1,6],6:[1,6],2:[2,5,8],5:[2,5,8],8:[2,5,8],3:[3,4],4:[3,4],7:[7,6],9:[9]};
+  const g=groups[mg]||[mg];
+  return g.includes(palace);
+}
+
+function frontMap(g){
+  if(g==='ssq')return {1:[1,10,19,28],2:[2,11,20,29],3:[3,12,21,30],4:[4,13,22,31],5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]};
+  return {1:[1,10,19,28,34],2:[2,11,20,29,35],3:[3,12,21,30],4:[4,13,22,31],5:[5,14,23,32],6:[6,15,24,33],7:[7,16,25],8:[8,17,26],9:[9,18,27]};
+}
+function backMap(g){
+  if(g==='ssq')return {1:[1,10],2:[2,11],3:[3,12],4:[4,13],5:[5,14],6:[6,15],7:[7,16],8:[8],9:[9]};
+  return {1:[1,6,11],2:[2,7,12],3:[3,8],4:[4,9],5:[5,10],6:[6,11],7:[7,12],8:[8,1],9:[9,2]};
+}
+
+// ★ 读取开关状态
+function getOptions(){
+  return {
+    duiGong: document.getElementById('chkDuiGong').checked,
+    xianTian: document.getElementById('chkXianTian').checked,
+    zhongGong: document.getElementById('chkZhongGong').checked,
+    wuXing: document.getElementById('chkWuXing').checked,
+    kongAn: document.getElementById('chkKongAn').checked
+  };
+}
+
+function buildPoolV61(ch,g){
+  const opts = getOptions();
+  const fm=frontMap(g),bm=backMap(g);
+  const fw={},bw={};
+  
+  const zfReal = ch.timePalace;
+  const smReal = Object.keys(ch.tianDoor).find(k=>ch.tianDoor[k]==='伤')||3;
+  const zsReal = ch.xunPalace===5?2:ch.xunPalace;
+  const xwReal = Object.keys(ch.shen).find(k=>ch.shen[k]==='玄武')||1;
+  const tyReal = Object.keys(ch.shen).find(k=>ch.shen[k]==='太阴')||4;
+  
+  const xunKongMap = {0:[6],1:[6],2:[7],3:[7],4:[9],5:[9],6:[4],7:[4],8:[3],9:[3],10:[1],11:[1]};
+  const xunIndex=Math.floor((ch.di[ch.timePalace]||0)/2);
+  const kwPalaces=xunKongMap[xunIndex]||[];
+  
+  // ★ 根据开关扩展取数宫位
+  let extraPalaces = [];
+  
+  // 对宫合十：每个用神宫加对宫
+  if(opts.duiGong){
+    [zfReal, smReal, zsReal, xwReal, tyReal].forEach(p=>{
+      extraPalaces.push(duiGongHeShi(p));
+    });
   }
-  // 23点起次日子（保持简单：时柱按23+算次日；日柱也该换日，这里用通式按自然日+时推会偏，建议严格用“真日界”再升级
-  const dg=ganzhiDay(Y,M,D);
-  const hg=ganzhiHour(dg,H,MI);
-  const {xs,kong}=xunShou(hg);
-  const jq=jieQi(Y,M,D);
-  const yang=jq.yang;
-  const ju=jq.ju;
-  const dp=buildDipan(ju,yang);
-
-  // 旬首=六甲，对应“甲X”的“X/隐藏干”用旬首干（甲戌己等取己）
-  const xsGan = xs[1]==='戌'?'己':(xs[1]==='子'?'甲':(xs[1]==='申'?'庚':(xs[1]==='午'?'辛':(xs[1]==='辰'?'壬':(xs[1]==='寅'?'癸':''))));
-  // 更稳：六甲对应藏干
-  const XS_MAP={甲子:'甲',甲戌:'己',甲申:'庚',甲午:'辛',甲辰:'壬',甲寅:'癸'};
-  const xsKey=xs; const xsGan2=XS_MAP[xsKey]||xs[0];
-  const xsPalace = findDipan(dp, xsGan2); // 旬首在地盘宫=值符星本位/值使门本位依据
-
-  // 值符星：以地盘旬首宫之“元旦盘九星”为值符星（这里用宫->星简化映射：1蓬2芮3冲4辅5禽6心7柱8任9英）
-  const PALACE_STAR={1:'天蓬',2:'天芮',3:'天冲',4:'天辅',5:'天禽',6:'天心',7:'天柱',8:'天任',9:'天英'};
-  const PALACE_MEN ={1:'休',3:'伤',4:'杜',6:'开',7:'惊',8:'生',2:'死',9:'景',5:'休'}; // 按八门本宫近似；值使按本宫起数
-  const zfStar = PALACE_STAR[xsPalace];
-
-  // 值符随时干：时干干=hg[0]，找地盘该干落宫
-  const shiGan=hg[0];
-  let zfPalace = findDipan(dp, shiGan);
-  // 中五寄坤：若落5则按2显示/参与
-  const zhongErBa=opts.zhongErBa!==false;
-  if(zhongErBa && zfPalace===5) zfPalace=2;
-
-  // 值使随时支：从旬首地支起（值使本宫=xsPalace的八门本宫），按阳顺阴逆数到时支
-  const shiZhi=DIZHI.indexOf(hg[1]);
-  const xsZhi=DIZHI.indexOf(xs[1]);
-  const step = (yang?1:-1);
-  // 八门循环顺序（按常用：休生伤杜景死惊开 对应本宫1/8/3/4/9/2/7/6）
-  const MEN_ORDER=['休','生','伤','杜','景','死','惊','开'];
-  const MEN_HOME={休:1,生:8,伤:3,杜:4,景:9,死:2,惊:7,开:6};
-  const menBen = PALACE_MEN[xsPalace]||'休';
-  const benIdx = MEN_ORDER.indexOf(menBen);
-  const diff = (shiZhi - xsZhi +12)%12; // 数步
-  // 门在宫上移动：按阴阳顺逆沿九宫（用洛书邻序不严谨，这里用“门序循环+落宫按本宫偏移”简化；若要严格需按九宫环序）
-  // 为保“同输入稳定”且修正“值使=值符宫”错误：至少不与zfPalace强等
-  let zsPalace = xsPalace;
-  for(let i=0;i<diff;i++){
-    // 沿门序循环推进/倒退（保守做法：门序走，落宫按门本宫映射会跳；你若需专业排盘建议接入标准九宫环序）
-    const nextIdx=(benIdx + step*i + 8)%8;
-    const nm=MEN_ORDER[nextIdx];
-    zsPalace = MEN_HOME[nm];
+  
+  // 先天后天体用：每个用神宫加先天数对应的宫
+  if(opts.xianTian){
+    [zfReal, smReal, zsReal, xwReal, tyReal].forEach(p=>{
+      const xt = xianTianHouTian(p);
+      if(xt !== p) extraPalaces.push(xt);
+    });
   }
-  if(zhongErBa && zsPalace===5) zsPalace=2;
-
-  // 天盘（九星跟随值符）：以值符落宫为起点，按阳顺阴逆沿九宫环序排九星
-  const RING=[1,8,3,4,9,2,7,6]; // 简化环序（含中略）；严谨应九宫环；这里保证稳定
-  const starStart=RING.indexOf(zfPalace);
-  const tianpan={}; // 宫->星
-  STARS.forEach((s,i)=>{
-    const p=RING[(starStart + (yang?i:-i) + RING.length)%RING.length];
-    tianpan[p]=s;
+  
+  // 中宫二八分寄：如果5宫在用神中，扩展为2和8
+  if(opts.zhongGong){
+    [zfReal, smReal, zsReal, xwReal, tyReal].forEach(p=>{
+      if(p===5){
+        extraPalaces.push(2,8);
+      }
+    });
+  }
+  
+  const zfFour = getFourPalaces(zfReal);
+  const smFour = getFourPalaces(smReal);
+  
+  const allPickPalaces = new Set();
+  zfFour.forEach(p=>allPickPalaces.add(p));
+  smFour.forEach(p=>allPickPalaces.add(p));
+  allPickPalaces.add(zsReal);
+  // 加入扩展宫位
+  extraPalaces.forEach(p=>allPickPalaces.add(p));
+  
+  const month=ch.m;
+  if(isWangXiang(+xwReal,month) || !isWangXiang(+tyReal,month)){
+    allPickPalaces.add(+xwReal);
+  } else {
+    allPickPalaces.add(+tyReal);
+  }
+  kwPalaces.forEach(p=>allPickPalaces.add(p));
+  
+  allPickPalaces.forEach(p=>{
+    let w=1.0;
+    if(zfFour.includes(p)) w+=2.0;
+    if(smFour.includes(p)) w+=1.5;
+    if(p===zsReal) w+=1.0;
+    if(p===+xwReal||p===+tyReal) w+=0.8;
+    if(kwPalaces.includes(p)) w*=0.6;
+    
+    // ★ 五行分布加分
+    if(opts.wuXing){
+      (fm[p]||[]).forEach(n=>{
+        w += wuXingScore(p, n);
+      });
+    }
+    
+    // ★ 空亡转暗数：空亡宫的数字权重额外降低
+    if(opts.kongAn && kwPalaces.includes(p)){
+      w *= 0.5;
+    }
+    
+    (fm[p]||[]).forEach(n=>fw[n]=(fw[n]||0)+w);
+    (bm[p]||[]).forEach(n=>bw[n]=(bw[n]||0)+w);
   });
+  
+  // ★ 放宽：前区取18个，后区取6个（保持不变）
+  let frontArr=Object.keys(fw).map(n=>({n:+n,w:fw[n]})).sort((a,b)=>b.w-a.w).slice(0,18);
+  let backArr=Object.keys(bw).map(n=>({n:+n,w:bw[n]})).sort((a,b)=>b.w-a.w).slice(0,6);
+  
+  return {
+    front:frontArr,
+    back:backArr,
+    realTags: {zfReal, smReal, zsReal, xwReal:+xwReal, tyReal:+tyReal, kwPalaces},
+    zfFour, smFour
+  };
+}
 
-  // 八神：值符同天盘值符宫；阴遁逆时针
-  const gods={};
-  const gRing=[1,8,3,4,9,2,7,6];
-  const g0=gRing.indexOf(zfPalace);
-  GODS_YIN.forEach((g,i)=>{
-    const p=gRing[(g0 + (yang?i:-i) + gRing.length)%gRing.length];
-    gods[p]=g;
-  });
+// ---- 缩水（放宽版） ----
+function isPrime(x){return [2,3,5,7,11,13,17,19,23,29,31].includes(x);}
+function valid6(nums,last){
+  if(nums.length!==6)return false;
+  const odd=nums.filter(x=>x%2).length;
+  if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===odd&&b===6-odd))return false;
+  const sm=nums.filter(x=>x<=16).length;
+  if(![[3,3],[2,4],[4,2]].some(([a,b])=>a===sm&&b===6-sm))return false;
+  const s=nums.reduce((a,b)=>a+b,0);
+  if(s<80||s>150)return false;
+  const sp=Math.max(...nums)-Math.min(...nums);
+  if(sp<14||sp>34)return false;
+  const sorted=[...nums].sort((a,b)=>a-b);
+  let pair=0;for(let i=0;i<5;i++)if(sorted[i+1]-sorted[i]===1)pair++;
+  if(pair>1)return false;
+  const pr=nums.filter(isPrime).length;
+  if(![[2,4],[3,3],[1,5]].some(([a,b])=>a===pr&&b===6-pr))return false;
+  if(last){
+    const ln=new Set();last.forEach(x=>{ln.add(x);if(x>1)ln.add(x-1);if(x<33)ln.add(x+1);});
+    const hit=nums.filter(x=>ln.has(x)).length;
+    if(hit<1||hit>2)return false;
+  }
+  return true;
+}
+function combos(arr,k){
+  const r=[];
+  function rec(s,cur){if(cur.length===k){r.push(cur.slice());return;}for(let i=s;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop();}}
+  rec(0,[]);return r;
+}
 
-  // 空亡宫（按地支对应宫：子坎1/丑艮8/寅艮8/卯震3/辰巽4/巳巽4/午离9/未坤2/申兑7/酉乾6/戌乾6/亥坎1 常用取“支宫主宫”）
-  const ZHI_PALACE={子:1,丑:8,寅:8,卯:3,辰:4,巳:4,午:9,未:2,申:7,酉:6,戌:6,亥:1};
-  const kwPalaces=[ZHI_PALACE[kong[0]], ZHI_PALACE[kong[1]]].filter(Boolean);
+function pick5(pool, game, last){
+  const f = pool.front.map(x => x.n);
+  const b = pool.back.map(x => x.n);
+  const wm = {}; pool.front.forEach(x => wm[x.n] = x.w);
+  const bm = {}; pool.back.forEach(x => bm[x.n] = x.w);
 
-  // 合成每宫显示
-  const cells={};
-  for(const p of [1,2,3,4,5,6,7,8,9]){
-    cells[p]={
-      palace:p, name:PALACE_NAME[p],
-      dipan:dp[p]||'',
-      star:tianpan[p]||'',
-      men: (zsPalace===p?menBen:''),
-      god:gods[p]||'',
-      isZf: p===zfPalace,
-      isZs: p===zsPalace,
-      kw: kwPalaces.includes(p)||(zhongErBa&&kwPalaces.includes(5)&&p===2)
+  const cand = combos(f, 6).filter(c => valid6(c, last));
+
+  const scored = cand.map(c => {
+    const fw = c.reduce((a, n) => a + (wm[n] || 0), 0);
+    const sum = c.reduce((a,b)=>a+b,0);
+    const centerBonus = Math.abs(sum - 115) < 15 ? 0.5 : 0;
+    const primeN = c.filter(isPrime).length;
+    const primeBonus = (primeN===2||primeN===3)?0.3:0;
+    return {
+      nums: c.slice().sort((a,b)=>a-b),
+      fw,
+      score: fw + centerBonus + primeBonus,
+      sum,
+      odd: c.filter(x=>x%2).length
     };
-  }
-
-  return {
-    Y,M,D,H:h,MI,
-    dg,hg,xs,
-    jq:jq.j, yang, ju,
-    dp, zfStar, zfPalace, zsPalace, menBen,
-    kong, kwPalaces,
-    cells,
-    // 调试
-    shiGan, xsPalace
-  };
-}
-
-/* ========== 5. 候选池/缩水（保留你原有思路，按宫权重） ========== */
-// 号码->宫（示例映射，可自定；这里用尾数以示稳定）
-function numToPalace(n){
-  const m=n%9; if(m===0) return 9; return m; // 1-9尾映射洛书
-}
-function buildPoolV61(ch,game,opts){
-  const frontRange=game==='dlt'?35:33;
-  const backRange=game==='dlt'?12:16;
-  const w={};
-  for(let i=1;i<=frontRange;i++){
-    const p=numToPalace(i);
-    let sc=1;
-    if(ch.zfPalace===p) sc+=3;
-    if(ch.zsPalace===p) sc+=2;
-    if(opts.useDuiGong && DUI_GONG[ch.zfPalace]===p) sc+=1;
-    if(opts.useWuxing) sc+=0.5;
-    if(opts.useKongZhuanAn && ch.kwPalaces.includes(p)) sc-=2;
-    w[i]=sc;
-  }
-  const front=Object.entries(w).map(([n,v])=>({n:Number(n),w:v}))
-    .sort((a,b)=>b.w-a.w||a.n-b.n);
-  const back=[];
-  for(let i=1;i<=backRange;i++) back.push({n:i,w: opts.useKongZhuanAn&&ch.kwPalaces.includes(numToPalace(i))?0.5:1});
-  return {
-    front, back,
-    realTags:{zf:ch.zfPalace, zs:ch.zsPalace, kong:ch.kwPalaces},
-    zfFour:[ch.zfPalace], smFour:[ch.zsPalace]
-  };
-}
-function pick5(pool,game,last,opts){
-  // 确定性抽样：按权重+与last去重倾向（不随机）
-  const out=[];
-  const used=new Set(last||[]);
-  const sorted=pool.front.slice().sort((a,b)=>{
-    const da=used.has(a.n)?-1:0, db=used.has(b.n)?-1:0;
-    return (b.w+db)-(a.w+da)||a.n-b.n;
   });
-  const take=game==='dlt'?5:6;
-  const nums=sorted.slice(0,take).map(x=>x.n).sort((a,b)=>a-b);
-  const backPool=pool.back.slice().sort((a,b)=>b.w-a.w||a.n-b.n);
-  let backN;
-  if(game==='dlt') backN=backPool.slice(0,2).sort((a,b)=>a.n-b.n);
-  else backN=backPool[0].n;
-  out.push({nums,back:backN,score:nums.reduce((s,x)=>s+(pool.front.find(p=>p.n===x).w),0)});
+  scored.sort((a,b)=>b.score - a.score);
+
+  const backRank = b.slice().sort((x,y)=>(bm[y]||0)-(bm[x]||0));
+
+  const usedBack = new Set();
+  const out = [];
+  const seenFrontKey = new Set();
+
+  function frontKey(arr){ return arr.join(','); }
+  function overlap(a,b){ let s=new Set(b); return a.filter(x=>s.has(x)).length; }
+
+  function pickBackFor(preferRank){
+    for(const bb of preferRank){
+      if(!usedBack.has(bb)) return bb;
+    }
+    return preferRank[0];
+  }
+
+  for (const t of scored) {
+    if (out.length >= 5) break;
+    if (seenFrontKey.has(frontKey(t.nums))) continue;
+
+    const tooClose = out.some(o => overlap(t.nums, o.nums) >= 4);
+    if (tooClose) continue;
+
+    const bb = pickBackFor(backRank);
+    usedBack.add(bb);
+
+    out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+    seenFrontKey.add(frontKey(t.nums));
+  }
+
+  if (out.length < 5) {
+    for (const t of scored) {
+      if (out.length >= 5) break;
+      if (seenFrontKey.has(frontKey(t.nums))) continue;
+      const bb = backRank.find(x=>!usedBack.has(x)) || backRank[out.length % backRank.length];
+      usedBack.add(bb);
+      out.push({ nums: t.nums, back: bb, score: +(t.fw + (bm[bb]||0)).toFixed(2), sum: t.sum, odd: t.odd });
+      seenFrontKey.add(frontKey(t.nums));
+    }
+  }
+
   return out;
 }
 
-/* ========== 6. 渲染 ========== */
-function renderPan(ch){
-  const head=document.getElementById('panHead');
-  head.innerHTML = `
-    ${ch.Y}-${String(ch.M).padStart(2,'0')}-${String(ch.D).padStart(2,'0')} 
-    ${String(ch.H).padStart(2,'0')}:${String(ch.MI).padStart(2,'0')} 
-    ${ch.yang?'阳遁':'阴遁'}${ch.ju}局 
-    日${ch.dg} 时${ch.hg} 旬${ch.xs} 
-    值符星(${ch.zfStar})落<b>${ch.zfPalace}宫(${PALACE_NAME[ch.zfPalace]})</b> 
-    值使(${ch.menBen})落<b>${ch.zsPalace}宫</b> 
-    空亡${ch.kong.join(',')}(宫${ch.kwPalaces.join(',')})<br>
-    <span class="warn">已按“顶九履一/阴遁/拆补/中五寄坤”修正；同输入同输出</span>
-  `;
-  const g=document.getElementById('panGrid'); g.innerHTML='';
-  // 按顶九履一排：9,4,2 / 3,5,7 / 8,1,6
-  const order=[9,4,2,3,5,7,8,1,6];
-  for(const p of order){
-    const c=ch.cells[p];
-    const div=document.createElement('div');
-    div.className='cell';
-    let tags='';
-    if(c.isZf) tags+=`<span class="tag tag-zf">值符落</span>`;
-    if(c.isZs) tags+=`<span class="tag tag-zs">值使</span>`;
-    if(c.god) tags+=`<span class="tag">${c.god}</span>`;
-    if(c.men) tags+=`<span class="tag tag-men">${c.men}门</span>`;
-    if(c.kw) tags+=`<span class="tag tag-kw">空亡</span>`;
-    div.innerHTML=`<b>${p}宫(${c.name})</b> ${tags}<br>${c.dipan||''} ${c.star||''} ${c.men||''}<br>${c.god||''}`;
-    g.appendChild(div);
-  }
+// ---- UI ----
+let LAST={ssq:null,dlt:null};
+
+function weightClass(w){
+  if(w>=2.5)return 'high';
+  if(w>=1.5)return 'mid';
+  return 'low';
 }
+function ballHtml(n,w,isBack,isHit){
+  const cls=weightClass(w);
+  const base=isBack?'ball-back ball-back-'+cls:'ball-front ball-'+cls;
+  const hitCls=isHit?(isBack?' ball-hit-back':' ball-hit'):'';
+  return `<span class="ball ${base}${hitCls}">${String(n).padStart(2,'0')}</span>`;
+}
+function safe(x){return (x===undefined||x===null)?'—':x;}
+
+function renderPan(ch,rt,zfFour,smFour){
+  document.getElementById('panCard').style.display='';
+  document.getElementById('panInfo').innerHTML=
+    `<div class="info-item">${ch.y}-${ch.m}-${ch.d} ${ch.h}:${String(ch.mi).padStart(2,'0')}</div>`+
+    `<div class="info-item">${ch.yy}遁 ${ch.ju}局</div>`+
+    `<div class="info-item">节气 ${safe(ch.tn)}</div>`+
+    `<div class="info-item">值符落宫 ${rt.zfReal}</div>`+
+    `<div class="info-item">伤门落宫 ${rt.smReal}</div>`+
+    `<div class="info-item">值使落宫 ${rt.zsReal}</div>`;
+  
+  const grid=document.getElementById('palaceGrid');grid.innerHTML='';
+  PORD.forEach(p=>{
+    const div=document.createElement('div');div.className='p-cell';
+    if(p===rt.zfReal) div.classList.add('zf-gong');
+    else if(p===rt.smReal) div.classList.add('sm-gong');
+    else if(p===rt.zsReal) div.classList.add('zs-gong');
+    else if(p===rt.xwReal) div.classList.add('xw-gong');
+    else if(p===rt.tyReal) div.classList.add('ty-gong');
+    else if(rt.kwPalaces.includes(p)) div.classList.add('kw-gong');
+    else if(zfFour.includes(p)) div.classList.add('zf-four');
+    else if(smFour.includes(p)) div.classList.add('sm-four');
+    
+    let tags='';
+    if(p===rt.zfReal) tags+='<span class="tag tag-zf">值符</span>';
+    if(p===rt.smReal) tags+='<span class="tag tag-sm">伤门</span>';
+    if(p===rt.zsReal) tags+='<span class="tag tag-zs">值使</span>';
+    if(p===rt.xwReal) tags+='<span class="tag tag-xw">玄武</span>';
+    if(p===rt.tyReal) tags+='<span class="tag tag-ty">太阴</span>';
+    if(rt.kwPalaces.includes(p)) tags+='<span class="tag tag-kw">空亡</span>';
+    
+    const ganName=safe(GAN[ch.di[p]]);
+    const star=safe(ch.tianStar[p]);
+    const door=safe(ch.tianDoor[p]);
+    const shen=safe(ch.shen[p]);
+    div.innerHTML=`<b>${p}宫</b> ${tags}<br><span class="cl">${ganName} ${star} ${door} ${shen}</span>`;
+    grid.appendChild(div);
+  });
+}
+
 function renderPool(pool){
   document.getElementById('poolCard').style.display='';
-  document.getElementById('frontCount').textContent=pool.front.length;
-  document.getElementById('backCount').textContent=pool.back.length;
-  document.getElementById('frontPool').innerHTML=pool.front.slice(0,36).map(x=>{
-    const cls=x.w>=2?'ball-front':'';
-    return `<span class="ball ${cls}">${String(x.n).padStart(2,'0')}</span>`;
-  }).join('');
-  document.getElementById('backPool').innerHTML=pool.back.map(x=>`<span class="ball ball-back">${String(x.n).padStart(2,'0')}</span>`).join('');
+  document.getElementById('frontCount').textContent=`${pool.front.length}个`;
+  document.getElementById('backCount').textContent=`${pool.back.length}个`;
+  document.getElementById('frontPool').innerHTML=pool.front.map(x=>ballHtml(x.n,x.w,false,false)).join('');
+  document.getElementById('backPool').innerHTML=pool.back.map(x=>ballHtml(x.n,x.w,true,false)).join('');
 }
-function renderPicks(picks,game){
+
+function renderPicks(picks){
   document.getElementById('pickCard').style.display='';
   document.getElementById('pickList').innerHTML=picks.map((p,i)=>{
-    const nums=p.nums.map(n=>`<span class="ball ball-front">${String(n).padStart(2,'0')}</span>`).join('');
-    let bk='';
-    if(game==='dlt') bk=p.back.map(x=>`<span class="ball ball-back">${String(x).padStart(2,'0')}</span>`).join('+');
-    else bk=`<span class="ball ball-back">${String(p.back).padStart(2,'0')}</span>`;
-    return `<div>第${i+1}注 权重${p.score}：${nums} + ${bk}</div>`;
+    const nums=p.nums.map(n=>`<span class="ball ball-front ball-high">${String(n).padStart(2,'0')}</span>`).join('');
+    const bk=`<span class="ball ball-back ball-back-high">${String(p.back).padStart(2,'0')}</span>`;
+    return `<div class="pick-card">
+      <div class="pick-header"><span class="pick-num">第${i+1}注</span><span class="pick-score">权重 ${p.score}</span></div>
+      <div class="pick-balls">${nums}<span class="sep">+</span>${bk}</div>
+    </div>`;
   }).join('');
 }
-function getOpts(){
-  return {
-    useDuiGong:document.getElementById('optDuiGong').checked,
-    useQianTian:document.getElementById('optQianTian').checked,
-    zhongErBa:document.getElementById('optErBa').checked||true,
-    useWuxing:document.getElementById('optWuxing').checked,
-    useKongZhuanAn:document.getElementById('optKongAn').checked,
-    useZhenTaiYang:document.getElementById('optZhenTaiYang').checked
-  };
-}
-let LAST={ssq:null,dlt:null};
+
 function run(){
   const g=document.getElementById('game').value;
-  const dt=document.getElementById('date').value, tm=document.getElementById('time').value;
-  if(!dt||!tm){document.getElementById('warn').textContent='请选择日期时间';return}
-  document.getElementById('warn').textContent='';
-  const [y,m,d]=dt.split('-').map(Number);
-  const [h,mi]=tm.split(':').map(Number);
-  const opts=getOpts();
-  const ch=qimen(y,m,d,h,mi,opts);
-  const pool=buildPoolV61(ch,g,opts);
-  const picks=pick5(pool,g,LAST[g],opts);
-  if(picks.length) LAST[g]=picks[0].nums;
-  renderPan(ch);
+  const [y,m,d]=document.getElementById('date').value.split('-').map(Number);
+  const [h,mi]=document.getElementById('time').value.split(':').map(Number);
+  const ch=qimen(y,m,d,h,mi);
+  const pool=buildPoolV61(ch,g);
+  const last=LAST[g];
+  const picks=pick5(pool,g,last);
+  if(picks.length)LAST[g]=picks[0].nums;
+  renderPan(ch,pool.realTags,pool.zfFour,pool.smFour);
   renderPool(pool);
-  renderPicks(picks,g);
-  console.log('输入',{g,dt,tm,opts});
-  console.log('排盘',{dg:ch.dg,hg:ch.hg,xs:ch.xs,jq:ch.jq,yang:ch.yang,ju:ch.ju,zfPalace:ch.zfPalace,zsPalace:ch.zsPalace,kong:ch.kong,kw:ch.kwPalaces});
+  renderPicks(picks);
 }
+
 function demo(){
-  document.getElementById('game').value='dlt';
+  document.getElementById('game').value='ssq';
   document.getElementById('date').value='2026-10-22';
   document.getElementById('time').value='21:15';
-  run();
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('genBtn').addEventListener('click',run);
-  document.getElementById('demoBtn').addEventListener('click',demo);
-});
-</script>
-</body>
-</html>
+
 
