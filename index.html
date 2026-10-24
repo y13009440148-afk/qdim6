@@ -205,9 +205,15 @@ function getBlueBallClass(s){
     return "ball-blue-low";
 }
 
-// 排盘
+// 排盘【修复：统一日期格式】
 function paiPan(dateStr,timeStr,lng){
+    // 自动把 / 替换成 -，兼容手机斜杠日期
+    dateStr = dateStr.replace(/\//g,"-");
     const dt = new Date(dateStr + "T" + timeStr + ":00");
+    if(isNaN(dt.getTime())){
+        alert("❌日期解析失败，请检查日期！");
+        return null;
+    }
     const riGan = ganArr[dt.getDate()%10];
     const riZhi = zhiArr[dt.getDate()%12];
     const shiZhiIdx = Math.floor(dt.getHours()/2);
