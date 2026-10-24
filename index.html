@@ -1466,5 +1466,47 @@ document.getElementById('dateInput').value = dStr;
 document.getElementById('timeInput').value = tStr;
 </script>
 
+$runBtn.onclick = runTuiYan;
+$resultSel.onchange = ()=>{
+    const v = Number($resultSel.value);
+    if(v >=0 ) showResult(v);
+}
+$clearHistory.onclick = ()=>{
+    $historyText.value = "";
+    historyPool = [];
+    log("🗑️ 历史库已清空");
+}
+// 默认日期时间
+const now = new Date();
+const dStr = now.toISOString().split('T')[0];
+const tStr = now.toTimeString().slice(0,5);
+document.getElementById('dateInput').value = dStr;
+document.getElementById('timeInput').value = tStr;
+
+// 【新增：下拉切换渲染函数 showResult，和上面onchange配套】
+function showResult(idx){
+    if(!lastResultList[idx]) return;
+    const target = lastResultList[idx];
+    renderBallGroup(target.qianPool, target.houPool);
+}
+
+// 【渲染号码球函数，保持和整套QDIM6风格一致】
+function renderBallGroup(qPool, hPool){
+    $qianQuWrap.innerHTML = "";
+    $houQuWrap.innerHTML = "";
+    const qSort = [...qPool].sort((a,b)=>b.score - a.score);
+    qSort.forEach((item,idx)=>{
+        let cls = "num-ball";
+        if(idx < qSort.length*0.33) cls += " q-high";
+        else if(idx < qSort.length*0.66) cls += " q-mid";
+        else cls += " q-low";
+        $qianQuWrap.innerHTML += `<div class="${cls}">${String(item.num).padStart(2,'0')}</div>`;
+    })
+    const hSort = [...hPool].sort((a,b)=>b.score - a.score);
+    hSort.forEach(item=>{
+        $houQuWrap.innerHTML += `<div class="num-ball q-back">${String(item.num).padStart(2,'0')}</div>`;
+    })
+}
+</script>
 
 
