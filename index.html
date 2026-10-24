@@ -1,69 +1,85 @@
 
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>奇门统计 QDIM 真盘推演系统【完整版700+逻辑】</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奇门统计 QDIM 竖版完整版｜奇门总池+精选五柱</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
-body{background:#111827;color:#e5e7eb;padding:16px;max-width:1150px;margin:0 auto}
-.box{background:#1f2937;border-radius:10px;padding:14px;margin-bottom:14px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
-input,select,button{padding:8px 10px;border-radius:6px;border:none;font-size:15px}
-input{background:#111827;color:#eee;border:1px solid #4b5563}
-button{background:#2563eb;color:#fff;cursor:pointer}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
+body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
+.block{background:#1f2937;border-radius:10px;padding:14px;margin-bottom:14px}
+h3{margin-bottom:10px;color:#cbd5f5}
+.item-row{margin:10px 0;display:flex;flex-direction:column;gap:6px}
+label{font-size:14px;color:#b8c2cc}
+input,select,button,textarea{padding:9px 10px;border-radius:6px;border:none;font-size:15px;width:100%}
+input,textarea{background:#111827;color:#eee;border:1px solid #4b5563}
+button{background:#2563eb;color:#fff;cursor:pointer;margin-top:4px}
 button:hover{background:#1d4ed8}
-#resultBox{margin-top:10px;max-height:420px;overflow:auto}
-.num-ball{display:inline-flex;width:36px;height:36px;border-radius:50%;align-items:center;justify-content:center;margin:4px;font-weight:bold}
-.q-high{background:#dc2626}
-.q-back{background:#2563eb}
-.ball-selected{box-shadow:0 0 8px #fff6}
-#hitTableBox table{border-collapse:collapse;width:100%;margin-top:8px}
-#hitTableBox th,#hitTableBox td{border:1px solid #444;padding:6px;text-align:center;font-size:14px}
-pre{color:#a5b4fc;font-size:12px;white-space:pre-wrap;max-height:220px;overflow:auto;background:#111827;padding:8px;border-radius:6px}
+/* 奇门九宫盘样式 */
+.qimen-table{width:100%;border-collapse:collapse;margin:10px 0}
+.qimen-table td{border:1px solid #475569;padding:6px;text-align:center;font-size:13px;line-height:1.4}
+.qimen-table td.kong{background:#372020}
+.pool-block{background:#131c2e;padding:10px;border-radius:8px;margin:8px 0}
+.pool-title{font-size:16px;font-weight:bold;color:#60a5fa;margin-bottom:6px}
+.zhu-item{border:1px solid #2e4068;padding:8px;border-radius:6px;margin:6px 0}
+.ball-red{display:inline-block;width:32px;height:32px;border-radius:50%;background:#dc2626;color:#fff;text-align:center;line-height:32px;margin:2px;font-size:14px;font-weight:bold}
+.ball-blue{display:inline-block;width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;text-align:center;line-height:32px;margin:2px;font-size:14px;font-weight:bold}
+pre{color:#a5b4fc;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:#111827;padding:8px;border-radius:6px}
+table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
+.hit-table th,.hit-table td{border:1px solid #444;padding:5px;text-align:center;font-size:13px}
 </style>
 </head>
 <body>
-<div class="box">
-    <h3>时家奇门 · 拆补转盘起局</h3>
-    <div class="row">
+<div class="block">
+    <h3>📅 起局时间设置</h3>
+    <div class="item-row">
         <label>日期</label>
         <input id="dateInput" type="date">
+    </div>
+    <div class="item-row">
         <label>时间</label>
         <input id="timeInput" type="time">
-        <label>经度</label>
-        <input id="lngInput" value="121.6" type="number" step="0.01">
-        <button id="paiBtn">起真盘</button>
-        <button id="runBtn">开始QDIM推演</button>
-        <button id="clearHistory">清空历史库</button>
     </div>
+    <div class="item-row">
+        <label>经度（真太阳时校正）</label>
+        <input id="lngInput" value="121.6" type="number" step="0.01">
+    </div>
+    <button id="paiBtn">🔮 起奇门真盘</button>
+    <button id="runBtn">▶️ 启动 QDIM 推演</button>
+    <button id="clearHistory">🗑️ 清空历史库</button>
+</div>
+
+<div class="block">
+    <h3>🗺️ 奇门九宫全盘</h3>
+    <div id="panBox"></div>
     <pre id="panLog"></pre>
 </div>
 
-<div class="box">
-    <h3>推演结果切换</h3>
-    <div class="row">
-        <select id="resultSel" style="min-width:440px"></select>
-    </div>
-    <div class="row" style="margin-top:10px">
-        <div>前区号码：<span id="qianQuWrap"></span></div>
-        <div style="margin-left:24px">后区号码：<span id="houQuWrap"></span></div>
-    </div>
+<div class="block">
+    <h3>🌊 奇门总池</h3>
+    <div id="qiMenPoolBox"></div>
 </div>
 
-<div class="box">
-    <h3>推演日志与方案列表</h3>
-    <div id="resultBox"></div>
+<div class="block">
+    <h3>⭐ 精选五柱</h3>
+    <div id="fiveZhuBox"></div>
 </div>
 
-<div class="box">
-    <h3>历史命中统计表</h3>
+<div class="block">
+    <h3>📜 推演日志</h3>
+    <pre id="logBox"></pre>
+</div>
+
+<div class="block">
+    <h3>📖 历史开奖录入（格式：01,02,03,04,05,06+01,02，一行一条）</h3>
+    <textarea id="historyText" rows="6"></textarea>
+</div>
+
+<div class="block">
+    <h3>📊 历史命中统计表</h3>
     <div id="hitTableBox"></div>
-</div>
-
-<div class="box">
-    <h3>历史开奖录入（一行一条，格式：01,02,03,04,05,06+01,02）</h3>
-    <textarea id="historyText" style="width:100%;height:100px;background:#111827;color:#eee;border:1px solid #4b5563;padding:8px"></textarea>
 </div>
 
 <script>
@@ -91,6 +107,8 @@ const jqDate = [
     ["夏至",6,22],["小暑",7,7],["大暑",7,23],["立秋",8,8],["处暑",8,23],["白露",9,8],
     ["秋分",9,23],["寒露",10,8],["霜降",10,23],["立冬",11,7],["小雪",11,22],["大雪",12,7]
 ];
+// 洛书盘面顺序：4 9 2 / 3 5 7 / 8 1 6
+const luShuOrder = [4,9,2,3,5,7,8,1,6];
 
 // ===================== 工具函数：干支换算、节气、旬空、日上起时 =====================
 function getGanIndex(g){ return ganArr.indexOf(g); }
@@ -211,6 +229,8 @@ function paiPan(dateStr,timeStr,lng){
         tianPan: tianPan,
         menPan: menPan
     };
+    // 绘制九宫盘面
+    renderPanTable(pan);
     document.getElementById("panLog").innerText =
 `✅拆补转盘排盘结果
 节气：${jqName} | ${isYang?"阳遁":"阴遁"}${ju}局
@@ -219,16 +239,34 @@ function paiPan(dateStr,timeStr,lng){
 地盘(宫:干)：${JSON.stringify(dipan)}
 天盘九星：${JSON.stringify(tianPan)}
 人盘八门：${JSON.stringify(menPan)}`;
-    log("【真排盘完成】",pan);
+    appendLog("【真排盘完成】");
     return pan;
 }
-
+function renderPanTable(pan){
+    let html = `<table class="qimen-table"><tr>`;
+    for(let i=0;i<9;i++){
+        const g = luShuOrder[i];
+        const dg = pan.dipan[g];
+        const tx = pan.tianPan[g];
+        const mn = pan.menPan[g];
+        const isKong = pan.kongWang.includes(dg);
+        const cls = isKong ? 'kong' : '';
+        html += `<td class="${cls}">
+【${gongNameMap[g]}】<br>
+九星：${tx}<br>
+八门：${mn}<br>
+地盘：${dg}
+</td>`;
+        if((i+1)%3===0) html += `</tr><tr>`;
+    }
+    html += `</tr></table>`;
+    document.getElementById("panBox").innerHTML = html;
+}
 // ===================== 轮转函数 lunZhuanPan =====================
 function lunZhuanPan(basePan,step,isYang){
     const newPan = JSON.parse(JSON.stringify(basePan));
     return newPan;
 }
-
 // ===================== 内置自动CFG策略 =====================
 function buildAutoCfg(panObj){
     const cfg = {};
@@ -255,7 +293,6 @@ function buildAutoCfg(panObj){
     cfg.oddRateHigh = 0.7;
     return cfg;
 }
-
 // ===================== 补齐完整版 calcScore 宫位打分逻辑 =====================
 function calcScore(panObj,gongNo,cfg){
     let score = 0;
@@ -296,7 +333,6 @@ function calcScore(panObj,gongNo,cfg){
     if(score < 0) score = 0;
     return {score:score, kw:kw};
 }
-
 // ===================== 补齐完整版 dynGetNum 奇门宫位取数 =====================
 function dynGetNum(g, dg, tx, mn, seed, isQian, houMax){
     const out = new Set();
@@ -321,20 +357,16 @@ function dynGetNum(g, dg, tx, mn, seed, isQian, houMax){
     }
     return Array.from(out).sort((a,b)=>a-b);
 }
-
 // ===================== 补齐完整版 filterByIndex 指标过滤：AC、跨度、奇偶、连号、区间 =====================
 function filterByIndex(qianArr,cfg){
     const arr = [...qianArr].sort((a,b)=>a-b);
     const minV = arr[0];
     const maxV = arr[arr.length-1];
     const span = maxV - minV;
-    //跨度校验
     if(span < cfg.spanMin || span > cfg.spanMax) return false;
-    //奇偶统计
     let oddCnt = arr.filter(x=>x%2===1).length;
     const oddRate = oddCnt / arr.length;
     if(oddRate < cfg.oddRateLow || oddRate > cfg.oddRateHigh) return false;
-    //AC值简易计算
     const diffSet = new Set();
     for(let i=0;i<arr.length;i++){
         for(let j=i+1;j<arr.length;j++){
@@ -343,7 +375,6 @@ function filterByIndex(qianArr,cfg){
     }
     const ac = diffSet.size - (arr.length - 1);
     if(ac < cfg.acMin || ac > cfg.acMax) return false;
-    //连号判断：禁止3连及以上
     let lianCnt = 1;
     let maxLian = 1;
     for(let i=1;i<arr.length;i++){
@@ -353,21 +384,18 @@ function filterByIndex(qianArr,cfg){
         }else lianCnt=1;
     }
     if(maxLian >=3) return false;
-    //区间：1-11,12-22,23-33，每区至少1个
     const q1 = arr.filter(x=>x>=1&&x<=11).length;
     const q2 = arr.filter(x=>x>=12&&x<=22).length;
     const q3 = arr.filter(x=>x>=23&&x<=33).length;
     if(q1===0 || q2===0 || q3===0) return false;
     return true;
 }
-
 // ===================== 补齐完整版 genMatrix 6保5容错矩阵生成 =====================
 function genMatrix(baseArr,type,limit){
     const res = [];
     if(type !== "6保5") return res;
     const n = baseArr.length;
     if(n <6) return res;
-    //组合：每次去掉一个，6保5
     for(let i=0;i<n;i++){
         const line = baseArr.filter((_,idx)=>idx!==i);
         if(line.length >=6){
@@ -377,12 +405,10 @@ function genMatrix(baseArr,type,limit){
     }
     return res;
 }
-
-// ===================== 加权抽取函数（增加分数为0保护） =====================
+// ===================== 加权抽取函数 =====================
 function weightedPick(pool,takeCnt,sigma){
     const res=[];
     const src=[...pool];
-    //保底：全部分数为0时改为均等抽取
     const totalScore = src.reduce((s,it)=>s+it.score,0);
     if(totalScore <= 0){
         for(let i=0;i<takeCnt && src.length>0;i++){
@@ -404,22 +430,24 @@ function weightedPick(pool,takeCnt,sigma){
     }
     return res.map(x=>x.num);
 }
-
 function calcHitCount(pickArr,hisArr){
     return pickArr.filter(n=>hisArr.includes(n)).length;
 }
-
-// ===================== 日志、全局变量 =====================
+function appendLog(txt){
+    const box = document.getElementById("logBox");
+    box.innerText += txt + "\n";
+    box.scrollTop = box.scrollHeight;
+}
+function clearLog(){ document.getElementById("logBox").innerText = ""; }
+// ===================== 全局变量 =====================
 let pan = null;
 let historyPool = [];
-let lastResultList = [];
-function log(txt){ console.log(txt); }
-
 // ===================== 推演主函数 runTuiYan =====================
 function runTuiYan(){
-    if(!pan){ alert("⚠️请先点击【起真盘】！"); return; }
+    if(!pan){ alert("⚠️请先点击【起奇门真盘】！"); return; }
+    clearLog();
     const cfg = buildAutoCfg(pan);
-    log("===== 自动CFG加载完成 ====",cfg);
+    appendLog("===== 自动CFG加载完成 ====");
     const txt = document.getElementById("historyText").value.trim();
     historyPool = [];
     if(txt){
@@ -445,10 +473,10 @@ function runTuiYan(){
     }
     let allQianPool = [];
     let allHouPool = [];
-    const outList = [];
+    const gongSourceList = [];
     for(let pItem of panList){
         const p = pItem.pan;
-        log("\n--- "+pItem.tag+" ---");
+        appendLog("\n--- "+pItem.tag+" ---");
         let qianPool = [];
         let houPool = [];
         const seed = gan5Map[p.shiGan];
@@ -459,11 +487,12 @@ function runTuiYan(){
             const mn = p.menPan[g];
             const qNums = dynGetNum(g, dg, tx, mn, seed, true, cfg.houMax);
             const hNums = dynGetNum(g, dg, tx, mn, seed, false, cfg.houMax);
+            gongSourceList.push({gong:g,gongName:gongNameMap[g],score:sc.score,kw:sc.kw,qNums,hNums});
             if(cfg.chkKong && sc.kw && !cfg.chkHuiLiu){
-                log(gongNameMap[g]+" 旬空过滤，跳过");
+                appendLog(gongNameMap[g]+" 旬空过滤，跳过");
                 continue;
             }
-            log(gongNameMap[g] + " 分数:"+sc.score+" 前区候选:"+qNums.join(',') + " 后区候选:"+hNums.join(','));
+            appendLog(gongNameMap[g] + " 分数:"+sc.score+" 前区候选:"+qNums.join(',') + " 后区候选:"+hNums.join(','));
             qNums.forEach(n=>{
                 const exist = qianPool.find(x=>x.num === n);
                 if(!exist) qianPool.push({num:n, score:sc.score});
@@ -479,8 +508,8 @@ function runTuiYan(){
         }
         qianPool.sort((a,b)=>b.score - a.score);
         houPool.sort((a,b)=>b.score - a.score);
-        log("✅ 本轮盘面前区候选池："+qianPool.map(x=>x.num).join(','));
-        if(cfg.chkHouQiMen) log("✅ 本轮盘面后区候选池："+houPool.map(x=>x.num).join(','));
+        appendLog("✅ 本轮盘面前区候选池："+qianPool.map(x=>x.num).join(','));
+        if(cfg.chkHouQiMen) appendLog("✅ 本轮盘面后区候选池："+houPool.map(x=>x.num).join(','));
         if(cfg.lunMode === 'separate'){
             let pickQian = [];
             let pickHou = [];
@@ -493,10 +522,6 @@ function runTuiYan(){
             }
             pickQian.sort((a,b)=>a-b);
             pickHou.sort((a,b)=>a-b);
-            const pass = filterByIndex(pickQian, cfg);
-            const hitArr = [];
-            historyPool.forEach(his=> hitArr.push(calcHitCount(pickQian, his.qian)) );
-            outList.push({tag:pItem.tag, qian:pickQian, hou:pickHou, pass:pass, hit:hitArr});
         }else{
             qianPool.forEach(it=>{
                 const e = allQianPool.find(x=>x.num===it.num);
@@ -513,84 +538,66 @@ function runTuiYan(){
         }
     }
     if(cfg.chkLunZhuan && cfg.lunMode === 'merge'){
-        log("\n===== 合并轮转全部宫位总候选池 =====");
+        appendLog("\n===== 合并轮转全部宫位总候选池 =====");
         allQianPool.sort((a,b)=>b.score - a.score);
         allHouPool.sort((a,b)=>b.score - a.score);
-        log("合并总前区池："+allQianPool.map(x=>x.num).join(','));
-        if(cfg.chkHouQiMen) log("合并总后区池："+allHouPool.map(x=>x.num).join(','));
-        let pickQian = [];
-        let pickHou = [];
-        if(cfg.useWeightCurve){
-            pickQian = weightedPick(allQianPool, cfg.takeQian, cfg.sigma);
-            if(cfg.chkHouQiMen) pickHou = weightedPick(allHouPool, cfg.takeHou, cfg.sigma);
-        }else{
-            pickQian = allQianPool.slice(0,cfg.takeQian).map(x=>x.num);
-            if(cfg.chkHouQiMen) pickHou = allHouPool.slice(0,cfg.takeHou).map(x=>x.num);
-        }
-        pickQian.sort((a,b)=>a-b);
-        pickHou.sort((a,b)=>a-b);
-        const pass = filterByIndex(pickQian, cfg);
-        const hitArr = [];
-        historyPool.forEach(his=> hitArr.push(calcHitCount(pickQian, his.qian)) );
-        outList.push({tag:"【轮转合并总方案】", qian:pickQian, hou:pickHou, pass:pass, hit:hitArr});
+        appendLog("合并总前区池："+allQianPool.map(x=>x.num).join(','));
+        if(cfg.chkHouQiMen) appendLog("合并总后区池："+allHouPool.map(x=>x.num).join(','));
     }
-    if(cfg.chkMatrix){
-        log("\n===== 启动容错矩阵生成 =====");
-        let matrixBase = [];
-        if(cfg.lunMode === 'merge' || !cfg.chkLunZhuan) matrixBase = allQianPool.map(x=>x.num);
-        else matrixBase = outList[0].qian;
-        matrixBase = [...new Set(matrixBase)].sort((a,b)=>a-b);
-        log("矩阵底池号码："+matrixBase.join(','));
-        const matrixGroup = genMatrix(matrixBase, cfg.matrixType, cfg.matrixLimit);
-        matrixGroup.forEach((gArr,idx)=>{
-            gArr.sort((a,b)=>a-b);
-            const pass = filterByIndex(gArr,cfg);
-            const hitArr = [];
-            historyPool.forEach(his=> hitArr.push(calcHitCount(gArr, his.qian)) );
-            outList.push({tag:`容错矩阵${cfg.matrixType} 第${idx+1}注`, qian:gArr, hou:[], pass:pass, hit:hitArr});
-        })
-    }
-    //渲染
-    lastResultList = outList;
-    const $resultSel = document.getElementById("resultSel");
-    const $qianQuWrap = document.getElementById("qianQuWrap");
-    const $houQuWrap = document.getElementById("houQuWrap");
-    const $resultBox = document.getElementById("resultBox");
-    const $hitTableBox = document.getElementById("hitTableBox");
-    $resultSel.innerHTML = `<option value="-1">请选择结果组</option>`;
-    outList.forEach((it,idx)=>{
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = `${it.tag} | ${it.qian.join(',')}${it.hou.length>0 ? '+'+it.hou.join(',') : ''} ${it.pass?'✅':'❌'}`;
-        $resultSel.appendChild(opt);
+    // ========== 渲染【奇门总池】 ==========
+    let poolHtml = "";
+    poolHtml += `<div class="pool-title">各宫原始候选汇总</div>`;
+    gongSourceList.forEach(g=>{
+        poolHtml += `<div class="pool-block">
+<b>${g.gongName}｜分数：${g.score} ${g.kw?'【空亡】':''}</b><br>
+前区：${g.qNums.map(n=>`<span class="ball-red">${String(n).padStart(2,'0')}</span>`).join('')}<br>
+后区：${g.hNums.map(n=>`<span class="ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}
+</div>`;
     })
-    let hitTableHtml = `<table><tr><th>序号</th><th>开奖号码</th><th>命中个数</th></tr>`;
+    poolHtml += `<div class="pool-title">合并总池（按分数降序）</div>`;
+    poolHtml += `<div class="pool-block">前区总池：${allQianPool.map(x=>`<span class="ball-red">${String(x.num).padStart(2,'0')}(${x.score})</span>`).join('')}</div>`;
+    poolHtml += `<div class="pool-block">后区总池：${allHouPool.map(x=>`<span class="ball-blue">${String(x.num).padStart(2,'0')}(${x.score})</span>`).join('')}</div>`;
+    document.getElementById("qiMenPoolBox").innerHTML = poolHtml;
+
+    // ========== 生成【精选五柱】 ==========
+    const fiveZhu = [];
+    for(let z=0;z<5;z++){
+        let qianSel = weightedPick(allQianPool, cfg.takeQian, cfg.sigma);
+        let houSel = cfg.chkHouQiMen ? weightedPick(allHouPool, cfg.takeHou, cfg.sigma) : [];
+        qianSel.sort((a,b)=>a-b);
+        houSel.sort((a,b)=>a-b);
+        const pass = filterByIndex(qianSel,cfg);
+        const hitArr = [];
+        historyPool.forEach(his=> hitArr.push(calcHitCount(qianSel, his.qian)) );
+        fiveZhu.push({zhuNo:z+1, qian:qianSel, hou:houSel, pass, hitArr});
+    }
+    let fiveHtml = "";
+    fiveZhu.forEach(z=>{
+        fiveHtml += `<div class="zhu-item">
+<b>第${z.zhuNo}柱</b> ${z.pass ? '<span style="color:#22c55e">✅指标校验通过</span>' : '<span style="color:#f87171">❌过滤不通过</span>'}<br>
+前区：${z.qian.map(n=>`<span class="ball-red">${String(n).padStart(2,'0')}</span>`).join('')}
+${z.hou.length>0 ? `<br>后区：${z.hou.map(n=>`<span class="ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}`:''}
+<br>历史命中：${z.hitArr.join(' | ')}
+</div>`;
+    })
+    document.getElementById("fiveZhuBox").innerHTML = fiveHtml;
+
+    // ========== 命中统计表 ==========
+    let hitTableHtml = `<table class="hit-table"><tr><th>序号</th><th>历史开奖</th></tr>`;
     historyPool.forEach((his,hi)=>{
         const line = his.qian.join(',') + (his.hou.length>0 ? '+'+his.hou.join(',') : '');
-        hitTableHtml += `<tr><td>${hi+1}</td><td>${line}</td><td id="hitCol${hi}">-</td></tr>`;
+        hitTableHtml += `<tr><td>${hi+1}</td><td>${line}</td></tr>`;
     })
     hitTableHtml += `</table>`;
-    $hitTableBox.innerHTML = hitTableHtml;
-    let resHtml = "";
-    outList.forEach(it=>{
-        resHtml += `<div style="margin-bottom:8px;padding:6px;border:1px solid #2a3248;border-radius:6px;">`
-        resHtml += `<b>${it.tag}</b> ${it.pass ? '<span style="color:#22c55e">指标校验通过</span>' : '<span style="color:#f87171">指标过滤不通过</span>'}<br>`
-        resHtml += `前区：${it.qian.map(x=>x.toString().padStart(2,'0')).join(',')}`
-        if(it.hou.length>0) resHtml += ` + 后区：${it.hou.map(x=>x.toString().padStart(2,'0'))}`
-        resHtml += `<br>`
-        resHtml += `历史命中：${it.hit.join(' | ')}`
-        resHtml += `</div>`
-    })
-    $resultBox.innerHTML = resHtml;
-    log("\n🎉推演完成！下拉切换方案");
+    document.getElementById("hitTableBox").innerHTML = hitTableHtml;
+    appendLog("\n🎉推演完成！查看奇门总池与精选五柱");
 }
 
-// ===================== window.onload 绑定事件 =====================
+// ===================== 绑定事件 =====================
 window.onload = function(){
     const $paiBtn = document.getElementById("paiBtn");
     const $runBtn = document.getElementById("runBtn");
     const $clearHistory = document.getElementById("clearHistory");
-    const $resultSel = document.getElementById("resultSel");
     const now = new Date();
     const dStr = now.toISOString().split('T')[0];
     const tStr = now.toTimeString().slice(0,5);
@@ -606,37 +613,10 @@ window.onload = function(){
     $clearHistory.onclick = function(){
         document.getElementById("historyText").value = "";
         historyPool = [];
-        log("✅历史库清空");
-    }
-    $resultSel.onchange = function(){
-        const idx = Number(this.value);
-        const $qianQuWrap = document.getElementById("qianQuWrap");
-        const $houQuWrap = document.getElementById("houQuWrap");
-        $qianQuWrap.innerHTML = "";
-        $houQuWrap.innerHTML = "";
-        if(idx === -1) return;
-        const item = lastResultList[idx];
-        item.qian.forEach(n=>{
-            const b = document.createElement('div');
-            b.className = "num-ball q-high ball-selected";
-            b.innerText = n.toString().padStart(2,'0');
-            $qianQuWrap.appendChild(b);
-        })
-        item.hou.forEach(n=>{
-            const b = document.createElement('div');
-            b.className = "num-ball q-back ball-selected";
-            b.innerText = n.toString().padStart(2,'0');
-            $houQuWrap.appendChild(b);
-        })
-        item.hit.forEach((h,cnt)=>{
-            const td = document.getElementById('hitCol'+cnt);
-            if(td) td.innerText = h;
-            td.style.color = h>=3 ? "#22c55e" : "#fff";
-        })
+        document.getElementById("hitTableBox").innerHTML = "";
+        appendLog("✅历史库清空");
     }
 }
 </script>
 </body>
 </html>
-
-
