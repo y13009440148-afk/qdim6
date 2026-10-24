@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复重复函数】</title>
+<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复双色球后区+九宫盘】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
@@ -30,6 +31,10 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
 .hit-table th,.hit-table td{border:1px solid #444;padding:6px;text-align:center;font-size:13px}
 .zhu-item{border:1px solid #2e4068;padding:12px;border-radius:6px;margin:8px 0}
 .info-line{font-size:12px;color:#9ca3af;margin:4px 0}
+/* 奇门九宫样式 */
+.qimen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 0}
+.qimen-cell{border:1px solid #666;padding:6px;min-height:80px;font-size:12px;border-radius:4px}
+.qimen-cell b{color:#fbbf24}
 </style>
 </head>
 <body>
@@ -38,8 +43,8 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
     <div class="item-row">
         <label>玩法</label>
         <select id="gameSel">
-            <option value="ssq">双色球｜周二/四/日 21:15</option>
-            <option value="dlt">大乐透｜周一/三/六 21:25</option>
+            <option value="ssq">双色球｜周二/四/日 21:15（后区1码 1-16）</option>
+            <option value="dlt">大乐透｜周一/三/六 21:25（后区2码 1-12）</option>
         </select>
     </div>
     <div class="item-row">
@@ -90,12 +95,17 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
 </div>
 
 <div class="block">
+    <h3>📐 奇门九宫盘面</h3>
+    <div id="qimenBox"></div>
+</div>
+
+<div class="block">
     <h3>🌊 总候选池（先后天卦数加权，绑定宫位）</h3>
     <div id="poolBox"></div>
 </div>
 
 <div class="block">
-    <h3>⭐ 精选柱（带AC/跨度/除三余数）</h3>
+    <h3>⭐ 精选五柱（带AC/跨度/除三余数）</h3>
     <div id="fiveZhuBox"></div>
 </div>
 
@@ -467,6 +477,8 @@ function paiPan(dateStr,timeStr,lng){
             xun: xunInfo.xun, kongWang: xunInfo.kong,
             dipan: dipan, tianPan: tianPan, menPan: menPan
         };
+        // 渲染九宫盘面
+        renderQimenGrid(pan);
         document.getElementById("logBox").innerText =
 `✅拆补转盘排盘结果
 节气：${jqName} | ${isYang?"阳遁":"阴遁"}${ju}局
@@ -479,6 +491,25 @@ function paiPan(dateStr,timeStr,lng){
         console.error(e);
         return null;
     }
+}
+// 绘制九宫
+function renderQimenGrid(panObj){
+    const luShu = [4,9,2,3,5,7,8,1,6];
+    let html = `<div class="qimen-grid">`;
+    luShu.forEach(g=>{
+        const gInfo = gongMeta[g];
+        const dp = panObj.dipan[g];
+        const tx = panObj.tianPan[g];
+        const mn = panObj.menPan[g];
+        html += `<div class="qimen-cell">
+<b>${gInfo.name}</b><br>
+九星：${tx}<br>
+八门：${mn}<br>
+地盘：${dp}
+</div>`;
+    })
+    html += `</div>`;
+    document.getElementById("qimenBox").innerHTML = html;
 }
 
 function lunZhuanPan(basePan,step,isYang){
@@ -497,12 +528,16 @@ function buildAutoCfg(panObj,gameType){
     cfg.useWeightCurve = true;
     cfg.sigma = 1.8;
     if(gameType === "ssq"){
-        cfg.takeQian = 6; cfg.takeHou = 2; cfg.houMax =16;
+        cfg.takeQian = 6;
+        cfg.takeHou = 1;
+        cfg.houMax =16;
         cfg.spanMin =12; cfg.spanMax=28; cfg.oddRateLow=0.3; cfg.oddRateHigh=0.7;
         cfg.acMin=3; cfg.acMax=10;
         cfg.maxNum=33;
     }else{
-        cfg.takeQian =5; cfg.takeHou =2; cfg.houMax=12;
+        cfg.takeQian =5;
+        cfg.takeHou =2;
+        cfg.houMax=12;
         cfg.spanMin=10; cfg.spanMax=32; cfg.oddRateLow=0.3; cfg.oddRateHigh=0.7;
         cfg.acMin=2; cfg.acMax=6;
         cfg.maxNum=35;
@@ -511,7 +546,7 @@ function buildAutoCfg(panObj,gameType){
     return cfg;
 }
 
-function dynGetNumFromGong(gongMetaItem, dg, tx, mn, seedWuXing, isQian, houMax, maxQianNum){
+function dynGetNumFromGong(gongMetaItem, dg, tx, mn, seedWuXing, isQian, houMax, maxQianNum, takeHouCnt){
     const out = new Set();
     const baseList = gongMetaItem.benShu.map(x=>x);
     function mapToRange(n,upper){
@@ -537,7 +572,7 @@ function dynGetNumFromGong(gongMetaItem, dg, tx, mn, seedWuXing, isQian, houMax,
             out.add(v);
         }
     }else{
-        while(out.size < 2){
+        while(out.size < takeHouCnt){
             baseSeed += 1;
             const v = Math.floor(rnd(baseSeed) * houMax)+1;
             out.add(v);
@@ -793,8 +828,8 @@ function runTuiYan(){
                 const mn = p.menPan[g];
                 const gongInfo = sc.gongInfo;
                 appendLog(`【${gongInfo.name}】先天:${gongInfo.xian} 后天:${gongInfo.hou} 本数:${gongInfo.benShu}｜得分:${sc.score}`);
-                const qNums = dynGetNumFromGong(gongInfo, dg, tx, mn, seed, true, cfg.houMax, cfg.maxNum);
-                const hNums = dynGetNumFromGong(gongInfo, dg, tx, mn, seed, false, cfg.houMax, cfg.maxNum);
+                const qNums = dynGetNumFromGong(gongInfo, dg, tx, mn, seed, true, cfg.houMax, cfg.maxNum, cfg.takeHou);
+                const hNums = dynGetNumFromGong(gongInfo, dg, tx, mn, seed, false, cfg.houMax, cfg.maxNum, cfg.takeHou);
                 if(cfg.chkKong && sc.kw && !cfg.chkHuiLiu) continue;
                 qNums.forEach(n=>{
                     const exist = allQianPool.find(x=>x.num === n);
