@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复版】</title>
+<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复起盘按钮】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
@@ -22,8 +22,8 @@ button:active{background:#1e40af}
 .ball-red-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eab308;color:#111;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-red-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#22c55e;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-high{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#3b82f6;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
-.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
-.ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#06b6d4;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
+.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-weight:bold;white-space:nowrap}
+.ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#06b6d4;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-wrap{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
 .legend{font-size:14px;margin-bottom:8px;color:#ddd}
 pre{color:#a5b4fc;font-size:12px;white-space:pre-wrap;max-height:240px;overflow:auto;background:#111827;padding:8px;border-radius:6px}
@@ -372,13 +372,24 @@ function calcScoreFull(panObj,gongNo,cfg){
     return {score:score, kw:kw, gongInfo:gongInfo};
 }
 
-// 排盘【修复：增加日志报错】
+// 【重点修改：拆分年月日时分，不再用T拼接，手机浏览器兼容】
 function paiPan(dateStr,timeStr,lng){
-    dateStr = dateStr.replace(/\//g,"-");
-    const dt = new Date(dateStr + "T" + timeStr + ":00");
+    dateStr = dateStr.replace(/\//g,"-").trim();
+    timeStr = timeStr.trim();
+    const dateParts = dateStr.split("-");
+    const timeParts = timeStr.split(":");
+    if(dateParts.length!==3 || timeParts.length!==2){
+        appendLog("❌日期或者时间格式错误！必须是 2026-10-24 、21:15");
+        return null;
+    }
+    const y = Number(dateParts[0]);
+    const m = Number(dateParts[1])-1;
+    const d = Number(dateParts[2]);
+    const h = Number(timeParts[0]);
+    const mi = Number(timeParts[1]);
+    const dt = new Date(y,m,d,h,mi,0);
     if(isNaN(dt.getTime())){
-        appendLog("❌日期时间解析失败！请检查格式：YYYY-MM-DD  HH:MM");
-        alert("❌日期解析失败！\n请严格填写：2026-10-25");
+        appendLog("❌日期时间解析失败！数字越界或者格式不对！");
         return null;
     }
     const riGan = ganArr[dt.getDate()%10];
@@ -857,11 +868,22 @@ function wheelGen(poolNumbers, selectK, guaranteeK){
     return wheel;
 }
 
+// ==========【重点修改这个起盘点击函数，先打印日志，不再哑巴】==========
 function doPaiPan(){
+    appendLog("👉 点击起奇门真盘，开始读取输入");
     const d = document.getElementById('dateInput').value.trim();
     const t = document.getElementById('timeInput').value.trim();
     const lng = Number(document.getElementById('lngInput').value);
+    if(!d || !t){
+        appendLog("❌日期或者时间输入框为空！");
+        return;
+    }
     pan = paiPan(d,t,lng);
+    if(pan){
+        appendLog("✅ 起盘成功，pan对象已就绪，可以点QDIM推演");
+    }else{
+        appendLog("❌起盘失败，pan是空");
+    }
 }
 
 function bindGameChange(){
@@ -902,4 +924,3 @@ window.onload = function(){
 </script>
 </body>
 </html>
-
