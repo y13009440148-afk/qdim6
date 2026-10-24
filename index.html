@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -10,7 +9,7 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
 .block{background:#1f2937;border-radius:10px;padding:14px;margin-bottom:14px}
-h3{margin-bottom:10px;color:#cbd5f5}
+h3{margin-bottom:12px;color:#cbd5f5;font-size:18px}
 .item-row{margin:10px 0;display:flex;flex-direction:column;gap:6px}
 label{font-size:14px;color:#b8c2cc}
 input,select,button,textarea{padding:9px 10px;border-radius:6px;border:none;font-size:15px;width:100%}
@@ -19,16 +18,22 @@ button{background:#2563eb;color:#fff;cursor:pointer;margin-top:4px}
 button:hover{background:#1d4ed8}
 /* 奇门九宫盘样式 */
 .qimen-table{width:100%;border-collapse:collapse;margin:10px 0}
-.qimen-table td{border:1px solid #475569;padding:6px;text-align:center;font-size:13px;line-height:1.4}
+.qimen-table td{border:1px solid #475569;padding:8px;text-align:center;font-size:13px;line-height:1.4}
 .qimen-table td.kong{background:#372020}
-.pool-block{background:#131c2e;padding:10px;border-radius:8px;margin:8px 0}
-.pool-title{font-size:16px;font-weight:bold;color:#60a5fa;margin-bottom:6px}
-.zhu-item{border:1px solid #2e4068;padding:8px;border-radius:6px;margin:6px 0}
-.ball-red{display:inline-block;width:32px;height:32px;border-radius:50%;background:#dc2626;color:#fff;text-align:center;line-height:32px;margin:2px;font-size:14px;font-weight:bold}
-.ball-blue{display:inline-block;width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;text-align:center;line-height:32px;margin:2px;font-size:14px;font-weight:bold}
+.pool-block{background:#131c2e;padding:12px;border-radius:8px;margin:10px 0}
+.pool-title{font-size:17px;font-weight:bold;color:#60a5fa;margin-bottom:10px}
+.zhu-item{border:1px solid #2e4068;padding:12px;border-radius:6px;margin:8px 0}
+/* 球样式：只显示号码，不带分数 */
+.ball-red{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#dc2626;color:#fff;text-align:center;margin:4px;font-size:15px;font-weight:bold;white-space:nowrap}
+.ball-blue{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#2563eb;color:#fff;text-align:center;margin:4px;font-size:15px;font-weight:bold;white-space:nowrap}
+.ball-wrap{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+/* 分数档次颜色 */
+.score-high{color:#f87171;font-weight:bold;}
+.score-mid{color:#facc15;font-weight:bold;}
+.score-low{color:#4ade80;font-weight:bold;}
 pre{color:#a5b4fc;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:#111827;padding:8px;border-radius:6px}
 table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
-.hit-table th,.hit-table td{border:1px solid #444;padding:5px;text-align:center;font-size:13px}
+.hit-table th,.hit-table td{border:1px solid #444;padding:6px;text-align:center;font-size:13px}
 </style>
 </head>
 <body>
@@ -171,6 +176,12 @@ function getSanYuan(riZhi){
     if(["寅","申","巳","亥"].includes(riZhi)) return 1;
     return 2;
 }
+// 根据分数返回颜色class
+function getScoreClass(s){
+    if(s >= 40) return "score-high";
+    if(s >= 20) return "score-mid";
+    return "score-low";
+}
 
 // ===================== 【核心真排盘：时家转盘拆补法 paiPan】 =====================
 function paiPan(dateStr,timeStr,lng){
@@ -276,7 +287,7 @@ function buildAutoCfg(panObj){
     cfg.chkLunZhuan = maxLunStep > 0;
     cfg.lunMode = maxLunStep > 1 ? "merge" : "separate";
     const g5 = gan5Map[panObj.shiGan];
-    cfg.chkHouQiMen = (g5 === "木" || g5 === "火");
+    cfg.chkHouQiMen = true; // 强制开启后区取号，修复后区不出的问题
     cfg.houMax = 12;
     cfg.useWeightCurve = true;
     cfg.sigma = 1.8;
@@ -548,15 +559,26 @@ function runTuiYan(){
     let poolHtml = "";
     poolHtml += `<div class="pool-title">各宫原始候选汇总</div>`;
     gongSourceList.forEach(g=>{
+        const cls = getScoreClass(g.score);
         poolHtml += `<div class="pool-block">
-<b>${g.gongName}｜分数：${g.score} ${g.kw?'【空亡】':''}</b><br>
-前区：${g.qNums.map(n=>`<span class="ball-red">${String(n).padStart(2,'0')}</span>`).join('')}<br>
-后区：${g.hNums.map(n=>`<span class="ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}
+<b>${g.gongName}｜<span class="${cls}">分数：${g.score}</span> ${g.kw?'【空亡】':''}</b><br>
+<div class="ball-wrap">前区：${g.qNums.map(n=>`<span class="ball-red">${String(n).padStart(2,'0')}</span>`).join('')}</div>
+<div class="ball-wrap">后区：${g.hNums.map(n=>`<span class="ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}</div>
 </div>`;
     })
     poolHtml += `<div class="pool-title">合并总池（按分数降序）</div>`;
-    poolHtml += `<div class="pool-block">前区总池：${allQianPool.map(x=>`<span class="ball-red">${String(x.num).padStart(2,'0')}(${x.score})</span>`).join('')}</div>`;
-    poolHtml += `<div class="pool-block">后区总池：${allHouPool.map(x=>`<span class="ball-blue">${String(x.num).padStart(2,'0')}(${x.score})</span>`).join('')}</div>`;
+    poolHtml += `<div class="pool-block">
+    <div>前区总池：</div>
+    <div class="ball-wrap">
+    ${allQianPool.map(x=>`<span class="ball-red">${String(x.num).padStart(2,'0')}</span> <span class="${getScoreClass(x.score)}">(${x.score})</span>`).join(' ')}
+    </div>
+</div>`;
+    poolHtml += `<div class="pool-block">
+    <div>后区总池：</div>
+    <div class="ball-wrap">
+    ${allHouPool.map(x=>`<span class="ball-blue">${String(x.num).padStart(2,'0')}</span> <span class="${getScoreClass(x.score)}">(${x.score})</span>`).join(' ')}
+    </div>
+</div>`;
     document.getElementById("qiMenPoolBox").innerHTML = poolHtml;
 
     // ========== 生成【精选五柱】 ==========
@@ -575,8 +597,8 @@ function runTuiYan(){
     fiveZhu.forEach(z=>{
         fiveHtml += `<div class="zhu-item">
 <b>第${z.zhuNo}柱</b> ${z.pass ? '<span style="color:#22c55e">✅指标校验通过</span>' : '<span style="color:#f87171">❌过滤不通过</span>'}<br>
-前区：${z.qian.map(n=>`<span class="ball-red">${String(n).padStart(2,'0')}</span>`).join('')}
-${z.hou.length>0 ? `<br>后区：${z.hou.map(n=>`<span class="ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}`:''}
+<div class="ball-wrap">前区：${z.qian.map(n=>`<span class="ball-red">${String(n).padStart(2,'0')}</span>`).join('')}</div>
+${z.hou.length>0 ? `<div class="ball-wrap">后区：${z.hou.map(n=>`<span class="ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}</div>`:''}
 <br>历史命中：${z.hitArr.join(' | ')}
 </div>`;
     })
