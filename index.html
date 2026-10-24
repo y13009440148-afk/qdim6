@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【防崩溃修复版】</title>
+<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复重复函数】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
@@ -22,7 +21,7 @@ button:active{background:#1e40af}
 .ball-red-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eab308;color:#111;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-red-low{display:inline-flex;align-items:center;justify-content:center;width:46px;background:#22c55e;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-high{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#3b82f6;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
-.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
+.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-weight:bold;white-space:nowrap}
 .ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#06b6d4;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-wrap{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
 .legend{font-size:14px;margin-bottom:8px;color:#ddd}
@@ -83,8 +82,8 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
         <label>保中：保几码（ssq推荐3）</label>
         <input id="wheelGuarantee" value="3" type="number">
     </div>
-    <button id="btnPaiPan">🔮 起奇门真盘</button>
-    <button id="btnTuiYan">▶️ 启动 QDIM 推演（先后天+AC+余数）</button>
+    <button onclick="doPaiPan()">🔮 起奇门真盘</button>
+    <button onclick="runTuiYan()">▶️ 启动 QDIM 推演（先后天+AC+余数）</button>
     <button onclick="doWheel()">🔁 生成【奇门宫位矩阵】</button>
     <button onclick="clearAllHistory()">🗑️ 清空历史库</button>
     <div class="legend">💡颜色说明：<span style="color:#ef4444">●高分</span>｜<span style="color:#eab308">●中分</span>｜<span style="color:#22c55e">●低分</span></div>
@@ -262,7 +261,6 @@ function getJieQiAndYinYang(dateObj){
     let isYang = true;
     if( (m>6 && m<12) || (m===6 && d>=22) || (m===12 && d<22) ) isYang = false;
     let jqName = "";
-    // 修复节气查找逻辑，优先找到最近已经到来的节气
     const list = [...jqDate];
     for(let j of list){
         const [name,jm,jd] = j;
@@ -280,7 +278,6 @@ function getJieQiAndYinYang(dateObj){
             }
         }
     }
-    // 兜底，找不到节气强制冬至
     if(!jqName){
         jqName = "冬至";
         appendLog("⚠️节气匹配失败，兜底使用【冬至】局");
@@ -357,9 +354,7 @@ function calcScoreFull(panObj,gongNo,cfg){
     const gan5D = gan5Map[dg];
     const gan5S = gan5Map[panObj.shiGan];
 
-    // 先后天、宫五行基础分
     if(gongInfo.wuXing === gan5S) score +=14;
-    // 生克
     if( (gan5S === "木" && gan5D === "水") ||
         (gan5S === "火" && gan5D === "木") ||
         (gan5S === "土" && gan5D === "火") ||
@@ -374,29 +369,26 @@ function calcScoreFull(panObj,gongNo,cfg){
         (gan5S === "水" && gan5D === "木") ){
         score += 14;
     }
-    // 九星
     if(["蓬","任","冲","辅"].includes(tx)) score +=12;
     if(["英","芮","柱"].includes(tx)) score +=6;
     if(tx === "心") score +=16;
     if(tx === "禽") score +=18;
-    // 八门
     if(["开","休","生"].includes(mn)) score +=18;
     if(["杜","景"].includes(mn)) score +=10;
     if(["伤","惊"].includes(mn)) score +=4;
     if(mn === "死") score -=8;
-    // 空亡
     if(kw && !cfg.chkHuiLiu) score -=28;
-    // 伏吟：天盘星=本宫本位星；反吟对冲宫加分
     const benXingMap = {1:"蓬",2:"芮",3:"冲",4:"辅",5:"禽",6:"心",7:"柱",8:"任",9:"英"};
     const duiGong = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
-    if(tx === benXingMap[gongNo]) score -=12; //伏吟减分
-    if(tx === benXingMap[duiGong[gongNo]]) score +=10; //反吟
+    if(tx === benXingMap[gongNo]) score -=12;
+    if(tx === benXingMap[duiGong[gongNo]]) score +=10;
     if(score < 0) score = 0;
     return {score:score, kw:kw, gongInfo:gongInfo};
 }
 
 function paiPan(dateStr,timeStr,lng){
     try{
+        console.log("进入paiPan函数");
         dateStr = dateStr.replace(/\//g,"-").trim();
         timeStr = timeStr.trim();
         const dateParts = dateStr.split("-");
@@ -439,7 +431,6 @@ function paiPan(dateStr,timeStr,lng){
         }
         const xunInfo = getXunKong(shiGan,shiZhi);
         const fuHeadGan = xunInfo.xun[0];
-        // 安全查找，防止找不到返回undefined
         let fuHeadGong = null;
         for(let k of Object.keys(dipan)){
             if(dipan[k] === fuHeadGan){
@@ -713,29 +704,6 @@ function qimenWheelGen(poolItemList, num2gongMap, selectK, guaranteeK, matrixMod
     return wheel;
 }
 
-function qimenWheelGen(poolItemList, num2gongMap, selectK, guaranteeK, matrixMode, gongRule){
-    const poolNums = poolItemList.map(x=>x.num);
-    const fullCom = combinations(poolNums, selectK);
-    const wheel = [];
-    const covered = new Set();
-    for(let c of fullCom){
-        const chk = checkQimenRule(c, num2gongMap, matrixMode, gongRule);
-        if(!chk.ok) continue;
-        const sub = combinations(c, guaranteeK);
-        let ok = false;
-        for(let s of sub){
-            const key = s.sort((a,b)=>a-b).join(",");
-            if(!covered.has(key)){ ok=true;break; }
-        }
-        if(ok){
-            wheel.push({nums:c, gongRel:chk.msg, gongs:chk.gongList});
-            sub.forEach(s=>covered.add(s.sort((a,b)=>a-b).join(",")));
-        }
-        if(covered.size >= combinations(poolNums,guaranteeK).length) break;
-    }
-    return wheel;
-}
-
 function wheelGen(poolNumbers, selectK, guaranteeK){
     const fullCom = combinations(poolNumbers, selectK);
     const wheel = [];
@@ -756,9 +724,10 @@ function wheelGen(poolNumbers, selectK, guaranteeK){
     return wheel;
 }
 
-// ========== 起盘函数【全局+try catch防卡死】 ==========
-window.doPaiPan = function(){
+// ========== 起盘函数 ==========
+function doPaiPan(){
     try{
+        console.log("👉 doPaiPan 函数被触发");
         appendLog("👉 点击起奇门真盘，开始读取输入");
         const d = document.getElementById('dateInput').value.trim();
         const t = document.getElementById('timeInput').value.trim();
@@ -779,9 +748,10 @@ window.doPaiPan = function(){
     }
 }
 
-// ========== QDIM推演 绑定按钮 + 捕获异常 ==========
+// ========== QDIM推演 ==========
 function runTuiYan(){
     try{
+        console.log("👉 runTuiYan 触发");
         if(!pan){ alert("⚠️请先点击【起奇门真盘】！"); return; }
         clearLog();
         const game = document.getElementById("gameSel").value;
@@ -963,12 +933,12 @@ function clearAllHistory(){
     appendLog("✅历史库清空");
 }
 
-// 页面加载自动填时间 + 绑定按钮
+// 页面加载自动填时间
 window.onload = function(){
     autoFillTime();
-    document.getElementById("btnPaiPan").addEventListener("click", window.doPaiPan);
-    document.getElementById("btnTuiYan").addEventListener("click", runTuiYan);
+    console.log("页面加载完成，自动填充时间");
 }
 </script>
 </body>
 </html>
+
