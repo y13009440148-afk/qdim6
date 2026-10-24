@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>奇门统计｜半自动调参沙盘 CSV导出</title>
+<title>奇门统计｜关系权重沙盘 CSV导出版</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft YaHei",system-ui,sans-serif;}
 body{background:#0c101b;color:#e8edf7;padding:12px;font-size:17px;line-height:1.5;}
@@ -12,10 +12,12 @@ h1{color:#ffd343;text-align:center;font-size:23px;margin-bottom:12px;font-weight
 h2{color:#72b8ff;font-size:19px;margin:12px 0 6px;border-left:4px solid #3b82f6;padding-left:8px;}
 .warn{color:#ff6b6b;background:#2b1318;padding:10px;border-radius:10px;margin-bottom:12px;font-size:15px;}
 .panel{background:#172035;border-radius:14px;padding:14px;margin-bottom:14px;}
-.row{display:flex;flex-direction:column;gap:8px;margin:8px 0;}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+table{width:100%;border-collapse:collapse;margin:8px 0;}
+td{border:1px solid #3a4b70;padding:7px 10px;color:#d0daf0;}
+td input{width:100%;padding:6px 8px;font-size:16px;border-radius:6px;border:1px solid #445577;background:#24314f;color:#fff;}
+td select{width:100%;padding:6px 8px;font-size:16px;border-radius:6px;border:1px solid #445577;background:#24314f;color:#fff;}
 label{font-size:16px;color:#d0daf0;}
-input,select,textarea{width:100%;padding:9px 12px;font-size:16px;border-radius:8px;border:1px solid #445577;background:#24314f;color:#fff;}
+input,select,textarea{padding:9px 12px;font-size:16px;border-radius:8px;border:1px solid #445577;background:#24314f;color:#fff;}
 input[type="checkbox"]{width:20px;height:20px;transform:scale(1.1);margin-right:6px;}
 button{width:100%;padding:11px 16px;font-size:17px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;margin:4px 0;transition:0.2s;}
 button:hover{background:#1d4ed8;}
@@ -50,77 +52,91 @@ button:hover{background:#1d4ed8;}
 </head>
 <body>
 <div class="warn">⚠️重要声明：彩票开奖完全随机，本沙盘仅为奇门模型统计回测研究工具，不具备预测能力，购彩理性娱乐。</div>
-<h1>奇门统计｜半自动调参沙盘 CSV导出版</h1>
+<h1>奇门统计｜关系权重沙盘 CSV导出版</h1>
 
 <div class="panel">
-    <h2>参数调参面板（修改后直接生效）</h2>
-    <div class="row">
-        <label>八门分值</label>
-        <div class="row2">
-            <input id="m休" placeholder="休" value="9">
-            <input id="m生" placeholder="生" value="10">
-            <input id="m开" placeholder="开" value="9.5">
-            <input id="m杜" placeholder="杜" value="5">
-            <input id="m景" placeholder="景" value="6">
-            <input id="m伤" placeholder="伤" value="3">
-            <input id="m死" placeholder="死" value="2">
-            <input id="m惊" placeholder="惊" value="2.5">
-            <input id="m禽" placeholder="禽" value="7">
-        </div>
-    </div>
-    <div class="row">
-        <label>九星分值</label>
-        <div class="row2">
-            <input id="x蓬" placeholder="蓬" value="4">
-            <input id="x芮" placeholder="芮" value="2">
-            <input id="x冲" placeholder="冲" value="3">
-            <input id="x辅" placeholder="辅" value="8">
-            <input id="x禽" placeholder="禽" value="7">
-            <input id="x心" placeholder="心" value="9">
-            <input id="x柱" placeholder="柱" value="2">
-            <input id="x任" placeholder="任" value="8.5">
-            <input id="x英" placeholder="英" value="6">
-        </div>
-    </div>
-    <div class="row">
-        <label>吉凶加减分｜吉、凶、平</label>
-        <div class="row2">
-            <input id="j吉" value="4">
-            <input id="j凶" value="-3">
-            <input id="j平" value="1">
-        </div>
-    </div>
-    <div class="row">
-        <label>五行生克｜生我、我生、克我、我克、比和</label>
-        <div class="row2">
-            <input id="w生我" value="5">
-            <input id="w我生" value="2">
-            <input id="w克我" value="-4">
-            <input id="w我克" value="-1">
-            <input id="w比和" value="3">
-        </div>
-    </div>
-    <div class="row">
-        <label>宫位附加分｜值符、日支、冲宫、空亡</label>
-        <div class="row2">
-            <input id="add值符" value="6">
-            <input id="add日支" value="4">
-            <input id="add冲宫" value="3">
-            <input id="add空亡" value="-5">
-        </div>
-    </div>
-    <div class="row">
-        <label>过滤条件｜和值最小、和值最大、跨度最小、跨度最大、AC最小、AC最大</label>
-        <div class="row2">
-            <input id="fsumMin" value="60">
-            <input id="fsumMax" value="120">
-            <input id="fspanMin" value="20">
-            <input id="fspanMax" value="32">
-            <input id="facMin" value="5">
-            <input id="facMax" value="9">
-        </div>
-    </div>
-    <div class="row">
+    <h2>参数调参面板（以基准主体和宫五行作用关系打分）</h2>
+    <table>
+        <tr>
+            <td>基准主体（以此为中心生克）</td>
+            <td>
+                <select id="baseTarget">
+                    <option value="riGan">日干</option>
+                    <option value="shiGan">时干</option>
+                    <option value="zhiFu">值符宫五行</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>生我</td>
+            <td><input id="wShengWo" value="5"></td>
+        </tr>
+        <tr>
+            <td>我生</td>
+            <td><input id="wWoSheng" value="2"></td>
+        </tr>
+        <tr>
+            <td>克我</td>
+            <td><input id="wKeWo" value="-4"></td>
+        </tr>
+        <tr>
+            <td>我克</td>
+            <td><input id="wWoKe" value="-1"></td>
+        </tr>
+        <tr>
+            <td>比和</td>
+            <td><input id="wBiHe" value="3"></td>
+        </tr>
+        <tr>
+            <td>相冲</td>
+            <td><input id="wChong" value="-2"></td>
+        </tr>
+        <tr>
+            <td>空亡</td>
+            <td><input id="wKongWang" value="-5"></td>
+        </tr>
+        <tr>
+            <td>值符宫加成</td>
+            <td><input id="wZhiFuAdd" value="6"></td>
+        </tr>
+        <tr>
+            <td>吉格</td>
+            <td><input id="jJi" value="4"></td>
+        </tr>
+        <tr>
+            <td>平格</td>
+            <td><input id="jPing" value="1"></td>
+        </tr>
+        <tr>
+            <td>凶格</td>
+            <td><input id="jXiong" value="-3"></td>
+        </tr>
+        <tr>
+            <td>和值最小</td>
+            <td><input id="fsumMin" value="60"></td>
+        </tr>
+        <tr>
+            <td>和值最大</td>
+            <td><input id="fsumMax" value="120"></td>
+        </tr>
+        <tr>
+            <td>跨度最小</td>
+            <td><input id="fspanMin" value="20"></td>
+        </tr>
+        <tr>
+            <td>跨度最大</td>
+            <td><input id="fspanMax" value="32"></td>
+        </tr>
+        <tr>
+            <td>AC最小</td>
+            <td><input id="facMin" value="5"></td>
+        </tr>
+        <tr>
+            <td>AC最大</td>
+            <td><input id="facMax" value="9"></td>
+        </tr>
+    </table>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button id="saveParamBtn" class="btn-save">保存当前参数</button>
         <button id="resetParamBtn" class="btn-reset">重置为默认参数</button>
     </div>
@@ -129,37 +145,39 @@ button:hover{background:#1d4ed8;}
 
 <div class="panel">
     <h2>单期推演</h2>
-    <div class="row">
+    <div style="margin:8px 0;">
         <label>彩种选择：</label>
         <select id="lotteryType">
             <option value="ssq">双色球（6红+1蓝）</option>
             <option value="dlt">大乐透（5前+2后）</option>
         </select>
     </div>
-    <div class="row">
+    <div style="margin:8px 0;">
         <label><input type="checkbox" id="useXianTian" checked>启用先天数</label>
         <label><input type="checkbox" id="useHouTian" checked>启用后天数</label>
     </div>
-    <div class="row">
+    <div style="margin:8px 0;">
         <label>推演日期：</label>
         <input id="calcDate" type="date">
     </div>
-    <div class="row">
-        <label>当期开奖号（空格分隔，+区分前后区）</label>
+    <div style="margin:8px 0;">
+        <label>当期开奖号（空格分隔，+区分前后区，下一期推演时留空）</label>
         <input id="awardNum" placeholder="示例：03 08 12 17 22 29 + 05">
     </div>
-    <div class="row">
+    <div style="margin:8px 0;">
         <label>输出注数</label>
         <input id="outCount" value="5">
-        <button id="runBtn">单期推演+回测</button>
+        <button id="runBtn">单期推演（可附带复盘）</button>
     </div>
 </div>
 
 <div class="panel">
     <h2>批量回测区（一行一期）</h2>
-    <div class="row">
+    <div>
         <label>格式：日期,ssq/dlt,号码<br>样例：2026-10-22,ssq,01 05 09 16 22 31 + 07</label>
         <textarea id="batchInput" placeholder="粘贴多期数据"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;">
         <button id="runBatchBtn">开始批量回测</button>
         <button id="exportCsvBtn" class="btn-csv">导出CSV数据集</button>
         <button id="clearAllBtn" class="btn-reset">清空结果</button>
@@ -204,23 +222,28 @@ const awardInput = document.getElementById("awardNum");
 const batchInput = document.getElementById("batchInput");
 let batchRecords = [];
 
-// 默认参数
 const defaultParam = {
-    men:{"休":9,"生":10,"开":9.5,"杜":5,"景":6,"伤":3,"死":2,"惊":2.5,"禽":7},
-    xing:{"蓬":4,"芮":2,"冲":3,"辅":8,"禽":7,"心":9,"柱":2,"任":8.5,"英":6},
-    ji:{"吉":4,"凶":-3,"平":1},
-    wu:{"生我":5,"我生":2,"克我":-4,"我克":-1,"比和":3},
-    add:{"值符":6,"日支":4,"冲宫":3,"空亡":-5},
+    base:"riGan",
+    wu:{"shengWo":5,"woSheng":2,"keWo":-4,"woKe":-1,"biHe":3},
+    extra:{"chong":-2,"kongWang":-5,"zhiFuAdd":6},
+    ji:{"ji":4,"ping":1,"xiong":-3},
     filter:{sumMin:60,sumMax:120,spanMin:20,spanMax:32,acMin:5,acMax:9}
 };
 let param = JSON.parse(JSON.stringify(defaultParam));
 
 function loadParamToUI(){
-    for(let k in param.men) document.getElementById("m"+k).value = param.men[k];
-    for(let k in param.xing) document.getElementById("x"+k).value = param.xing[k];
-    for(let k in param.ji) document.getElementById("j"+k).value = param.ji[k];
-    for(let k in param.wu) document.getElementById("w"+k).value = param.wu[k];
-    for(let k in param.add) document.getElementById("add"+k).value = param.add[k];
+    document.getElementById("baseTarget").value = param.base;
+    document.getElementById("wShengWo").value = param.wu.shengWo;
+    document.getElementById("wWoSheng").value = param.wu.woSheng;
+    document.getElementById("wKeWo").value = param.wu.keWo;
+    document.getElementById("wWoKe").value = param.wu.woKe;
+    document.getElementById("wBiHe").value = param.wu.biHe;
+    document.getElementById("wChong").value = param.extra.chong;
+    document.getElementById("wKongWang").value = param.extra.kongWang;
+    document.getElementById("wZhiFuAdd").value = param.extra.zhiFuAdd;
+    document.getElementById("jJi").value = param.ji.ji;
+    document.getElementById("jPing").value = param.ji.ping;
+    document.getElementById("jXiong").value = param.ji.xiong;
     document.getElementById("fsumMin").value = param.filter.sumMin;
     document.getElementById("fsumMax").value = param.filter.sumMax;
     document.getElementById("fspanMin").value = param.filter.spanMin;
@@ -229,41 +252,18 @@ function loadParamToUI(){
     document.getElementById("facMax").value = param.filter.acMax;
 }
 function readParamFromUI(){
-    param.men["休"] = Number(document.getElementById("m休").value);
-    param.men["生"] = Number(document.getElementById("m生").value);
-    param.men["开"] = Number(document.getElementById("m开").value);
-    param.men["杜"] = Number(document.getElementById("m杜").value);
-    param.men["景"] = Number(document.getElementById("m景").value);
-    param.men["伤"] = Number(document.getElementById("m伤").value);
-    param.men["死"] = Number(document.getElementById("m死").value);
-    param.men["惊"] = Number(document.getElementById("m惊").value);
-    param.men["禽"] = Number(document.getElementById("m禽").value);
-
-    param.xing["蓬"] = Number(document.getElementById("x蓬").value);
-    param.xing["芮"] = Number(document.getElementById("x芮").value);
-    param.xing["冲"] = Number(document.getElementById("x冲").value);
-    param.xing["辅"] = Number(document.getElementById("x辅").value);
-    param.xing["禽"] = Number(document.getElementById("x禽").value);
-    param.xing["心"] = Number(document.getElementById("x心").value);
-    param.xing["柱"] = Number(document.getElementById("x柱").value);
-    param.xing["任"] = Number(document.getElementById("x任").value);
-    param.xing["英"] = Number(document.getElementById("x英").value);
-
-    param.ji["吉"] = Number(document.getElementById("j吉").value);
-    param.ji["凶"] = Number(document.getElementById("j凶").value);
-    param.ji["平"] = Number(document.getElementById("j平").value);
-
-    param.wu["生我"] = Number(document.getElementById("w生我").value);
-    param.wu["我生"] = Number(document.getElementById("w我生").value);
-    param.wu["克我"] = Number(document.getElementById("w克我").value);
-    param.wu["我克"] = Number(document.getElementById("w我克").value);
-    param.wu["比和"] = Number(document.getElementById("w比和").value);
-
-    param.add["值符"] = Number(document.getElementById("add值符").value);
-    param.add["日支"] = Number(document.getElementById("add日支").value);
-    param.add["冲宫"] = Number(document.getElementById("add冲宫").value);
-    param.add["空亡"] = Number(document.getElementById("add空亡").value);
-
+    param.base = document.getElementById("baseTarget").value;
+    param.wu.shengWo = Number(document.getElementById("wShengWo").value);
+    param.wu.woSheng = Number(document.getElementById("wWoSheng").value);
+    param.wu.keWo = Number(document.getElementById("wKeWo").value);
+    param.wu.woKe = Number(document.getElementById("wWoKe").value);
+    param.wu.biHe = Number(document.getElementById("wBiHe").value);
+    param.extra.chong = Number(document.getElementById("wChong").value);
+    param.extra.kongWang = Number(document.getElementById("wKongWang").value);
+    param.extra.zhiFuAdd = Number(document.getElementById("wZhiFuAdd").value);
+    param.ji.ji = Number(document.getElementById("jJi").value);
+    param.ji.ping = Number(document.getElementById("jPing").value);
+    param.ji.xiong = Number(document.getElementById("jXiong").value);
     param.filter.sumMin = Number(document.getElementById("fsumMin").value);
     param.filter.sumMax = Number(document.getElementById("fsumMax").value);
     param.filter.spanMin = Number(document.getElementById("fspanMin").value);
@@ -273,13 +273,13 @@ function readParamFromUI(){
 }
 document.getElementById("saveParamBtn").onclick = function(){
     readParamFromUI();
-    alert("✅ 当前参数已加载生效，后续推演、回测都使用这套分值！");
+    alert("✅ 当前关系权重参数已加载生效！推演、回测全部使用这套");
 }
 document.getElementById("resetParamBtn").onclick = function(){
     param = JSON.parse(JSON.stringify(defaultParam));
     loadParamToUI();
     adviceDom.innerText = "";
-    alert("🔄 已经重置为默认权重");
+    alert("🔄 重置为默认关系权重");
 }
 loadParamToUI();
 
@@ -314,7 +314,13 @@ const palaceMeta = {
     9:{name:"离",tianXian:[9],houTian:[9],xing:"英",men:"景",wuXing:"火",jiXiong:"平",xiongGe:"戌亥"},
 };
 const gridOrder = [4,9,2,3,5,7,8,1,6];
-const wuxingMap = {"水":{shengWo:"金",woSheng:"木",keWo:"土",woKe:"火",tong:"水"},"木":{shengWo:"水",woSheng:"火",keWo:"金",woKe:"土",tong:"木"},"火":{shengWo:"木",woSheng:"土",keWo:"水",woKe:"金",tong:"火"},"土":{shengWo:"火",woSheng:"金",keWo:"木",woKe:"水",tong:"土"},"金":{shengWo:"土",woSheng:"水",keWo:"火",woKe:"木",tong:"金"}};
+const wuxingMap = {
+    "水":{shengWo:"金",woSheng:"木",keWo:"土",woKe:"火",tong:"水"},
+    "木":{shengWo:"水",woSheng:"火",keWo:"金",woKe:"土",tong:"木"},
+    "火":{shengWo:"木",woSheng:"土",keWo:"水",woKe:"金",tong:"火"},
+    "土":{shengWo:"火",woSheng:"金",keWo:"木",woKe:"水",tong:"土"},
+    "金":{shengWo:"土",woSheng:"水",keWo:"火",woKe:"木",tong:"金"}
+};
 const xunKongTable = {"甲子旬":["戌","亥"],"甲戌旬":["申","酉"],"甲申旬":["午","未"],"甲午旬":["辰","巳"],"甲辰旬":["寅","卯"],"甲寅旬":["子","丑"]};
 const tianGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const diZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
@@ -330,7 +336,19 @@ function getGanZhi(dateObj){
 }
 function qiMenPan(dateObj,lotType){
     const gz = getGanZhi(dateObj);
-    const riGanWx = ganWuxing[gz.dayGan];
+    let baseWx;
+    if(param.base === "riGan"){
+        baseWx = ganWuxing[gz.dayGan];
+    }else if(param.base === "shiGan"){
+        //简易时干：用日干顺推演示，后续可再细化时辰
+        const sgIdx = (tianGan.indexOf(gz.dayGan)+1)%10;
+        baseWx = ganWuxing[tianGan[sgIdx]];
+    }else{
+        //值符宫固定1坎水
+        baseWx = "水";
+    }
+    const relRule = wuxingMap[baseWx];
+
     let xunName = "";
     let kongZhi = [];
     for(let k in xunKongTable){
@@ -348,29 +366,28 @@ function qiMenPan(dateObj,lotType){
     for(let g=1;g<=9;g++){
         let meta = palaceMeta[g];
         let score = 0;
-        score += param.men[meta.men];
-        score += param.xing[meta.xing];
-        if(meta.jiXiong === "吉") score += param.ji["吉"];
-        if(meta.jiXiong === "凶") score += param.ji["凶"];
-        if(meta.jiXiong === "平") score += param.ji["平"];
-        const wx = meta.wuXing;
-        const rel = wuxingMap[riGanWx];
-        if(wx === rel.shengWo) score += param.wu["生我"];
-        else if(wx === rel.woSheng) score += param.wu["我生"];
-        else if(wx === rel.keWo) score += param.wu["克我"];
-        else if(wx === rel.woKe) score += param.wu["我克"];
-        else if(wx === rel.tong) score += param.wu["比和"];
-        if(g === zhiFuGong) score += param.add["值符"];
-        if(g === riZhiGong) score += param.add["日支"];
-        if(g === chongGong) score += param.add["冲宫"];
-        if(kongGongList.includes(g)) score += param.add["空亡"];
-        palaceData[g] = {...meta,score,isZhiFu:g===zhiFuGong,isRiZhi:g===riZhiGong,isChong:g===chongGong,isKong:kongGongList.includes(g)};
+        const gWx = meta.wuXing;
+        if(gWx === relRule.shengWo) score += param.wu.shengWo;
+        else if(gWx === relRule.woSheng) score += param.wu.woSheng;
+        else if(gWx === relRule.keWo) score += param.wu.keWo;
+        else if(gWx === relRule.woKe) score += param.wu.woKe;
+        else if(gWx === relRule.tong) score += param.wu.biHe;
+
+        if(meta.jiXiong === "吉") score += param.ji.ji;
+        if(meta.jiXiong === "凶") score += param.ji.xiong;
+        if(meta.jiXiong === "平") score += param.ji.ping;
+
+        if(g === zhiFuGong) score += param.extra.zhiFuAdd;
+        if(g === chongGong) score += param.extra.chong;
+        if(kongGongList.includes(g)) score += param.extra.kongWang;
+
+        palaceData[g] = {...meta,score,isZhiFu:g===zhiFuGong,isRiZhi:g===riZhiGong,isChong:g===chongGong,isKong:kongGongList.includes(g),baseWx};
     }
-    renderJiuGong(palaceData);
-    return {palaceData};
+    renderJiuGong(palaceData,baseWx);
+    return {palaceData,baseWx};
 }
-function renderJiuGong(palace){
-    jgDom.innerHTML = "";
+function renderJiuGong(palace,baseWx){
+    jgDom.innerHTML = `<div style="color:#ffdd99;margin-bottom:6px">✅本次基准五行：${baseWx}</div>`;
     for(let g of gridOrder){
         let p = palace[g];
         let cls = "gong";
@@ -382,7 +399,7 @@ function renderJiuGong(palace){
         if(p.isKong) tagHtml += `<span class="tag tag-kong">空亡</span>`;
         if(p.jiXiong === "吉") tagHtml += `<span class="tag tag-jix">吉</span>`;
         if(p.jiXiong === "凶") tagHtml += `<span class="tag tag-xiong">凶</span>`;
-        jgDom.innerHTML += `<div class="${cls}"><strong>${g}宫 ${p.name}</strong>九星：${p.xing}<br>八门：${p.men}<br>五行：${p.wuXing}<br>${p.xiongGe?"凶格："+p.xiongGe+"<br>":""}${tagHtml}</div>`;
+        jgDom.innerHTML += `<div class="${cls}"><strong>${g}宫 ${p.name}</strong>九星：${p.xing}<br>八门：${p.men}<br>五行：${p.wuXing}<br>得分：${p.score.toFixed(1)}<br>${p.xiongGe?"凶格："+p.xiongGe+"<br>":""}${tagHtml}</div>`;
     }
 }
 function getColorClass(idx,total){
@@ -546,7 +563,11 @@ document.getElementById("runBtn").onclick = function(){
         else outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]},${sb[1]}<br>`;
     });
     resDom.innerHTML = outHtml;
-    backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>总池覆盖率：${ret.coverRate}<br>过滤留存率：${ret.passFilterRate}<br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
+    if(awardTxt.trim() !== ""){
+        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>总池覆盖率：${ret.coverRate}<br>过滤留存率：${ret.passFilterRate}<br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
+    }else{
+        backDom.innerHTML = "<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>";
+    }
 };
 
 document.getElementById("runBatchBtn").onclick = async function(){
@@ -564,11 +585,10 @@ document.getElementById("runBatchBtn").onclick = async function(){
         const dStr = sp[0].trim();
         const lt = sp[1].trim();
         const awardTxt = sp[2].trim();
-        const rec = runSingle(dStr,lt,awardTxt,useXT,useHT,outCnt);
+        const rec = runSingle(dStr,lt,useXT,useHT,outCnt);
         batchRecords.push(rec);
         await new Promise(r=>setTimeout(r,60));
     }
-    //汇总统计 + 生成调参建议
     let total = batchRecords.length;
     let sumHit=0,hit0=0,hit1=0,hit2=0,hit3=0,hit4=0,hit5=0,hit6=0;
     let coverSum=0,passSum=0;
@@ -584,19 +604,18 @@ document.getElementById("runBatchBtn").onclick = async function(){
     const avgPass = (passSum/total).toFixed(3);
     summaryDom.innerHTML = `<strong>==== 批量汇总【${total}期】====</strong><br>平均命中前区：${avgHit}<br>平均总池覆盖率：${avgCover}<br>平均过滤留存率：${avgPass}<br>命中分布：<br>中0：${hit0}期｜中1：${hit1}期｜中2：${hit2}期｜中3：${hit3}期｜中4：${hit4}期｜中5：${hit5}期｜中6：${hit6}期`;
 
-    //半自动建议逻辑
-    let tips = "<strong>📌 调参建议（仅供参考，手动修改上面参数框）</strong><br>";
+    let tips = "<strong>📌 调参建议（仅供参考，修改表格内权重）</strong><br>";
     if(avgCover < 0.65){
-        tips += "👉 覆盖率偏低：建议减小【空亡扣分】，或者提高凶宫分值，减少号码被压低出局；<br>";
+        tips += "👉 覆盖率偏低：可调高【生我】分值、降低【克我、空亡】扣分；<br>";
     }
     if(avgPass < 0.55){
-        tips += "👉 过滤留存率低：和值/跨度/AC阈值收紧太严，可以放宽过滤区间；<br>";
+        tips += "👉 过滤留存率低：放宽和值/跨度/AC的区间限制；<br>";
     }
     if(hit0 / total > 0.45){
-        tips += "👉 空命中期数偏高：可以适当提高吉门、吉星分值，扩大候选池；<br>";
+        tips += "👉 空命中期数偏高：适当放大生我、比和权重；<br>";
     }
     if(avgCover>0.82 && avgPass>0.72){
-        tips += "✅ 当前这套参数历史回测表现不错，谨慎改动；<br>";
+        tips += "✅ 当前这套关系权重回测表现不错，谨慎改动；<br>";
     }
     adviceDom.innerHTML = tips;
 };
@@ -613,7 +632,7 @@ document.getElementById("exportCsvBtn").onclick = function(){
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "奇门_batch_dataset.csv";
+    a.download = "奇门_relation_batch_dataset.csv";
     a.click();
     URL.revokeObjectURL(url);
 };
