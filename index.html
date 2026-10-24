@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版</title>
+<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复版】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
@@ -14,7 +15,6 @@ label{font-size:14px;color:#b8c2cc}
 input,select,button,textarea{padding:9px 10px;border-radius:6px;border:none;font-size:15px;width:100%}
 input,textarea,select{background:#111827;color:#eee;border:1px solid #4b5563}
 button{background:#2563eb;color:#fff;cursor:pointer;margin-top:4px;
-touch-action: manipulation;
 }
 button:hover{background:#1d4ed8}
 button:active{background:#1e40af}
@@ -22,8 +22,8 @@ button:active{background:#1e40af}
 .ball-red-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eab308;color:#111;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-red-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#22c55e;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-high{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#3b82f6;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
-.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-weight:bold;white-space:nowrap}
-.ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#06b6d4;color:#fff;margin:5px;font-weight:bold;white-space:nowrap}
+.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
+.ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#06b6d4;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-wrap{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
 .legend{font-size:14px;margin-bottom:8px;color:#ddd}
 pre{color:#a5b4fc;font-size:12px;white-space:pre-wrap;max-height:240px;overflow:auto;background:#111827;padding:8px;border-radius:6px}
@@ -372,11 +372,12 @@ function calcScoreFull(panObj,gongNo,cfg){
     return {score:score, kw:kw, gongInfo:gongInfo};
 }
 
-// 排盘
+// 排盘【修复：增加日志报错】
 function paiPan(dateStr,timeStr,lng){
     dateStr = dateStr.replace(/\//g,"-");
     const dt = new Date(dateStr + "T" + timeStr + ":00");
     if(isNaN(dt.getTime())){
+        appendLog("❌日期时间解析失败！请检查格式：YYYY-MM-DD  HH:MM");
         alert("❌日期解析失败！\n请严格填写：2026-10-25");
         return null;
     }
@@ -857,7 +858,6 @@ function wheelGen(poolNumbers, selectK, guaranteeK){
 }
 
 function doPaiPan(){
-    alert("✅按钮已经收到点击！开始排盘");
     const d = document.getElementById('dateInput').value.trim();
     const t = document.getElementById('timeInput').value.trim();
     const lng = Number(document.getElementById('lngInput').value);
@@ -873,14 +873,9 @@ function bindGameChange(){
     }
 }
 
+// ==========【修复：全部只绑定click，删掉touchstart冲突代码】==========
 function bindButton(btn,fn){
-    function handler(e){
-        e.preventDefault();
-        e.stopPropagation();
-        fn();
-    }
-    btn.addEventListener("touchstart", handler, {passive:false});
-    btn.addEventListener("click", handler);
+    btn.addEventListener("click", fn);
 }
 
 window.onload = function(){
