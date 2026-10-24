@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【onclick稳版】</title>
+<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【全局函数加固版】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
@@ -19,7 +20,7 @@ button:hover{background:#1d4ed8}
 button:active{background:#1e40af}
 .ball-red-high{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#ef4444;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-red-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eab308;color:#111;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
-.ball-red-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#22c55e;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
+.ball-red-low{display:inline-flex;align-items:center;justify-content:center;width:46px;background:#22c55e;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-high{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#3b82f6;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#06b6d4;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
@@ -37,7 +38,7 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
     <h3>🎲 玩法 & 时间设置</h3>
     <div class="item-row">
         <label>玩法</label>
-        <select id="gameSel" onchange="autoFillTime()">
+        <select id="gameSel">
             <option value="ssq">双色球｜周二/四/日 21:15</option>
             <option value="dlt">大乐透｜周一/三/六 21:25</option>
         </select>
@@ -82,7 +83,7 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
         <label>保中：保几码（ssq推荐3）</label>
         <input id="wheelGuarantee" value="3" type="number">
     </div>
-    <button onclick="doPaiPan()">🔮 起奇门真盘</button>
+    <button id="btnPaiPan" onclick="window.doPaiPan()">🔮 起奇门真盘</button>
     <button onclick="runTuiYan()">▶️ 启动 QDIM 推演（先后天+AC+余数）</button>
     <button onclick="doWheel()">🔁 生成【奇门宫位矩阵】</button>
     <button onclick="clearAllHistory()">🗑️ 清空历史库</button>
@@ -381,7 +382,6 @@ function calcScoreFull(panObj,gongNo,cfg){
     return {score:score, kw:kw, gongInfo:gongInfo};
 }
 
-// 【重点修改：拆分年月日时分，不再用T拼接，手机浏览器兼容】
 function paiPan(dateStr,timeStr,lng){
     dateStr = dateStr.replace(/\//g,"-").trim();
     timeStr = timeStr.trim();
@@ -481,11 +481,9 @@ function buildAutoCfg(panObj,gameType){
     return cfg;
 }
 
-// 【改动：从宫的先后天本数取种子号码，绑定宫号】
 function dynGetNumFromGong(gongMetaItem, dg, tx, mn, seedWuXing, isQian, houMax, maxQianNum){
     const out = new Set();
     const baseList = gongMetaItem.benShu.map(x=>x);
-    // 扩展：基于先后天数字循环映射到号码区间
     function mapToRange(n,upper){
         let v = n;
         while(v>upper) v -= upper;
@@ -499,7 +497,6 @@ function dynGetNumFromGong(gongMetaItem, dg, tx, mn, seedWuXing, isQian, houMax,
         return x - Math.floor(x);
     }
     if(isQian){
-        // 优先取宫先天后天本数映射，再随机补
         for(let n of baseList){
             const mv = mapToRange(n,maxQianNum);
             out.add(mv);
@@ -519,7 +516,6 @@ function dynGetNumFromGong(gongMetaItem, dg, tx, mn, seedWuXing, isQian, houMax,
     return Array.from(out).sort((a,b)=>a-b);
 }
 
-// 完整过滤：AC、跨度、奇偶、余数、区间
 function filterFull(qianArr,cfg){
     const arr = [...qianArr].sort((a,b)=>a-b);
     const minV = arr[0];
@@ -532,14 +528,11 @@ function filterFull(qianArr,cfg){
     const ac = calcAC(arr);
     if(ac < cfg.acMin || ac > cfg.acMax) return false;
     const mod3 = calcMod3(arr);
-    // 除三余0/1/2 不能出现0个
     if(mod3.r0===0 || mod3.r1===0 || mod3.r2===0) return false;
-    // 区间三分不空
     const q1 = arr.filter(x=>x>=1&&x<=11).length;
     const q2 = arr.filter(x=>x>=12&&x<=22).length;
     const q3 = arr.filter(x=>x>=23&&x<=33).length;
     if(q1===0 || q2===0 || q3===0) return false;
-    // 三连号禁止
     let lianCnt = 1,maxLian=1;
     for(let i=1;i<arr.length;i++){
         if(arr[i] === arr[i-1]+1){
@@ -585,7 +578,6 @@ function appendLog(txt){
 }
 function clearLog(){ document.getElementById("logBox").innerText = ""; }
 
-// 组合生成器
 function combinations(arr, k){
     let res = [];
     function dfs(start, path){
@@ -603,12 +595,10 @@ function combinations(arr, k){
     return res;
 }
 
-// ===================== 【新版】奇门宫关系校验核心函数：对冲、隔宫、三合、三刑 =====================
 function checkQimenRule(numList, num2gongMap, mode, noSameGong){
     const gongList = numList.map(n=>num2gongMap[n]);
     const gongSet = new Set(gongList);
     const gArr = Array.from(gongSet);
-    // 禁止同宫多号
     if(noSameGong === "noSameGong"){
         if(gongList.length !== gongSet.size) return {ok:false,msg:"同宫多个号码，伏吟，驳回"};
     }
@@ -623,7 +613,6 @@ function checkQimenRule(numList, num2gongMap, mode, noSameGong){
             if(gongSkip[a] && gongSkip[a].includes(b)) hasSkip=true;
         }
     }
-    // 检查三合
     for(let sh of sanHeGroups){
         const inter = sh.g.filter(g=>gArr.includes(g));
         if(inter.length >=2){
@@ -631,7 +620,6 @@ function checkQimenRule(numList, num2gongMap, mode, noSameGong){
             break;
         }
     }
-    // 检查三刑
     for(let xg of sanXingGroups){
         const inter = xg.g.filter(g=>gArr.includes(g));
         if(inter.length >=2){
@@ -663,7 +651,6 @@ function checkQimenRule(numList, num2gongMap, mode, noSameGong){
     return {ok:true, msg:note, gongList:gongList};
 }
 
-// 奇门矩阵生成
 function qimenWheelGen(poolItemList, num2gongMap, selectK, guaranteeK, matrixMode, gongRule){
     const poolNums = poolItemList.map(x=>x.num);
     const fullCom = combinations(poolNums, selectK);
@@ -687,8 +674,9 @@ function qimenWheelGen(poolItemList, num2gongMap, selectK, guaranteeK, matrixMod
     return wheel;
 }
 
-// ========== 起盘函数 ==========
-function doPaiPan(){
+// ========== 起盘函数【强制全局】 ==========
+window.doPaiPan = function(){
+    alert("✅doPaiPan函数已经触发！");
     appendLog("👉 点击起奇门真盘，开始读取输入");
     const d = document.getElementById('dateInput').value.trim();
     const t = document.getElementById('timeInput').value.trim();
@@ -705,7 +693,6 @@ function doPaiPan(){
     }
 }
 
-// ========== 推演函数 ==========
 function runTuiYan(){
     if(!pan){ alert("⚠️请先点击【起奇门真盘】！"); return; }
     clearLog();
@@ -870,7 +857,6 @@ function doWheel(){
         appendLog(`✅奇门对冲/隔宫/三合/三刑矩阵生成，共${wheelList.length}注`);
     }
 }
-// 普通矩阵保留
 function wheelGen(poolNumbers, selectK, guaranteeK){
     const fullCom = combinations(poolNumbers, selectK);
     const wheel = [];
@@ -902,6 +888,10 @@ function clearAllHistory(){
 // 页面加载自动填时间
 window.onload = function(){
     autoFillTime();
+    // 再加一层监听兜底
+    document.getElementById("btnPaiPan").addEventListener("click", function(){
+        window.doPaiPan();
+    });
 }
 </script>
 </body>
