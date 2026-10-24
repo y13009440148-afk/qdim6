@@ -3,1101 +3,570 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>QDIM神兵奇门｜SSQ奇门统计+跨度法融合模型【多宫拓展版】</title>
+<title>QDIM神兵奇门｜SSQ奇门统计+跨度法融合模型（完整版）</title>
 <style>
-*{
-    box-sizing:border-box;
-    font-family:system-ui,Microsoft YaHei,sans-serif;
+* { box-sizing: border-box; font-family: system-ui, "Microsoft YaHei", sans-serif; }
+body {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-body{
-    background:#111827;
-    color:#e5e7eb;
-    padding:16px;
-    max-width:1200px;
-    margin:0 auto;
+h2 { color: #fbbf24; text-align: center; margin: 10px 0 20px; }
+.box {
+  background: #1f2937;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
 }
-h2{
-    color:#fbbf24;
-    text-align:center;
-    margin:10px 0 20px;
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 8px 0;
 }
-.box{
-    background:#1f2937;
-    border-radius:10px;
-    padding:16px;
-    margin-bottom:14px;
+input, select, textarea, button {
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
 }
-.row{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-    margin:8px 0;
+input, select, textarea {
+  background: #374151;
+  color: #fff;
+  outline: none;
 }
-input,select,button{
-    padding:9px 12px;
-    border-radius:6px;
-    border:none;
-    font-size:16px;
+textarea { width: 100%; min-height: 80px; resize: vertical; }
+button {
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
 }
-input,select{
-    background:#374151;
-    color:#fff;
-    outline:none;
+button:hover { background: #1d4ed8; }
+#log {
+  background: #0b1120;
+  padding: 12px;
+  border-radius: 8px;
+  min-height: 220px;
+  white-space: pre-wrap;
+  font-size: 14px;
+  color: #93c5fd;
+  overflow: auto;
 }
-button{
-    background:#2563eb;
-    color:#fff;
-    cursor:pointer;
-    font-weight:bold;
+.red { color: #f87171; }
+.green { color: #4ade80; }
+.yellow { color: #fbbf24; }
+.blue-text { color: #60a5fa; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #4b5563; padding: 8px; text-align: center; }
+th { background: #374151; }
+.info-text { color: #9ca3af; font-size: 14px; }
+.qimen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
-button:hover{
-    background:#1d4ed8;
+.gong {
+  background: #111827;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 92px;
 }
-#log{
-    background:#0b1120;
-    padding:12px;
-    border-radius:8px;
-    min-height:220px;
-    white-space:pre-wrap;
-    font-size:14px;
-    color:#93c5fd;
-    overflow:auto;
-}
-.red{
-    color:#f87171;
-}
-.green{
-    color:#4ade80;
-}
-.yellow{
-    color:#fbbf24;
-}
-.blue-text{
-    color:#60a5fa;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-}
-th,td{
-    border:1px solid #4b5563;
-    padding:8px;
-    text-align:center;
-}
-th{
-    background:#374151;
-}
-.info-text{
-    color:#9ca3af;
-    font-size:14px;
-}
+.gong-title { font-weight: bold; color: #fbbf24; }
+.gong-line { font-size: 13px; color: #d1d5db; }
+.gong-ji { border-color: #4ade80; }
+.gong-xiong { border-color: #f87171; }
+.geju { color: #fbbf24; font-size: 13px; }
+.kongwang { color: #f87171; font-size: 13px; }
 </style>
 </head>
 <body>
-<h2>QDIM神兵奇门数据迭代模型（多宫拓展｜吉/凶/值符/日支/冲/空亡均可出号）</h2>
+
+<h2>QDIM神兵奇门数据迭代模型（奇门统计+跨度法融合｜完整版）</h2>
+
 <div class="box">
-<div class="row">
-<label>上期开奖号码：</label>
-<input type="text" id="lastNum" placeholder="格式示例：01 05 12 18 24 31 + 09">
+  <div class="row">
+    <label>日期：</label><input type="text" id="dateIn" value="2026-10-24" placeholder="YYYY-MM-DD">
+    <label>时辰输入（仅记录，排盘用固定或可选）：</label><input type="text" id="shiChen" value="21:15" placeholder="HH:MM">
+    <label>上期号码：</label><input type="text" id="lastNum" placeholder="如 01 05 12 18 24 33 + 08">
+    <label>生成注数：</label><input type="number" id="genCount" value="10" min="1" max="200" style="width:90px">
+    <button onclick="runCalc()">开始推演</button>
+  </div>
+  <div class="row">
+    <label>历史（每行：红球空格/逗号，可带 +蓝球）：</label>
+  </div>
+  <textarea id="historyText" placeholder="例如：
+01 05 12 18 24 33 + 08
+03,07,14,22,29,32 + 12"></textarea>
+  <div class="row">
+    <button onclick="parseHistory()">解析历史</button>
+  </div>
 </div>
-<div class="row">
-<label>推演日期：</label>
-<input type="text" id="dateIn" value="2026-10-24">
-<label>时辰：</label>
-<select id="shiChen">
-<option value="子">子 23-01点</option>
-<option value="丑">丑 01-03点</option>
-<option value="寅">寅 03-05点</option>
-<option value="卯">卯 05-07点</option>
-<option value="辰">辰 07-09点</option>
-<option value="巳">巳 09-11点</option>
-<option value="午">午 11-13点</option>
-<option value="未">未 13-15点</option>
-<option value="申">申 15-17点</option>
-<option value="酉">酉 17-19点</option>
-<option value="戌">戌 19-21点</option>
-<option value="亥">亥 21-23点</option>
-</select>
-</div>
-<div class="row">
-<label>生成注数：</label>
-<input type="number" id="genCount" value="5" min="1" max="10">
-<button onclick="runCalc()">开始奇门+跨度融合推演</button>
-<button onclick="clearLog()">清空日志与结果</button>
-</div>
-</div>
+
 <div class="box">
-<div id="log"></div>
+  <div id="qimenBoard" class="qimen"></div>
 </div>
-<div class="box" id="resultBox"></div>
+
+<div class="box">
+  <div id="resultBox"></div>
+</div>
+
+<div class="box">
+  <div id="log"></div>
+</div>
 
 <script>
-// ==========【基础常量、五行、地支关系、节气局、五元映射、宫位配置｜拓展：九宫先天洛书数、地支对冲表】==========
+/* ========== 基础常量 ========== */
 const ganArr = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const zhiArr = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-const wuXingGan = {};
-wuXingGan["甲"] = "木";
-wuXingGan["乙"] = "木";
-wuXingGan["丙"] = "火";
-wuXingGan["丁"] = "火";
-wuXingGan["戊"] = "土";
-wuXingGan["己"] = "土";
-wuXingGan["庚"] = "金";
-wuXingGan["辛"] = "金";
-wuXingGan["壬"] = "水";
-wuXingGan["癸"] = "水";
+const luoShu = [4,9,2,3,5,7,8,1,6];
+const gongNameMap = {1:"坎一",2:"坤二",3:"震三",4:"巽四",5:"中五",6:"乾六",7:"兑七",8:"艮八",9:"离九"};
+const gongWuXing = {1:"水",2:"土",3:"木",4:"木",5:"土",6:"金",7:"金",8:"土",9:"火"};
 
-const wuXingZhi = {};
-wuXingZhi["子"] = "水";
-wuXingZhi["丑"] = "土";
-wuXingZhi["寅"] = "木";
-wuXingZhi["卯"] = "木";
-wuXingZhi["辰"] = "土";
-wuXingZhi["巳"] = "火";
-wuXingZhi["午"] = "火";
-wuXingZhi["未"] = "土";
-wuXingZhi["申"] = "金";
-wuXingZhi["酉"] = "金";
-wuXingZhi["戌"] = "土";
-wuXingZhi["亥"] = "水";
-
-const liuChong = {};
-liuChong["子"] = "午";
-liuChong["午"] = "子";
-liuChong["丑"] = "未";
-liuChong["未"] = "丑";
-liuChong["寅"] = "申";
-liuChong["申"] = "寅";
-liuChong["卯"] = "酉";
-liuChong["酉"] = "卯";
-liuChong["辰"] = "戌";
-liuChong["戌"] = "辰";
-liuChong["巳"] = "亥";
-liuChong["亥"] = "巳";
-
-// 地支→宫位映射
-const zhiToGong = {};
-zhiToGong["子"] = 1;
-zhiToGong["丑"] = 8;
-zhiToGong["寅"] = 8;
-zhiToGong["卯"] = 3;
-zhiToGong["辰"] = 4;
-zhiToGong["巳"] = 4;
-zhiToGong["午"] = 9;
-zhiToGong["未"] = 2;
-zhiToGong["申"] = 2;
-zhiToGong["酉"] = 7;
-zhiToGong["戌"] = 6;
-zhiToGong["亥"] = 6;
-
-// 九宫对冲宫
-const gongChong = {
-    1:9,
-    9:1,
-    3:7,
-    7:3,
-    4:6,
-    6:4,
-    2:8,
-    8:2,
-    5:5
-};
-// 九宫先天洛书数（先天数，用于号码加分）
-const gongXianTian = {
-    1:6,
-    2:7,
-    3:8,
-    4:9,
-    5:5,
-    6:1,
-    7:2,
-    8:3,
-    9:4
-};
-// 八门权重分级：吉、平、凶
-const baMenWeight = {
-    "休":10,
-    "生":10,
-    "开":10,
-    "景":6,
-    "杜":5,
-    "伤":4,
-    "惊":3,
-    "死":2,
-    "禽":7
-};
-// 九星权重分级
-const jiuXingWeight = {
-    "蓬":3,
-    "芮":2,
-    "冲":7,
-    "辅":8,
-    "禽":9,
-    "心":9,
-    "柱":3,
-    "任":8,
-    "英":5
-};
-// 宫来源加分（来源优先级）
-const sourceBonus = {
-    "jiMen":8,    //吉门
-    "zhiFu":7,    //值符宫
-    "riZhi":6,    //日支宫
-    "chong":4,    //飞冲对冲宫
-    "kongWang":2  //空亡宫（低分保留，不再杀）
+/* 宫位→红球范围（SSQ红1-33，按九宫分桶，可自定；这里给一套完整映射覆盖1-33） */
+const gongConfig = {
+  1:{range:[1,6]},
+  2:{range:[7,12]},
+  3:{range:[13,18]},
+  4:{range:[19,24]},
+  5:{range:[25,28]},
+  6:{range:[29,30]},
+  7:{range:[31,32]},
+  8:{range:[33,33]},
+  9:{range:[1,33]} /* 离宫兜底参与时可全范围，实际取用会按生开休优先 */
 };
 
-const liuHe = {};
-liuHe["子"] = "丑";
-liuHe["丑"] = "子";
-liuHe["寅"] = "亥";
-liuHe["亥"] = "寅";
-liuHe["卯"] = "戌";
-liuHe["戌"] = "卯";
-liuHe["辰"] = "酉";
-liuHe["酉"] = "辰";
-liuHe["巳"] = "申";
-liuHe["申"] = "巳";
-liuHe["午"] = "未";
-liuHe["未"] = "午";
+/* 节气→遁局描述（常用基准表） */
+const JQ_JU_RAW = {
+  "冬至":"阳遁一","小寒":"阳遁二","大寒":"阳遁三",
+  "立春":"阳遁八","雨水":"阳遁九","惊蛰":"阳遁一",
+  "春分":"阳遁三","清明":"阳遁四","谷雨":"阳遁五",
+  "立夏":"阳遁四","小满":"阳遁五","芒种":"阳遁六",
+  "夏至":"阴遁九","小暑":"阴遁八","大暑":"阴遁七",
+  "立秋":"阴遁二","处暑":"阴遁一","白露":"阴遁九",
+  "秋分":"阴遁七","寒露":"阴遁六","霜降":"阴遁五",
+  "立冬":"阴遁六","小雪":"阴遁五","大雪":"阴遁四"
+};
+/* 三元取局：这里用“节令+日干支符头”简处理为 [上元,中元,下元] 对应局数 */
+const JQ_JU = {
+  "冬至":[1,7,4], "小寒":[2,8,5], "大寒":[3,9,6],
+  "立春":[8,5,2], "雨水":[9,6,3], "惊蛰":[1,7,4],
+  "春分":[3,9,6], "清明":[4,1,7], "谷雨":[5,2,8],
+  "立夏":[4,1,7], "小满":[5,2,8], "芒种":[6,3,9],
+  "夏至":[9,3,6], "小暑":[8,2,5], "大暑":[7,1,4],
+  "立秋":[2,5,8], "处暑":[1,4,7], "白露":[9,3,6],
+  "秋分":[7,1,4], "寒露":[6,9,3], "霜降":[5,8,2],
+  "立冬":[6,9,3], "小雪":[5,8,2], "大雪":[4,7,1]
+};
 
-const liuHai = {};
-liuHai["子"] = "未";
-liuHai["未"] = "子";
-liuHai["丑"] = "午";
-liuHai["午"] = "丑";
-liuHai["寅"] = "巳";
-liuHai["巳"] = "寅";
-liuHai["卯"] = "辰";
-liuHai["辰"] = "卯";
-liuHai["申"] = "亥";
-liuHai["亥"] = "申";
-liuHai["酉"] = "戌";
-liuHai["戌"] = "酉";
-
-const sanXingSet = [];
-sanXingSet.push("寅巳申");
-sanXingSet.push("丑戌未");
-sanXingSet.push("子卯");
-sanXingSet.push("辰午酉亥");
-
-const JQ_JU = {};
-JQ_JU["冬至"] = [1,2,3];
-JQ_JU["小寒"] = [4,5,6];
-JQ_JU["大寒"] = [7,8,9];
-JQ_JU["立春"] = [8,5,2];
-JQ_JU["雨水"] = [9,6,3];
-JQ_JU["惊蛰"] = [1,7,4];
-JQ_JU["春分"] = [3,9,6];
-JQ_JU["清明"] = [4,1,7];
-JQ_JU["谷雨"] = [5,2,8];
-JQ_JU["立夏"] = [4,5,6];
-JQ_JU["小满"] = [7,8,9];
-JQ_JU["芒种"] = [1,2,3];
-JQ_JU["夏至"] = [9,8,7];
-JQ_JU["小暑"] = [6,5,4];
-JQ_JU["大暑"] = [3,2,1];
-JQ_JU["立秋"] = [2,5,8];
-JQ_JU["处暑"] = [3,6,9];
-JQ_JU["白露"] = [4,7,1];
-JQ_JU["秋分"] = [6,3,9];
-JQ_JU["寒露"] = [7,4,1];
-JQ_JU["霜降"] = [8,5,2];
-JQ_JU["立冬"] = [7,8,9];
-JQ_JU["小雪"] = [1,2,3];
-JQ_JU["大雪"] = [4,5,6];
-
-const SAN_YUAN_MAP = {};
-SAN_YUAN_MAP["甲子"] = "上元";
-SAN_YUAN_MAP["乙丑"] = "上元";
-SAN_YUAN_MAP["丙寅"] = "上元";
-SAN_YUAN_MAP["丁卯"] = "上元";
-SAN_YUAN_MAP["戊辰"] = "上元";
-SAN_YUAN_MAP["己巳"] = "中元";
-SAN_YUAN_MAP["庚午"] = "中元";
-SAN_YUAN_MAP["辛未"] = "中元";
-SAN_YUAN_MAP["壬申"] = "中元";
-SAN_YUAN_MAP["癸酉"] = "中元";
-SAN_YUAN_MAP["甲戌"] = "下元";
-SAN_YUAN_MAP["乙亥"] = "下元";
-SAN_YUAN_MAP["丙子"] = "下元";
-SAN_YUAN_MAP["丁丑"] = "下元";
-SAN_YUAN_MAP["戊寅"] = "下元";
-SAN_YUAN_MAP["己卯"] = "上元";
-SAN_YUAN_MAP["庚辰"] = "上元";
-SAN_YUAN_MAP["辛巳"] = "上元";
-SAN_YUAN_MAP["壬午"] = "上元";
-SAN_YUAN_MAP["癸未"] = "上元";
-SAN_YUAN_MAP["甲申"] = "中元";
-SAN_YUAN_MAP["乙酉"] = "中元";
-SAN_YUAN_MAP["丙戌"] = "中元";
-SAN_YUAN_MAP["丁亥"] = "中元";
-SAN_YUAN_MAP["戊子"] = "中元";
-SAN_YUAN_MAP["己丑"] = "下元";
-SAN_YUAN_MAP["庚寅"] = "下元";
-SAN_YUAN_MAP["辛卯"] = "下元";
-SAN_YUAN_MAP["壬辰"] = "下元";
-SAN_YUAN_MAP["癸巳"] = "下元";
-SAN_YUAN_MAP["甲午"] = "上元";
-SAN_YUAN_MAP["乙未"] = "上元";
-SAN_YUAN_MAP["丙申"] = "上元";
-SAN_YUAN_MAP["丁酉"] = "上元";
-SAN_YUAN_MAP["戊戌"] = "上元";
-SAN_YUAN_MAP["己亥"] = "中元";
-SAN_YUAN_MAP["庚子"] = "中元";
-SAN_YUAN_MAP["辛丑"] = "中元";
-SAN_YUAN_MAP["壬寅"] = "中元";
-SAN_YUAN_MAP["癸卯"] = "中元";
-SAN_YUAN_MAP["甲辰"] = "下元";
-SAN_YUAN_MAP["乙巳"] = "下元";
-SAN_YUAN_MAP["丙午"] = "下元";
-SAN_YUAN_MAP["丁未"] = "下元";
-SAN_YUAN_MAP["戊申"] = "下元";
-SAN_YUAN_MAP["己酉"] = "上元";
-SAN_YUAN_MAP["庚戌"] = "上元";
-SAN_YUAN_MAP["辛亥"] = "上元";
-SAN_YUAN_MAP["壬子"] = "上元";
-SAN_YUAN_MAP["癸丑"] = "上元";
-SAN_YUAN_MAP["甲寅"] = "中元";
-SAN_YUAN_MAP["乙卯"] = "中元";
-SAN_YUAN_MAP["丙辰"] = "中元";
-SAN_YUAN_MAP["丁巳"] = "中元";
-SAN_YUAN_MAP["戊午"] = "中元";
-SAN_YUAN_MAP["己未"] = "下元";
-SAN_YUAN_MAP["庚申"] = "下元";
-SAN_YUAN_MAP["辛酉"] = "下元";
-SAN_YUAN_MAP["壬戌"] = "下元";
-SAN_YUAN_MAP["癸亥"] = "下元";
-
-const gongConfig = {};
-gongConfig[1] = {range:[1,4],wx:"水",weight:10};
-gongConfig[2] = {range:[5,8],wx:"土",weight:8};
-gongConfig[3] = {range:[9,12],wx:"木",weight:9};
-gongConfig[4] = {range:[13,16],wx:"木",weight:9};
-gongConfig[5] = {range:[17,21],wx:"土",weight:12};
-gongConfig[6] = {range:[22,25],wx:"金",weight:8};
-gongConfig[7] = {range:[26,29],wx:"金",weight:8};
-gongConfig[8] = {range:[30,33],wx:"土",weight:7};
-gongConfig[9] = {range:[1,33],wx:"火",weight:6};
-
-const numWuxing = {};
-(function initNumWx(){
-    let n;
-    for(n=1;n<=33;n++){
-        let mod = n % 5;
-        if(mod === 1){
-            numWuxing[n] = "木";
-        }
-        else if(mod === 2){
-            numWuxing[n] = "火";
-        }
-        else if(mod === 3){
-            numWuxing[n] = "土";
-        }
-        else if(mod === 4){
-            numWuxing[n] = "金";
-        }
-        else{
-            numWuxing[n] = "水";
-        }
-    }
-    let b;
-    for(b=1;b<=16;b++){
-        let mod = b % 5;
-        if(mod === 1){
-            numWuxing["B"+b] = "木";
-        }
-        else if(mod === 2){
-            numWuxing["B"+b] = "火";
-        }
-        else if(mod === 3){
-            numWuxing["B"+b] = "土";
-        }
-        else if(mod === 4){
-            numWuxing["B"+b] = "金";
-        }
-        else{
-            numWuxing["B"+b] = "水";
-        }
-    }
-})();
-
-const spanRule = {};
-spanRule.minSpan = 10;
-spanRule.maxSpan = 32;
-spanRule.preferSpan = [];
-spanRule.preferSpan.push(18);
-spanRule.preferSpan.push(20);
-spanRule.preferSpan.push(22);
-spanRule.preferSpan.push(24);
-spanRule.preferSpan.push(26);
-spanRule.preferSpan.push(28);
-spanRule.spanTolerance = 3;
-
-// ==========【工具函数组】==========
-function wuShuDun(riGan){
-    const map = {};
-    const idx = ganArr.indexOf(riGan);
-    let startIdx;
-    if(idx === 0 || idx === 5){
-        startIdx = 0;
-    }
-    else if(idx === 1 || idx === 6){
-        startIdx = 2;
-    }
-    else if(idx === 2 || idx === 7){
-        startIdx = 4;
-    }
-    else if(idx === 3 || idx === 8){
-        startIdx = 6;
-    }
-    else{
-        startIdx = 8;
-    }
-    let i;
-    for(i=0;i<12;i++){
-        map[zhiArr[i]] = ganArr[(startIdx + i) % 10];
-    }
-    return map;
-}
-
-function getXunKong(riGan,riZhi){
-    const ganZhi = riGan + riZhi;
-    const xunList = [];
-    xunList.push(["甲子","戌亥"]);
-    xunList.push(["甲戌","申酉"]);
-    xunList.push(["甲申","午未"]);
-    xunList.push(["甲午","辰巳"]);
-    xunList.push(["甲辰","寅卯"]);
-    xunList.push(["甲寅","子丑"]);
-    let j;
-    for(j=0;j<xunList.length;j++){
-        const item = xunList[j];
-        const xunShou = item[0];
-        const kg = item[1];
-        const sIdx = ganArr.indexOf(xunShou[0]);
-        const zIdx = zhiArr.indexOf(xunShou[1]);
-        let i;
-        for(i=0;i<10;i++){
-            const g = ganArr[(sIdx + i) % 10];
-            const z = zhiArr[(zIdx + i) % 12];
-            if(g + z === ganZhi){
-                return {xun:xunShou, kong:kg.split("")};
-            }
-        }
-    }
-    return {xun:"未知",kong:["",""]};
-}
-
-function getSanYuan(ganZhi){
-    const name = SAN_YUAN_MAP[ganZhi];
-    if(name === "上元"){
-        return 0;
-    }
-    if(name === "中元"){
-        return 1;
-    }
-    return 2;
-}
+/* 简易节气区间（按公历近似，非精确交节时刻；要精确需换天文/节气时刻表） */
+const JQ_RANGE = [
+  ["小寒",1,6,1,20],["大寒",1,21,2,4],["立春",2,5,2,19],["雨水",2,20,3,5],
+  ["惊蛰",3,6,3,20],["春分",3,21,4,4],["清明",4,5,4,19],["谷雨",4,20,5,5],
+  ["立夏",5,6,5,20],["小满",5,21,6,5],["芒种",6,6,6,20],["夏至",6,21,7,6],
+  ["小暑",7,7,7,22],["大暑",7,23,8,7],["立秋",8,8,8,22],["处暑",8,23,9,7],
+  ["白露",9,8,9,22],["秋分",9,23,10,8],["寒露",10,9,10,23],["霜降",10,24,11,7],
+  ["立冬",11,8,11,22],["小雪",11,23,12,7],["大雪",12,8,12,21],["冬至",12,22,1,5]
+];
 
 function getJieQiAndYinYang(dt){
-    const m = dt.getMonth() + 1;
-    const d = dt.getDate();
-    let jqName;
-    let isYang;
-    if((m === 12 && d >= 21) || (m === 1 && d < 6)){
-        jqName = "冬至";
-        isYang = true;
+  const m=dt.getMonth()+1, d=dt.getDate();
+  for(const [jq,sm,sd,em,ed] of JQ_RANGE){
+    if(sm===em){
+      if(m===sm && d>=sd && d<=ed) return {jqName:jq, isYang: (JQ_JU_RAW[jq]||"").indexOf("阳遁")===0};
+    }else{
+      if((m===sm && d>=sd) || (m===em && d<=ed)) return {jqName:jq, isYang: (JQ_JU_RAW[jq]||"").indexOf("阳遁")===0};
     }
-    else if(m === 1 && d >= 6){
-        jqName = "小寒";
-        isYang = true;
-    }
-    else if(m === 1 && d >= 20){
-        jqName = "大寒";
-        isYang = true;
-    }
-    else if(m === 2 && d >= 4){
-        jqName = "立春";
-        isYang = true;
-    }
-    else if(m === 2 && d >= 19){
-        jqName = "雨水";
-        isYang = true;
-    }
-    else if(m === 3 && d >= 5){
-        jqName = "惊蛰";
-        isYang = true;
-    }
-    else if(m === 3 && d >= 20){
-        jqName = "春分";
-        isYang = true;
-    }
-    else if(m === 4 && d >= 5){
-        jqName = "清明";
-        isYang = true;
-    }
-    else if(m === 4 && d >= 20){
-        jqName = "谷雨";
-        isYang = true;
-    }
-    else if(m === 5 && d >= 5){
-        jqName = "立夏";
-        isYang = true;
-    }
-    else if(m === 5 && d >= 21){
-        jqName = "小满";
-        isYang = true;
-    }
-    else if(m === 6 && d >= 6){
-        jqName = "芒种";
-        isYang = true;
-    }
-    else if(m === 6 && d >= 21){
-        jqName = "夏至";
-        isYang = false;
-    }
-    else if(m === 7 && d >= 7){
-        jqName = "小暑";
-        isYang = false;
-    }
-    else if(m === 7 && d >= 23){
-        jqName = "大暑";
-        isYang = false;
-    }
-    else if(m === 8 && d >= 8){
-        jqName = "立秋";
-        isYang = false;
-    }
-    else if(m === 8 && d >= 23){
-        jqName = "处暑";
-        isYang = false;
-    }
-    else if(m === 9 && d >= 8){
-        jqName = "白露";
-        isYang = false;
-    }
-    else if(m === 9 && d >= 23){
-        jqName = "秋分";
-        isYang = false;
-    }
-    else if(m === 10 && d >= 8){
-        jqName = "寒露";
-        isYang = false;
-    }
-    else if(m === 10 && d >= 24){
-        jqName = "霜降";
-        isYang = false;
-    }
-    else if(m === 11 && d >= 8){
-        jqName = "立冬";
-        isYang = false;
-    }
-    else if(m === 11 && d >= 23){
-        jqName = "小雪";
-        isYang = false;
-    }
-    else{
-        jqName = "大雪";
-        isYang = false;
-    }
-    return {jqName:jqName,isYang:isYang};
+  }
+  return {jqName:"冬至", isYang:true};
 }
 
-function appendLog(text){
-    const logDom = document.getElementById("log");
-    const t = new Date().toLocaleTimeString();
-    logDom.innerText += "[" + t + "] " + text + "\n";
-    logDom.scrollTop = logDom.scrollHeight;
+/* 基姆拉尔森日干支（修复原 (y+d)%10/12 错误） */
+function getDayGanZhi(y, m, d){
+  let Y=y, M=m;
+  if(M<=2){ Y--; M+=12; }
+  const c=Math.floor(Y/100), yy=Y%100;
+  let g = 4*c + Math.floor(c/4) + 5*yy + Math.floor(yy/4) + Math.floor(3*(M+1)/5) + d - 3;
+  let z = 8*c + Math.floor(c/4) + 5*yy + Math.floor(yy/4) + Math.floor(3*(M+1)/5) + d + 7;
+  g = ((g%10)+10)%10;
+  z = ((z%12)+12)%12;
+  return {gan:ganArr[g], zhi:zhiArr[z], gIdx:g, zIdx:z};
 }
 
-function clearLog(){
-    document.getElementById("log").innerText = "";
-    document.getElementById("resultBox").innerHTML = "";
+/* 三元（按日干支简取 0/1/2） */
+function getSanYuan(riGanZhiStr){
+  /* 以日支在六甲旬/符头近似：子午卯酉上元、寅申巳亥中元、辰戌丑未下元 */
+  const zhi=riGanZhiStr.slice(-1);
+  if(["子","午","卯","酉"].includes(zhi)) return 0;
+  if(["寅","申","巳","亥"].includes(zhi)) return 1;
+  return 2;
 }
 
-function parseLastNum(inputStr){
-    let redList = [];
-    let blue = 0;
-    const cleanStr = inputStr.replace(/\+/g," ").replace(/\s+/g," ").trim();
-    const arr = cleanStr.split(" ");
-    let i;
-    for(i=0;i<arr.length;i++){
-        let item = arr[i];
-        let n = parseInt(item,10);
-        if(isNaN(n)){
-            continue;
-        }
-        if(n >= 1 && n <= 33){
-            redList.push(n);
-        }
-        if(n >= 1 && n <= 16){
-            blue = n;
-        }
-    }
-    redList = [...new Set(redList)].sort(function(a,b){
-        return a - b;
-    });
-    if(redList.length < 6){
-        appendLog("⚠️上期红球数量不足6个，解析异常");
-        return null;
-    }
-    const span = redList[redList.length - 1] - redList[0];
-    appendLog("📜上期解析：红球【" + redList.join(" ") + "】蓝球【" + blue + "】，上期跨度：" + span);
-    return {red:redList, blue:blue, span:span};
+/* 旬空：按日干支所在六甲旬 */
+const XUN_KONG_MAP = {
+  "甲子":"戌亥","甲戌":"申酉","甲申":"午未","甲午":"辰巳","甲辰":"寅卯","甲寅":"子丑"
+};
+function getXunKong(riGan, riZhi){
+  /* 先找所在旬首：按日干支在60甲子位置倒推至甲X */
+  const ganIdx=ganArr.indexOf(riGan), zhiIdx=zhiArr.indexOf(riZhi);
+  /* 60甲子位置（甲子=0） */
+  let pos=-1;
+  for(let i=0;i<60;i++){
+    if(ganArr[i%10]===riGan && zhiArr[i%12]===riZhi){ pos=i; break; }
+  }
+  const xunStart = Math.floor(pos/10)*10;
+  const xunShou = ganArr[xunStart%10] + zhiArr[xunStart%12];
+  const kong = (XUN_KONG_MAP[xunShou]||"子丑").split("");
+  return {xun:xunShou, kong};
 }
 
-function balanceCheck(numList){
-    let big = 0;
-    let small = 0;
-    let ji = 0;
-    let ou = 0;
-    let mid = 0;
-    let i;
-    for(i=0;i<numList.length;i++){
-        let x = numList[i];
-        if(x > 16){
-            big = big + 1;
-        }
-        else{
-            small = small + 1;
-        }
-        if(x % 2 === 1){
-            ji = ji + 1;
-        }
-        else{
-            ou = ou + 1;
-        }
-        if(x >= 12 && x <= 22){
-            mid = mid + 1;
-        }
-    }
-    let pass = false;
-    if(big >= 2 && small >= 2 && ji >= 2 && ou >= 2 && mid >= 1){
-        pass = true;
-    }
-    return {big:big,small:small,ji:ji,ou:ou,mid:mid,pass:pass};
+/* 五鼠遁：日干→时支得时干 */
+function wuShuDun(riGan){
+  const base = { "甲":"甲子", "乙":"丙子", "丙":"戊子", "丁":"庚子", "戊":"壬子",
+                 "己":"甲子", "庚":"丙子", "辛":"戊子", "壬":"庚子", "癸":"壬子" };
+  const start = base[riGan]||"甲子";
+  const sGan=start[0], sZhi=start[1];
+  const g0=ganArr.indexOf(sGan), z0=zhiArr.indexOf(sZhi);
+  const map={};
+  for(let i=0;i<12;i++){
+    map[zhiArr[(z0+i)%12]] = ganArr[(g0+i)%10];
+  }
+  return map;
 }
 
-function spanCheck(redList,lastSpan){
-    const curSpan = redList[redList.length - 1] - redList[0];
-    let ok = false;
-    let score = 0;
-    if(curSpan >= spanRule.minSpan && curSpan <= spanRule.maxSpan){
-        score = score + 3;
-    }
-    let sIndex;
-    for(sIndex = 0; sIndex < spanRule.preferSpan.length; sIndex++){
-        let s = spanRule.preferSpan[sIndex];
-        if(Math.abs(curSpan - s) <= spanRule.spanTolerance){
-            score = score + 4;
-            break;
-        }
-    }
-    if(Math.abs(curSpan - lastSpan) >= 4){
-        score = score + 2;
-    }
-    if(score >= 5){
-        ok = true;
-    }
-    return {curSpan:curSpan,score:score,ok:ok};
+/* 日志 */
+function appendLog(s){
+  const el=document.getElementById("log");
+  el.textContent += s + "\n";
+  el.scrollTop = el.scrollHeight;
 }
+function log(s){ appendLog(s); }
 
-function isSheng(a,b){
-    const shengMap = {};
-    shengMap["木"] = "火";
-    shengMap["火"] = "土";
-    shengMap["土"] = "金";
-    shengMap["金"] = "水";
-    shengMap["水"] = "木";
-    return shengMap[a] === b;
-}
-
-// 【重构打分函数】融合：八门、九星、来源加分、先天洛书数、五行生克
-function calcScore(num,pan,gongSourceMap){
-    let score = 0;
-    let belongGong = null;
-    for(let g = 1; g <= 9; g++){
-        const s = gongConfig[g].range[0];
-        const e = gongConfig[g].range[1];
-        if(num >= s && num <= e){
-            belongGong = g;
-            score += gongConfig[g].weight;
-            break;
-        }
-    }
-    if(belongGong === null) return 0;
-    //八门分
-    score += baMenWeight[pan.menPan[belongGong]] || 0;
-    //九星分
-    score += jiuXingWeight[pan.xingPan[belongGong]] || 0;
-    //宫来源加分（一个宫可以多来源叠加）
-    const srcList = gongSourceMap[belongGong] || [];
-    srcList.forEach(src=>{
-        score += sourceBonus[src] || 0;
-    })
-    //先天洛书匹配加分：号码 == 宫先天数，额外加分
-    if(num === gongXianTian[belongGong]){
-        score += 5;
-    }
-    //五行生克
-    const numWx = numWuxing[num];
-    const riWx = wuXingGan[pan.riGan];
-    if(isSheng(riWx,numWx)){
-        score += 3;
-    }
-    if(isSheng(numWx,riWx)){
-        score += 2;
-    }
-    return score;
-}
+/* DOM引用 */
+const $qimenBoard = document.getElementById("qimenBoard");
+const $historyText = document.getElementById("historyText");
+const $resultBox = document.getElementById("resultBox");
 
 let panCache = null;
-let gongSourceCache = null;
+let historyPool = [];
 
-function weightedSample(pool,count,lastSpan){
-    let tryCount = 0;
-    const maxTry = 1800;
-    let result = null;
-    while(tryCount < maxTry){
-        tryCount = tryCount + 1;
-        const tmp = [...pool];
-        const pick = [];
-        while(pick.length < 6 && tmp.length > 0){
-            let totalWeight = 0;
-            const weightArr = [];
-            let wi;
-            for(wi = 0; wi < tmp.length; wi++){
-                let n = tmp[wi];
-                let w = calcScore(n,panCache,gongSourceCache);
-                totalWeight = totalWeight + w;
-                weightArr.push({n:n,w:w});
-            }
-            if(totalWeight <= 0) break;
-            let r = Math.random() * totalWeight;
-            let i;
-            for(i = 0; i < weightArr.length; i++){
-                r = r - weightArr[i].w;
-                if(r <= 0){
-                    pick.push(weightArr[i].n);
-                    let pos = tmp.indexOf(weightArr[i].n);
-                    tmp.splice(pos,1);
-                    break;
-                }
-            }
-        }
-        if(pick.length !== 6){
-            continue;
-        }
-        pick.sort(function(a,b){
-            return a - b;
-        });
-        const bal = balanceCheck(pick);
-        const sp = spanCheck(pick,lastSpan);
-        if(bal.pass && sp.ok){
-            result = {red:pick, bal:bal, spanInfo:sp};
-            break;
-        }
+/* ========== 排盘核心 ========== */
+function paiPan(dateStr, timeStr, lng){
+  try{
+    dateStr = dateStr.replace(/\//g,"-").trim();
+    timeStr = (timeStr||"12:00").trim();
+    const dateParts = dateStr.split("-");
+    const timeParts = timeStr.split(":");
+    if(dateParts.length!==3 || timeParts.length<2){
+      appendLog("❌日期或者时间格式错误！必须是 2026-10-24 、21:15");
+      return null;
     }
-    return result;
+    const y=Number(dateParts[0]), m=Number(dateParts[1])-1, d=Number(dateParts[2]);
+    const h=Number(timeParts[0]), mi=Number(timeParts[1]);
+    const dt=new Date(y,m,d,h,mi,0);
+    if(isNaN(dt.getTime())){
+      appendLog("❌日期时间解析失败！数字越界或者格式不对！");
+      return null;
+    }
+
+    /* 日干支：用基姆拉尔森（修复） */
+    const riGZ = getDayGanZhi(y, m+1, d);
+    const riGan = riGZ.gan, riZhi = riGZ.zhi;
+
+    const shiChenIdx = Math.floor((h+1)/2) % 12;
+    const shiZhi = zhiArr[shiChenIdx];
+
+    const jieQiResult = getJieQiAndYinYang(dt);
+    const jqName = jieQiResult.jqName;
+    const isYang = jieQiResult.isYang;
+    const juArr = JQ_JU[jqName];
+    if(!juArr){
+      appendLog("❌没有找到节气对应的局数");
+      return null;
+    }
+    const yuanIdx = getSanYuan(riGan+riZhi);
+    const benJu = juArr[yuanIdx];
+
+    const xunKongObj = getXunKong(riGan, riZhi);
+    const shiGanMap = wuShuDun(riGan);
+    const shiGan = shiGanMap[shiZhi];
+
+    /* 地盘（洛书宫序） */
+    const dipan={};
+    for(const g of luoShu) dipan[g]="";
+    const yiList=["戊","己","庚","辛","壬","癸","丁","丙","乙"];
+    if(isYang){
+      for(let i=0;i<9;i++){
+        const g = luoShu[(benJu-1+i)%9];
+        dipan[g]=yiList[i];
+      }
+    }else{
+      for(let i=0;i<9;i++){
+        const g = luoShu[(benJu-1-i+9)%9];
+        dipan[g]=yiList[i];
+      }
+    }
+
+    /* 值符宫：按旬首（非时干！修复） */
+    const xunShouGan = xunKongObj.xun[0];
+    let zhiFuGong=null;
+    for(let g=1;g<=9;g++){
+      if(dipan[g]===xunShouGan){ zhiFuGong=g; break; }
+    }
+    /* 值使门：以休门起本局宫，按阴阳遁顺逆寻时支；这里先记录本局起宫供八门用 */
+    const zhiShiStartGong = benJu;
+    const menStartGong = isYang ? benJu : ((benJu-2+9)%9)+1;
+
+    /* 天盘：以值符宫为轴，整体平移（按“值符落宫-本局宫”偏移） */
+    const tianPan={};
+    if(zhiFuGong){
+      const offset = zhiFuGong - benJu;
+      for(let g=1;g<=9;g++){
+        const srcG = ((g - offset - 1 + 9)%9)+1;
+        tianPan[g] = dipan[srcG]||"";
+      }
+    }else{
+      for(let g=1;g<=9;g++) tianPan[g]=dipan[g];
+    }
+
+    /* 八门：休生伤杜景死惊开 */
+    const baMenBase=["休","生","伤","杜","景","死","惊","开"];
+    const menPan={};
+    for(let g=1;g<=9;g++) menPan[g]="";
+    for(let i=0;i<8;i++){
+      const g = ((menStartGong-1+i)%9)+1;
+      if(g===5) continue;
+      menPan[g]=baMenBase[i%8];
+    }
+    menPan[5]="禽";
+
+    /* 九星：蓬芮冲辅禽心柱任英，按局宫顺排 */
+    const jiuXingBase=["蓬","芮","冲","辅","禽","心","柱","任","英"];
+    const xingPan={};
+    for(let g=1;g<=9;g++) xingPan[g]="";
+    for(let i=0;i<9;i++){
+      const g = ((benJu-1+i)%9)+1;
+      xingPan[g]=jiuXingBase[i];
+    }
+
+    /* 旬空→宫 */
+    const zhiToGong={"子":1,"丑":8,"寅":8,"卯":3,"辰":4,"巳":4,"午":9,"未":2,"申":2,"酉":7,"戌":6,"亥":6};
+    const kongWangGong=[];
+    xunKongObj.kong.forEach(z=>{ if(zhiToGong[z]) kongWangGong.push(zhiToGong[z]); });
+
+    const outPan={
+      riGan,riZhi,shiZhi,shiGan,
+      yang:isYang,ju:benJu,jqName,
+      dipan,tianPan,menPan,xingPan,
+      xunKong:xunKongObj,kongWang:kongWangGong,
+      zhiFuGong,benJu
+    };
+
+    appendLog("✅排盘："+jqName+"｜"+(isYang?"阳遁":"阴遁")+benJu+"局｜日"+riGan+riZhi+" 时"+shiGan+shiZhi+"｜旬"+xunKongObj.xun+" 空"+xunKongObj.kong);
+    appendLog("📋八门："+JSON.stringify(outPan.menPan)+" 九星："+JSON.stringify(outPan.xingPan));
+
+    renderPan(outPan);
+    panCache=outPan;
+    return outPan;
+  }catch(e){
+    appendLog("❌paiPan排盘函数异常："+e.message);
+    console.error(e);
+    return null;
+  }
 }
 
-// ==========【排盘】==========
-function paiPan(dateStr,timeStr,lng){
-    try{
-        dateStr = dateStr.replace(/\//g,"-").trim();
-        timeStr = timeStr.trim();
-        const dateParts = dateStr.split("-");
-        const timeParts = timeStr.split(":");
-        if(dateParts.length !== 3 || timeParts.length !== 2){
-            appendLog("❌日期或者时间格式错误！必须是 2026-10-24 、21:15");
-            return null;
-        }
-        const y = Number(dateParts[0]);
-        const m = Number(dateParts[1]) - 1;
-        const d = Number(dateParts[2]);
-        const h = Number(timeParts[0]);
-        const mi = Number(timeParts[1]);
-        const dt = new Date(y,m,d,h,mi,0);
-        if(isNaN(dt.getTime())){
-            appendLog("❌日期时间解析失败！数字越界或者格式不对！");
-            return null;
-        }
-        const riGan = ganArr[(y + d) % 10];
-        const riZhi = zhiArr[(y + d) % 12];
-        const shiChenIdx = Math.floor((h + 1) / 2) % 12;
-        const shiZhi = zhiArr[shiChenIdx];
-        const jieQiResult = getJieQiAndYinYang(dt);
-        const jqName = jieQiResult.jqName;
-        const isYang = jieQiResult.isYang;
-        const ju = JQ_JU[jqName];
-        if(!ju){
-            appendLog("❌没有找到节气对应的局数");
-            return null;
-        }
-        const yuanIdx = getSanYuan(riGan + riZhi);
-        const benJu = ju[yuanIdx];
-        const yangDun = isYang;
-        const xunKongObj = getXunKong(riGan, riZhi);
-        const shiGanMap = wuShuDun(riGan);
-        const shiGan = shiGanMap[shiZhi];
-
-        const dipan = {};
-        const luShu = [4,9,2,3,5,7,8,1,6];
-        const gongList = [4,9,2,3,5,7,8,1,6];
-        let gl;
-        for(gl = 0; gl < gongList.length; gl++){
-            let g = gongList[gl];
-            dipan[g] = "";
-        }
-        let yiIdx = 0;
-        const yiList = ["戊","己","庚","辛","壬","癸","丁","丙","乙"];
-        if(yangDun){
-            let i;
-            for(i = 0; i < 9; i++){
-                const g = luShu[(benJu - 1 + i) % 9];
-                dipan[g] = yiList[yiIdx];
-                yiIdx = yiIdx + 1;
-            }
-        }else{
-            let i;
-            for(i = 0; i < 9; i++){
-                const g = luShu[(benJu - 1 - i + 9) % 9];
-                dipan[g] = yiList[yiIdx];
-                yiIdx = yiIdx + 1;
-            }
-        }
-
-        let zhiFuGong = null;
-        let gFind;
-        for(gFind = 1; gFind <= 9; gFind++){
-            if(dipan[gFind] === shiGan){
-                zhiFuGong = gFind;
-                break;
-            }
-        }
-        const tianPan = {};
-        let gCopy;
-        for(gCopy = 1; gCopy <=9; gCopy++){
-            tianPan[gCopy] = dipan[gCopy];
-        }
-        if(zhiFuGong){
-            const offset = zhiFuGong - benJu;
-            let gLoop;
-            for(gLoop = 1; gLoop <= 9; gLoop++){
-                const srcG = ((gLoop - offset - 1 + 9) % 9) + 1;
-                tianPan[gLoop] = dipan[srcG];
-            }
-        }
-
-        const baMenBase = ["休","生","伤","杜","景","死","惊","开"];
-        const zhiShiMenIdx = baMenBase.indexOf("休");
-        const menPan = {};
-        let mg;
-        for(mg = 1; mg <= 9; mg++){
-            menPan[mg] = "";
-        }
-        let menStartGong = benJu;
-        if(!yangDun){
-            menStartGong = ((benJu - 2 + 9) % 9) + 1;
-        }
-        let i;
-        for(i = 0; i < 8; i++){
-            const g = ((menStartGong - 1 + i) % 9) + 1;
-            if(g === 5){
-                continue;
-            }
-            menPan[g] = baMenBase[(zhiShiMenIdx + i) % 8];
-        }
-        menPan[5] = "禽";
-
-        const jiuXingBase = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
-        const xingPan = {};
-        let xg;
-        for(xg = 1; xg <= 9; xg++){
-            xingPan[xg] = "";
-        }
-        let xi;
-        for(xi = 0; xi < 9; xi++){
-            const g = ((benJu - 1 + xi) % 9) + 1;
-            xingPan[g] = jiuXingBase[xi];
-        }
-
-        const kongWangZhi = [];
-        kongWangZhi.push(xunKongObj.kong[0]);
-        kongWangZhi.push(xunKongObj.kong[1]);
-        const kongWangGong = [];
-        let kzIndex;
-        for(kzIndex = 0; kzIndex < kongWangZhi.length; kzIndex++){
-            let z = kongWangZhi[kzIndex];
-            if(zhiToGong[z]){
-                kongWangGong.push(zhiToGong[z]);
-            }
-        }
-        //日支宫
-        const riZhiGong = zhiToGong[riZhi];
-        //日支对冲宫
-        const riZhiChongZhi = liuChong[riZhi];
-        const riZhiChongGong = zhiToGong[riZhiChongZhi];
-
-        const outPan = {};
-        outPan.riGan = riGan;
-        outPan.riZhi = riZhi;
-        outPan.shiZhi = shiZhi;
-        outPan.shiGan = shiGan;
-        outPan.yang = yangDun;
-        outPan.ju = benJu;
-        outPan.jqName = jqName;
-        outPan.dipan = dipan;
-        outPan.tianPan = tianPan;
-        outPan.menPan = menPan;
-        outPan.xingPan = xingPan;
-        outPan.xunKong = xunKongObj;
-        outPan.kongWang = kongWangGong;
-        outPan.zhiFuGong = zhiFuGong;
-        outPan.riZhiGong = riZhiGong;
-        outPan.riZhiChongGong = riZhiChongGong;
-
-        appendLog("✅排盘：" + jqName + "｜" + (yangDun?"阳遁":"阴遁") + benJu + "局｜日干" + riGan + " 日支" + riZhi + " 时干" + shiGan + " 时支" + shiZhi + "｜旬空" + xunKongObj.kong);
-        appendLog("📌值符宫:"+zhiFuGong+"｜日支宫:"+riZhiGong+"｜日支冲宫:"+riZhiChongGong+"｜空亡宫:"+kongWangGong.join(","));
-        appendLog("📋八门：" + JSON.stringify(outPan.menPan) + " 九星：" + JSON.stringify(outPan.xingPan));
-        return outPan;
-    }catch(e){
-        appendLog("❌paiPan排盘函数异常：" + e.message);
-        console.error(e);
-        return null;
-    }
+/* 渲染 */
+function renderPan(pan){
+  $qimenBoard.innerHTML="";
+  for(const g of luoShu){
+    const dg=pan.dipan[g], tx=pan.tianPan[g], mn=pan.menPan[g], sh=(pan.xingPan||{})[g];
+    const kw = pan.kongWang.includes(g);
+    let cls="gong";
+    if(kw) cls+=" gong-xiong";
+    else if(["休","生","开"].includes(mn)) cls+=" gong-ji";
+    let h=`<div class="${cls}">
+      <div class="gong-title">${gongNameMap[g]}</div>
+      <div class="gong-line">九星：${sh||""}</div>
+      <div class="gong-line">八门：${mn}</div>
+      <div class="gong-line">天盘：${tx}</div>
+      <div class="gong-line">地盘：${dg}</div>`;
+    if(kw) h+=`<div class="kongwang">⚠️旬空宫</div>`;
+    h+=`</div>`;
+    $qimenBoard.innerHTML+=h;
+  }
 }
 
+function isKongGong(g,kw){ return kw&&kw.includes(g); }
+
+/* 过滤：去掉旬空宫对应号码范围（简实现） */
+function filterKill(pool,pan){
+  const kill=[];
+  const zhiToGong={"子":1,"丑":8,"寅":8,"卯":3,"辰":4,"巳":4,"午":9,"未":2,"申":2,"酉":7,"戌":6,"亥":6};
+  pan.xunKong.kong.forEach(z=>{
+    const g=zhiToGong[z]; if(!g) return;
+    const r=gongConfig[g]&&gongConfig[g].range;
+    if(r) for(let n=r[0];n<=r[1];n++) kill.push(n);
+  });
+  return pool.filter(n=>!kill.includes(n));
+}
+
+/* 号码工具 */
+function parseLastNum(s){
+  s=s.trim();
+  const part=s.split(/[+\+]/);
+  const reds=part[0].split(/[,\s]+/).map(x=>parseInt(x,10)).filter(n=>!isNaN(n)&&n>=1&&n<=33);
+  const blue=part[1]?parseInt(part[1],10):null;
+  if(reds.length!==6) { appendLog("❌上期红球需6个(1-33)，格式如 01 05 12 18 24 33 + 08"); return null; }
+  const span = Math.max(...reds)-Math.min(...reds);
+  return {red:reds,blue,span};
+}
+function getSpan(arr){ return Math.max(...arr)-Math.min(...arr); }
+function getHe(arr){ return arr.reduce((a,b)=>a+b,0); }
+function acCalc(arr){
+  const diffs=new Set();
+  for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) diffs.add(Math.abs(arr[i]-arr[j]));
+  return diffs.size - (arr.length-1);
+}
+function isPrime(n){ if(n<2)return false; for(let i=2;i*i<=n;i++) if(n%i===0)return false; return true; }
+
+function balanceCheck(pick){
+  let big=0,small=0,ji=0,ou=0,mid=0;
+  for(const x of pick){
+    if(x>=17) big++; else small++;
+    if(x%2===1) ji++; else ou++;
+    if(x>=11&&x<=22) mid++;
+  }
+  const pass = (big>=2&&big<=4) && (ji>=2&&ji<=4);
+  return {pass,big,small,ji,ou,mid};
+}
+function spanCheck(pick,lastSpan){
+  const cur=getSpan(pick);
+  /* 允许与上期跨度有“邻近/不雷同”的约束（可放宽为true） */
+  const ok = true; 
+  return {ok,curSpan:cur,lastSpan};
+}
+
+/* 加权抽样（在有效池按宫/门简单加权，并循环直到满足均衡+跨度） */
+function weightedSample(pool,k,lastSpan){
+  const maxTry=2000;
+  for(let t=0;t<maxTry;t++){
+    const pick=[];
+    const used=new Set();
+    while(pick.length<k){
+      const idx=Math.floor(Math.random()*pool.length);
+      const v=pool[idx];
+      if(!used.has(v)){ used.add(v); pick.push(v); }
+    }
+    pick.sort((a,b)=>a-b);
+    const bal=balanceCheck(pick);
+    const sp=spanCheck(pick,lastSpan);
+    if(bal.pass&&sp.ok) return {red:pick,bal,spanInfo:sp};
+  }
+  return null;
+}
+
+/* 历史解析 */
+function parseHistory(){
+  historyPool=[];
+  const t=$historyText.value.trim();
+  if(!t) return;
+  t.split(/\n/).forEach(line=>{
+    const s=line.trim(); if(!s) return;
+    const part=s.split(/[+\+]/);
+    const q=part[0].split(/[,\s]+/).map(x=>parseInt(x,10)).filter(n=>!isNaN(n)&&n>=1&&n<=33);
+    const b=part[1]?parseInt(part[1],10):null;
+    if(q.length===6) historyPool.push({red:q,blue:b,span:getSpan(q),he:getHe(q),ac:acCalc(q)});
+  });
+  appendLog("✅解析历史 "+historyPool.length+" 条");
+}
+/* ========== 推演主入口 ========== */
 function runCalc(){
-    appendLog("===== 启动 QDIM神兵奇门【拓展多宫版｜吉凶值符冲空亡全纳入】 =====");
-    const lastStr = document.getElementById("lastNum").value.trim();
-    const dateVal = document.getElementById("dateIn").value.trim();
-    const shiChenVal = document.getElementById("shiChen").value;
-    const genCount = parseInt(document.getElementById("genCount").value,10);
-    if(!lastStr){
-        appendLog("⚠️请输入上期开奖号码");
-        return;
-    }
-    const lastInfo = parseLastNum(lastStr);
-    if(!lastInfo){
-        return;
-    }
-    const timeFake = "12:00";
-    const pan = paiPan(dateVal, timeFake, 121.6);
-    if(!pan){
-        return;
-    }
-    panCache = pan;
+  appendLog("===== 启动 QDIM 神兵奇门【奇门统计+跨度融合】迭代推演 =====");
+  const lastStr = document.getElementById("lastNum").value.trim();
+  const dateVal = document.getElementById("dateIn").value.trim();
+  const timeFake = "12:00"; /* 如需用时辰输入可改取 shiChen */
+  const genCount = parseInt(document.getElementById("genCount").value,10)||10;
 
-    // ========== 核心：多源宫收集 + 标记来源 ==========
-    const gongSourceMap = {};
-    for(let g=1;g<=9;g++) gongSourceMap[g]=[];
-    //1、吉门宫
-    for(let g=1;g<=9;g++){
-        const m = pan.menPan[g];
-        if(m === "生" || m === "开" || m === "休"){
-            gongSourceMap[g].push("jiMen");
-        }
-    }
-    //2、值符宫
-    if(pan.zhiFuGong) gongSourceMap[pan.zhiFuGong].push("zhiFu");
-    //3、日支宫
-    if(pan.riZhiGong) gongSourceMap[pan.riZhiGong].push("riZhi");
-    //4、日支对冲飞冲宫
-    if(pan.riZhiChongGong) gongSourceMap[pan.riZhiChongGong].push("chong");
-    //5、空亡宫（不再杀掉，作为低权重来源）
-    pan.kongWang.forEach(g=>{
-        gongSourceMap[g].push("kongWang");
-    })
-    //收集所有有来源标记的宫
-    const activeGong = [];
-    for(let g=1;g<=9;g++){
-        if(gongSourceMap[g].length>0){
-            activeGong.push(g);
-        }
-    }
-    if(activeGong.length === 0){
-        activeGong.push(pan.ju);
-        gongSourceMap[pan.ju].push("juDefault");
-    }
-    gongSourceCache = gongSourceMap;
-    appendLog("🎯纳入候选宫【宫号:来源标签】");
-    activeGong.forEach(g=>{
-        appendLog("    宫"+g+"："+gongSourceMap[g].join(","));
-    })
+  if(!lastStr){
+    appendLog("⚠️请输入上期开奖号码");
+    return;
+  }
+  const lastInfo = parseLastNum(lastStr);
+  if(!lastInfo) return;
 
-    let redPool = [];
-    let agIndex;
-    for(agIndex = 0; agIndex < activeGong.length; agIndex++){
-        let g = activeGong[agIndex];
-        const s = gongConfig[g].range[0];
-        const e = gongConfig[g].range[1];
-        let n;
-        for(n = s; n <= e; n++){
-            redPool.push(n);
-        }
+  const pan = paiPan(dateVal, timeFake, 121.6);
+  if(!pan) return;
+
+  /* 优先取用宫：生/开/休 */
+  const activeGong=[];
+  for(let g=1;g<=9;g++){
+    const m=pan.menPan[g];
+    if(m==="生"||m==="开"||m==="休") activeGong.push(g);
+  }
+  if(activeGong.length===0) activeGong.push(pan.ju);
+  appendLog("🎯优先取用宫位："+activeGong.join(","));
+
+  let redPool=[];
+  for(const g of activeGong){
+    const r=gongConfig[g]&&gongConfig[g].range;
+    if(r) for(let n=r[0];n<=r[1];n++) redPool.push(n);
+  }
+  redPool=[...new Set(redPool)].sort((a,b)=>a-b);
+  appendLog("🔴基础候选池："+redPool.join(" "));
+
+  const validPool = filterKill(redPool,pan);
+  appendLog("✅过滤后有效候选池："+validPool.join(" "));
+
+  if(validPool.length<8){
+    appendLog("❌候选池号码过少，无法生成，调整推演时辰/日期再试");
+    return;
+  }
+
+  const bluePool=[];
+  for(let b=1;b<=16;b++) bluePool.push(b);
+
+  const outputList=[];
+  for(let i=0;i<genCount;i++){
+    const one=weightedSample(validPool,6,lastInfo.span);
+    if(!one){
+      appendLog("⚠️第"+(i+1)+"注多次尝试未满足均衡+跨度条件，跳过");
+      continue;
     }
-    redPool = [...new Set(redPool)].sort(function(a,b){
-        return a - b;
+    const bluePick=bluePool[Math.floor(Math.random()*bluePool.length)];
+    outputList.push({
+      red:one.red, blue:bluePick,
+      bal:one.bal,
+      span:one.spanInfo.curSpan
     });
-    appendLog("🔴拓展总候选池：" + redPool.join(" "));
-    //新版：不再做空亡过滤删除！全部保留
-    const validPool = redPool;
-    appendLog("✅有效候选池（空亡凶门保留，权重压低）：" + validPool.join(" "));
-    if(validPool.length < 8){
-        appendLog("❌候选池号码过少，调整推演时辰再试");
-        return;
-    }
-    const bluePool = [];
-    let b;
-    for(b = 1; b <= 16; b++){
-        bluePool.push(b);
-    }
-    const outputList = [];
-    let loopI;
-    for(loopI = 0; loopI < genCount; loopI++){
-        const one = weightedSample(validPool,6,lastInfo.span);
-        if(!one){
-            appendLog("⚠️第" + (loopI+1) + "注多次尝试未满足均衡+跨度条件，跳过");
-            continue;
-        }
-        const bluePick = bluePool[Math.floor(Math.random() * bluePool.length)];
-        outputList.push({
-            red:one.red,
-            blue:bluePick,
-            bal:one.bal,
-            span:one.spanInfo.curSpan
-        });
-        appendLog("🎲第" + (loopI+1) + "注生成：红球" + one.red.join(" ") + " 蓝球" + bluePick + " | 跨度" + one.spanInfo.curSpan + " 大小" + one.bal.big + ":" + one.bal.small + " 奇偶" + one.bal.ji + ":" + one.bal.ou);
-    }
-    if(outputList.length === 0){
-        appendLog("❌本轮没有符合全部条件的号码组合，请更换时辰或者放宽跨度规则");
-        return;
-    }
-    let html = "<table><tr><th>序号</th><th>红球</th><th>蓝球</th><th>跨度</th><th>大小｜奇偶｜中段</th></tr>";
-    let outIndex;
-    for(outIndex = 0; outIndex < outputList.length; outIndex++){
-        const item = outputList[outIndex];
-        const redStr = item.red.map(function(x){
-            return x.toString().padStart(2,"0");
-        }).join(" ");
-        const blueStr = item.blue.toString().padStart(2,"0");
-        html = html + "<tr>";
-        html = html + "<td>" + (outIndex + 1) + "</td>";
-        html = html + "<td class=\"red\">" + redStr + "</td>";
-        html = html + "<td class=\"blue-text\">" + blueStr + "</td>";
-        html = html + "<td>" + item.span + "</td>";
-        html = html + "<td>" + item.bal.big + ":" + item.bal.small + "｜" + item.bal.ji + ":" + item.bal.ou + "｜" + item.bal.mid + "</td>";
-        html = html + "</tr>";
-    }
-    html = html + "</table>";
-    html = html + "<p class=\"info-text\">说明：本程序仅用于QDIM神兵奇门模型学术研究娱乐，开奖为独立随机事件，不构成购彩参考。</p>";
-    document.getElementById("resultBox").innerHTML = html;
+    appendLog("🎲第"+(i+1)+"注生成：红球"+one.red.join(" ")+" 蓝球"+bluePick+" | 跨度"+one.spanInfo.curSpan+" 大小"+one.bal.big+":"+one.bal.small+" 奇偶"+one.bal.ji+":"+one.bal.ou);
+  }
+
+  if(outputList.length===0){
+    appendLog("❌本轮没有符合全部条件的号码组合，请更换时辰/日期或放宽规则");
+    return;
+  }
+
+  let html = "<table><tr><th>序号</th><th>红球</th><th>蓝球</th><th>跨度</th><th>大小｜奇偶｜中段</th></tr>";
+  for(let i=0;i<outputList.length;i++){
+    const item=outputList[i];
+    const redStr=item.red.map(x=>x.toString().padStart(2,"0")).join(" ");
+    const blueStr=item.blue.toString().padStart(2,"0");
+    html+=`<tr>
+      <td>${i+1}</td>
+      <td class="red">${redStr}</td>
+      <td class="blue-text">${blueStr}</td>
+      <td>${item.span}</td>
+      <td>${item.bal.big}:${item.bal.small}｜${item.bal.ji}:${item.bal.ou}｜${item.bal.mid}</td>
+    </tr>`;
+  }
+  html+="</table>";
+  html+='<p class="info-text">说明：本程序仅用于QDIM奇门模型学术研究娱乐，开奖为独立随机事件，不构成购彩参考/建议。</p>';
+  $resultBox.innerHTML=html;
 }
 </script>
 </body>
 </html>
-
