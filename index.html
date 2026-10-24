@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【修复起盘按钮】</title>
+<title>奇门统计 QDIM｜对冲/隔宫/三合/三刑 奇门矩阵版【onclick稳版】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,SimHei}
 body{background:#111827;color:#e5e7eb;padding:14px;max-width:600px;margin:0 auto}
@@ -22,7 +21,7 @@ button:active{background:#1e40af}
 .ball-red-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eab308;color:#111;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-red-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#22c55e;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-high{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#3b82f6;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
-.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-weight:bold;white-space:nowrap}
+.ball-blue-mid{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#a855f7;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-blue-low{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:#06b6d4;color:#fff;margin:5px;font-size:15px;font-weight:bold;white-space:nowrap}
 .ball-wrap{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
 .legend{font-size:14px;margin-bottom:8px;color:#ddd}
@@ -38,14 +37,14 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
     <h3>🎲 玩法 & 时间设置</h3>
     <div class="item-row">
         <label>玩法</label>
-        <select id="gameSel">
+        <select id="gameSel" onchange="autoFillTime()">
             <option value="ssq">双色球｜周二/四/日 21:15</option>
             <option value="dlt">大乐透｜周一/三/六 21:25</option>
         </select>
     </div>
     <div class="item-row">
-        <label>日期（格式：2026-10-25）</label>
-        <input id="dateInput" placeholder="2026-10-25">
+        <label>日期（格式：2026-10-24）</label>
+        <input id="dateInput" placeholder="2026-10-24">
     </div>
     <div class="item-row">
         <label>时间（格式：21:15）</label>
@@ -83,10 +82,10 @@ table.hit-table{width:100%;border-collapse:collapse;margin-top:8px}
         <label>保中：保几码（ssq推荐3）</label>
         <input id="wheelGuarantee" value="3" type="number">
     </div>
-    <button id="paiBtn">🔮 起奇门真盘</button>
-    <button id="runBtn">▶️ 启动 QDIM 推演（先后天+AC+余数）</button>
-    <button id="wheelBtn">🔁 生成【奇门宫位矩阵】</button>
-    <button id="clearHistory">🗑️ 清空历史库</button>
+    <button onclick="doPaiPan()">🔮 起奇门真盘</button>
+    <button onclick="runTuiYan()">▶️ 启动 QDIM 推演（先后天+AC+余数）</button>
+    <button onclick="doWheel()">🔁 生成【奇门宫位矩阵】</button>
+    <button onclick="clearAllHistory()">🗑️ 清空历史库</button>
     <div class="legend">💡颜色说明：<span style="color:#ef4444">●高分</span>｜<span style="color:#eab308">●中分</span>｜<span style="color:#22c55e">●低分</span></div>
 </div>
 
@@ -192,6 +191,11 @@ const jqDate = [
 ];
 const luShuOrder = [4,9,2,3,5,7,8,1,6];
 
+let pan = null;
+let historyPool = [];
+let topQianPool = [];
+let numToGong = {};
+
 // 自动获取最近开奖时间
 function autoGetDrawTime(gameType){
     const now = new Date();
@@ -217,6 +221,11 @@ function autoGetDrawTime(gameType){
     if(drawDate < now) drawDate.setDate(drawDate.getDate()+7);
     const dStr = drawDate.toISOString().split('T')[0];
     return {date:dStr, time:drawHM};
+}
+function autoFillTime(){
+    const res = autoGetDrawTime(document.getElementById("gameSel").value);
+    document.getElementById("dateInput").value = res.date;
+    document.getElementById("timeInput").value = res.time;
 }
 
 function getGanIndex(g){ return ganArr.indexOf(g); }
@@ -678,11 +687,25 @@ function qimenWheelGen(poolItemList, num2gongMap, selectK, guaranteeK, matrixMod
     return wheel;
 }
 
-let pan = null;
-let historyPool = [];
-let topQianPool = [];
-let numToGong = {}; // 号码→归属宫，给奇门矩阵用
+// ========== 起盘函数 ==========
+function doPaiPan(){
+    appendLog("👉 点击起奇门真盘，开始读取输入");
+    const d = document.getElementById('dateInput').value.trim();
+    const t = document.getElementById('timeInput').value.trim();
+    const lng = Number(document.getElementById('lngInput').value);
+    if(!d || !t){
+        appendLog("❌日期或者时间输入框为空！");
+        return;
+    }
+    pan = paiPan(d,t,lng);
+    if(pan){
+        appendLog("✅ 起盘成功，pan对象已就绪，可以点QDIM推演");
+    }else{
+        appendLog("❌起盘失败，pan是空");
+    }
+}
 
+// ========== 推演函数 ==========
 function runTuiYan(){
     if(!pan){ alert("⚠️请先点击【起奇门真盘】！"); return; }
     clearLog();
@@ -868,58 +891,17 @@ function wheelGen(poolNumbers, selectK, guaranteeK){
     return wheel;
 }
 
-// ==========【重点修改这个起盘点击函数，先打印日志，不再哑巴】==========
-function doPaiPan(){
-    appendLog("👉 点击起奇门真盘，开始读取输入");
-    const d = document.getElementById('dateInput').value.trim();
-    const t = document.getElementById('timeInput').value.trim();
-    const lng = Number(document.getElementById('lngInput').value);
-    if(!d || !t){
-        appendLog("❌日期或者时间输入框为空！");
-        return;
-    }
-    pan = paiPan(d,t,lng);
-    if(pan){
-        appendLog("✅ 起盘成功，pan对象已就绪，可以点QDIM推演");
-    }else{
-        appendLog("❌起盘失败，pan是空");
-    }
+function clearAllHistory(){
+    document.getElementById("historyText").value = "";
+    historyPool = [];
+    document.getElementById("hitTableBox").innerHTML = "";
+    document.getElementById("wheelBox").innerText = "";
+    appendLog("✅历史库清空");
 }
 
-function bindGameChange(){
-    const sel = document.getElementById("gameSel");
-    sel.onchange = function(){
-        const res = autoGetDrawTime(this.value);
-        document.getElementById("dateInput").value = res.date;
-        document.getElementById("timeInput").value = res.time;
-    }
-}
-
-// ==========【修复：全部只绑定click，删掉touchstart冲突代码】==========
-function bindButton(btn,fn){
-    btn.addEventListener("click", fn);
-}
-
+// 页面加载自动填时间
 window.onload = function(){
-    bindGameChange();
-    const res = autoGetDrawTime("ssq");
-    document.getElementById('dateInput').value = res.date;
-    document.getElementById('timeInput').value = res.time;
-    const $paiBtn = document.getElementById("paiBtn");
-    const $runBtn = document.getElementById("runBtn");
-    const $wheelBtn = document.getElementById("wheelBtn");
-    const $clearHistory = document.getElementById("clearHistory");
-
-    bindButton($paiBtn, doPaiPan);
-    bindButton($runBtn, runTuiYan);
-    bindButton($wheelBtn, doWheel);
-    bindButton($clearHistory, function(){
-        document.getElementById("historyText").value = "";
-        historyPool = [];
-        document.getElementById("hitTableBox").innerHTML = "";
-        document.getElementById("wheelBox").innerText = "";
-        appendLog("✅历史库清空");
-    });
+    autoFillTime();
 }
 </script>
 </body>
