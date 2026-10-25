@@ -259,6 +259,15 @@ const shenList = ["值符","螣蛇","太阴","六合","白虎","玄武","九地"
 const menList = ["休","死","伤","杜","禽","开","惊","生","景"];
 const xingList = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
 
+// v3新增常量
+const chongGongMap = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
+const liuHeMap = {"子":"丑","丑":"子","寅":"亥","亥":"寅","卯":"戌","戌":"卯","辰":"酉","酉":"辰","巳":"申","申":"巳","午":"未","未":"午"};
+const xingNumMap = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
+const menNumMap = {"休":1,"死":2,"伤":3,"杜":4,"禽":5,"开":6,"惊":7,"生":8,"景":9};
+const shenNumMap = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
+const gongDizhiMap = {1:["子"],2:["未","申"],3:["卯"],4:["辰","巳"],5:[],6:["戌","亥"],7:["酉"],8:["丑","寅"],9:["午"]};
+const feiXingOrder = [1,8,3,4,9,2,7,6];
+
 function loadParamToUI(){
     document.getElementById("baseTarget").value = param.base;
     document.getElementById("wShengWo").value = param.wu.shengWo;
@@ -534,8 +543,38 @@ function buildMainPool(palaceData,useXT,useHT,lotType){
     for(let g=1;g<=9;g++){
         let p = palaceData[g];
         let numList = [];
+        // 先天数、后天数
         if(useXT) numList = numList.concat(p.tianXian);
         if(useHT) numList = numList.concat(p.houTian);
+        // 对冲宫数
+        const chongG = chongGongMap[g];
+        if(chongG && palaceData[chongG]) numList = numList.concat(palaceData[chongG].tianXian);
+        // 六合数
+        const dzList = gongDizhiMap[g] || [];
+        dzList.forEach(dz => {
+            const lhDz = liuHeMap[dz];
+            if(lhDz) numList.push(diZhi.indexOf(lhDz) + 1);
+        });
+        // 九星数、八门数
+        numList.push(xingNumMap[p.xing] || g);
+        numList.push(menNumMap[p.men] || g);
+        // 星门相加、门神相加、星门神三合
+        const xingNum = xingNumMap[p.xing] || g;
+        const menNum = menNumMap[p.men] || g;
+        const shenNum = shenNumMap[p.shen] || g;
+        numList.push(((xingNum + menNum - 1) % 9) + 1);
+        numList.push(((menNum + shenNum - 1) % 9) + 1);
+        numList.push(((xingNum + menNum + shenNum - 1) % 9) + 1);
+        // 天地盘干组合
+        const tianGanIdx = tianGan.indexOf(p.tianGan) + 1;
+        const diGanIdx = tianGan.indexOf(p.diGan) + 1;
+        numList.push(((tianGanIdx + diGanIdx - 1) % 9) + 1);
+        // 宫星门
+        numList.push(((g + xingNum + menNum - 1) % 9) + 1);
+        // 飞行数
+        const feiIdx = feiXingOrder.indexOf(g);
+        if(feiIdx >= 0) numList.push(feiXingOrder[(feiIdx + 1) % feiXingOrder.length]);
+
         let extend = [];
         for(let base of numList){
             let n = base;
@@ -585,15 +624,11 @@ function calcAC(arr){
 function rotationMatrix(sourceNum,needCount,totalGenerate){
     let result = [];
     let src = [...sourceNum].sort((a,b)=>a-b);
-    if(src.length < needCount) return result;
-    const maxAttempts = totalGenerate * 20;
-    let attempts = 0;
-    while(result.length < totalGenerate && attempts < maxAttempts){
+    while(result.length < totalGenerate){
         let shuf = [...src].sort(()=>Math.random()-0.5);
         let group = shuf.slice(0,needCount).sort((a,b)=>a-b);
         let key = group.join(",");
         if(!result.some(x=>x.join(",")===key)) result.push(group);
-        attempts++;
     }
     return result;
 }
