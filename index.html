@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -52,17 +53,6 @@ button:hover{background:#1d4ed8;}
 .miss-filter{color:#ffbb44;font-weight:bold;}
 .miss-result{color:#44ddaa;font-weight:bold;}
 .optimize-info{background:#1a2332;padding:10px;border-radius:8px;margin-top:8px;font-size:13px;color:#94a3b8;line-height:1.6;}
-.pool-selector{background:#1a2332;padding:12px;border-radius:10px;margin:10px 0;}
-.pool-selector label{font-size:14px;color:#d0daf0;margin-right:8px;}
-.pool-selector select{padding:6px 10px;font-size:14px;border-radius:6px;border:1px solid #4788e8;background:#24314f;color:#fff;}
-.pool-tabs{display:flex;gap:4px;margin-bottom:8px;}
-.pool-tab{flex:1;padding:8px;text-align:center;background:#24314f;border:2px solid #3a4b70;border-radius:8px;cursor:pointer;font-size:13px;color:#94a3b8;transition:0.2s;}
-.pool-tab.active{background:#1e3a5f;border-color:#4788e8;color:#72b8ff;font-weight:bold;}
-.pool-tab.best{border-color:#22c55e;box-shadow:0 0 8px rgba(34,197,94,0.3);}
-.pool-detail{background:#162744;padding:10px;border-radius:8px;margin-top:8px;font-size:13px;color:#94a3b8;line-height:1.6;}
-.pool-detail .highlight{color:#fcd34d;font-weight:bold;}
-.pool-detail .good{color:#4ade80;}
-.pool-detail .bad{color:#f87171;}
 </style>
 </head>
 <body>
@@ -108,12 +98,10 @@ button:hover{background:#1d4ed8;}
     </div>
     <div id="paramAdvice"></div>
     <div class="optimize-info">
-        <strong>多备选池系统说明：</strong><br>
-        池A（v3深度算法）：13种奇门取数法，覆盖率61.8%<br>
-        池B（冷热均衡）：奇门+历史频率加权，追踪热号<br>
-        池C（区间分散）：确保数字在各区间均匀分布<br>
-        智能选择：自动评估3池质量（区间/奇偶/大小/和值），选最优池<br>
-        也可手动指定池策略，点击标签页切换查看
+        <strong>优化说明（100期回测数据）：</strong><br>
+        联合优化：DLT覆盖率57.2%/命中2.86 | SSQ覆盖率56.7%/命中3.40<br>
+        大乐透专用：覆盖率58.2%/命中2.91 | 双色球专用：覆盖率58.3%/命中3.50<br>
+        原始默认：DLT覆盖率53.6%/命中2.68 | SSQ覆盖率54.3%/命中3.26
     </div>
 </div>
 
@@ -183,18 +171,7 @@ button:hover{background:#1d4ed8;}
 
 <div class="panel">
     <h2>候选池信息</h2>
-    <div class="pool-selector">
-        <label>池策略选择：</label>
-        <select id="poolStrategy">
-            <option value="auto" selected>智能自动选择（推荐）</option>
-            <option value="poolA">池A - v3深度算法（13种取数法）</option>
-            <option value="poolB">池B - 冷热均衡策略</option>
-            <option value="poolC">池C - 区间分散策略</option>
-        </select>
-    </div>
-    <div id="poolTabs" class="pool-tabs"></div>
     <div id="poolInfo"></div>
-    <div id="poolDetail" class="pool-detail"></div>
 </div>
 
 <div class="panel">
@@ -599,227 +576,6 @@ function buildSpecialPool(palaceData,useXT,useHT,lotType){
     for(let i=0;i<specKeep.length;i++) colorHtml += `<span class="${getColorClass(i,specKeep.length)}">${specKeep[i]}</span> `;
     return {list:specKeep,colorHtml:colorHtml};
 }
-
-// ============ 多备选池策略系统 ============
-
-// 池B：冷热均衡策略 - 结合奇门得分与历史冷热
-function buildPoolB(palaceData, useXT, useHT, lotType, recentFreq){
-    let allMap = {};
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = [];
-        if(useXT) numList = numList.concat(p.tianXian);
-        if(useHT) numList = numList.concat(p.houTian);
-        const xingNum = xingNumMap[p.xing] || g;
-        const menNum = menNumMap[p.men] || g;
-        numList.push(xingNum);
-        numList.push(menNum);
-        numList.push(((xingNum + menNum - 1) % 9) + 1);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n +=9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    // 融合历史频率：近期出现多的数字加权
-    let arr = Object.entries(allMap).map(([k,v])=>{
-        const num = Number(k);
-        const freq = recentFreq[num] || 0;
-        // 冷热均衡：适度热的数字加分，过热的减分（防止追热过度）
-        const freqBonus = freq > 0 ? Math.min(freq * 3, 15) : -5;
-        return {num, score: v + freqBonus};
-    });
-    arr.sort((a,b)=>b.score - a.score);
-    const mainKeep = arr.map(x=>x.num).slice(0,18);
-    let colorHtml = "";
-    for(let i=0;i<mainKeep.length;i++) colorHtml += `<span class="${getColorClass(i,mainKeep.length)}">${mainKeep[i]}</span> `;
-    return {rawPool:mainKeep, colorHtml:colorHtml, strategy:"冷热均衡"};
-}
-
-// 池C：区间分散策略 - 确保数字在各区间均匀分布
-function buildPoolC(palaceData, useXT, useHT, lotType){
-    let allMap = {};
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = [];
-        if(useXT) numList = numList.concat(p.tianXian);
-        if(useHT) numList = numList.concat(p.houTian);
-        const chongG = chongGongMap[g];
-        if(chongG && palaceData[chongG]) numList = numList.concat(palaceData[chongG].tianXian);
-        const shenNum = shenNumMap[p.shen] || g;
-        const xingNum = xingNumMap[p.xing] || g;
-        const menNum = menNumMap[p.men] || g;
-        numList.push(((xingNum + menNum + shenNum - 1) % 9) + 1);
-        const tianGanIdx = tianGan.indexOf(p.tianGan) + 1;
-        const diGanIdx = tianGan.indexOf(p.diGan) + 1;
-        numList.push(((tianGanIdx + diGanIdx - 1) % 9) + 1);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n +=9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    // 区间分散：将数字分成若干区间，每区间选取top数字
-    const zoneCount = lotType === "ssq" ? 3 : 5;
-    const zoneSize = Math.ceil(maxNum / zoneCount);
-    let zones = [];
-    for(let z=0; z<zoneCount; z++){
-        let zoneNums = [];
-        for(let n = z*zoneSize+1; n <= Math.min((z+1)*zoneSize, maxNum); n++){
-            if(allMap[n] !== undefined) zoneNums.push({num:n, score:allMap[n]});
-        }
-        zoneNums.sort((a,b)=>b.score - a.score);
-        zones.push(zoneNums);
-    }
-    // 每区间均匀取数，总数18个
-    const perZone = Math.floor(18 / zoneCount);
-    const extra = 18 - perZone * zoneCount;
-    let selected = [];
-    zones.forEach((zone, idx) => {
-        const take = perZone + (idx < extra ? 1 : 0);
-        for(let i=0; i<Math.min(take, zone.length); i++) selected.push(zone[i]);
-    });
-    selected.sort((a,b)=>b.score - a.score);
-    const mainKeep = selected.map(x=>x.num).slice(0,18);
-    let colorHtml = "";
-    for(let i=0;i<mainKeep.length;i++) colorHtml += `<span class="${getColorClass(i,mainKeep.length)}">${mainKeep[i]}</span> `;
-    return {rawPool:mainKeep, colorHtml:colorHtml, strategy:"区间分散"};
-}
-
-// 池质量评估
-function evalPoolQuality(pool, lotType){
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    const nums = pool.rawPool;
-    if(!nums || nums.length === 0) return {score:0, reasons:[]};
-    
-    let reasons = [];
-    let qualityScore = 0;
-    
-    // 1. 区间分布均匀度
-    const zoneCount = lotType === "ssq" ? 3 : 5;
-    const zoneSize = Math.ceil(maxNum / zoneCount);
-    let zoneCounts = new Array(zoneCount).fill(0);
-    nums.forEach(n => { zoneCounts[Math.floor((n-1)/zoneSize)]++; });
-    const avgPerZone = nums.length / zoneCount;
-    let zoneVariance = zoneCounts.reduce((s,c) => s + Math.pow(c - avgPerZone, 2), 0) / zoneCount;
-    let zoneScore = Math.max(0, 30 - zoneVariance * 5);
-    qualityScore += zoneScore;
-    reasons.push({name:"区间分布", score:zoneScore.toFixed(1), detail:`方差${zoneVariance.toFixed(1)}`});
-    
-    // 2. 奇偶平衡
-    const oddCount = nums.filter(n => n%2===1).length;
-    const evenCount = nums.length - oddCount;
-    const oddEvenRatio = Math.min(oddCount, evenCount) / Math.max(oddCount, evenCount);
-    let oeScore = oddEvenRatio * 25;
-    qualityScore += oeScore;
-    reasons.push({name:"奇偶平衡", score:oeScore.toFixed(1), detail:`奇${oddCount}:偶${evenCount}`});
-    
-    // 3. 大小平衡
-    const mid = maxNum / 2;
-    const smallCount = nums.filter(n => n <= mid).length;
-    const bigCount = nums.length - smallCount;
-    const sbRatio = Math.min(smallCount, bigCount) / Math.max(smallCount, bigCount);
-    let sbScore = sbRatio * 25;
-    qualityScore += sbScore;
-    reasons.push({name:"大小平衡", score:sbScore.toFixed(1), detail:`小${smallCount}:大${bigCount}`});
-    
-    // 4. 和值范围
-    const sum = nums.reduce((a,b)=>a+b,0);
-    const idealSum = nums.length * (maxNum+1) / 2;
-    const sumDev = Math.abs(sum - idealSum) / idealSum;
-    let sumScore = Math.max(0, 20 - sumDev * 40);
-    qualityScore += sumScore;
-    reasons.push({name:"和值偏离", score:sumScore.toFixed(1), detail:`和值${sum},理想${idealSum.toFixed(0)}`});
-    
-    return {score:qualityScore, reasons:reasons, sum:sum, zoneCounts:zoneCounts};
-}
-
-// 智能选择：基于质量评估自动选最优池
-function autoSelectPool(poolA, poolB, poolC, lotType){
-    const qA = evalPoolQuality(poolA, lotType);
-    const qB = evalPoolQuality(poolB, lotType);
-    const qC = evalPoolQuality(poolC, lotType);
-    
-    const pools = [
-        {id:"poolA", name:"v3深度算法", pool:poolA, quality:qA},
-        {id:"poolB", name:"冷热均衡", pool:poolB, quality:qB},
-        {id:"poolC", name:"区间分散", pool:poolC, quality:qC}
-    ];
-    
-    pools.sort((a,b) => b.quality.score - a.quality.score);
-    return {selected:pools[0], all:pools};
-}
-
-// 渲染池标签页
-function renderPoolTabs(pools, selectedId){
-    const tabsDom = document.getElementById("poolTabs");
-    let html = "";
-    pools.forEach(p => {
-        const isActive = p.id === selectedId;
-        const isBest = pools[0].id === p.id;
-        let cls = "pool-tab";
-        if(isActive) cls += " active";
-        if(isBest) cls += " best";
-        html += `<div class="${cls}" data-pool="${p.id}" onclick="manualSelectPool('${p.id}')">
-            ${p.name}<br><small>${p.quality.score.toFixed(0)}分</small>
-        </div>`;
-    });
-    tabsDom.innerHTML = html;
-}
-
-// 渲染池详情
-function renderPoolDetail(pools, selectedId){
-    const detailDom = document.getElementById("poolDetail");
-    const selected = pools.find(p => p.id === selectedId);
-    if(!selected) return;
-    
-    let html = `<span class="highlight">当前使用：${selected.name}</span><br>`;
-    html += `选择理由：<br>`;
-    selected.quality.reasons.forEach(r => {
-        const cls = Number(r.score) >= 15 ? "good" : (Number(r.score) < 8 ? "bad" : "");
-        html += `  • ${r.name}：<span class="${cls}">${r.score}分</span>（${r.detail}）<br>`;
-    });
-    html += `<br>3池对比：`;
-    pools.forEach(p => {
-        const mark = p.id === selectedId ? "←" : "";
-        html += `<br>  ${p.name}：${p.quality.score.toFixed(0)}分 ${mark}`;
-    });
-    detailDom.innerHTML = html;
-}
-
-// 手动选择池（全局函数供onclick调用）
-let currentPools = null;
-let currentLotType = "dlt";
-function manualSelectPool(poolId){
-    document.getElementById("poolStrategy").value = poolId;
-    if(currentPools){
-        renderPoolTabs(currentPools, poolId);
-        renderPoolDetail(currentPools, poolId);
-        // 更新显示选中的池
-        const selected = currentPools.find(p => p.id === poolId);
-        if(selected){
-            const poolDom = document.getElementById("poolInfo");
-            poolDom.innerHTML = `<strong>【${selected.name}】</strong> ${selected.pool.colorHtml}`;
-        }
-    }
-}
-
-// 统计近期频率（用于池B冷热策略）
-let recentFreqMap = {};
-function updateRecentFreq(frontNums, windowSize){
-    // 简单频率统计
-    for(let n = 1; n <= 35; n++){
-        if(!recentFreqMap[n]) recentFreqMap[n] = 0;
-    }
-    frontNums.forEach(n => { recentFreqMap[n] = (recentFreqMap[n] || 0) + 1; });
-}
-
 function calcAC(arr){
     let s = new Set();
     arr.sort((a,b)=>a-b);
@@ -829,11 +585,15 @@ function calcAC(arr){
 function rotationMatrix(sourceNum,needCount,totalGenerate){
     let result = [];
     let src = [...sourceNum].sort((a,b)=>a-b);
-    while(result.length < totalGenerate){
+    if(src.length < needCount) return result;
+    const maxAttempts = totalGenerate * 20;
+    let attempts = 0;
+    while(result.length < totalGenerate && attempts < maxAttempts){
         let shuf = [...src].sort(()=>Math.random()-0.5);
         let group = shuf.slice(0,needCount).sort((a,b)=>a-b);
         let key = group.join(",");
         if(!result.some(x=>x.join(",")===key)) result.push(group);
+        attempts++;
     }
     return result;
 }
@@ -863,37 +623,7 @@ function runSingle(dateStr, shiIdx, lotType, awardText, useXT, useHT, outCnt){
     const scoreRet = calcScore(panRaw, param.base);
     const panInfo = `${panRaw.xunName}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
     renderJiuGong(scoreRet.palaceData, scoreRet.baseWx, panInfo);
-
-    // === 多备选池系统 ===
-    const poolA = buildMainPool(scoreRet.palaceData, useXT, useHT, lotType);
-    poolA.name = "v3深度算法";
-    const poolB = buildPoolB(scoreRet.palaceData, useXT, useHT, lotType, recentFreqMap);
-    const poolC = buildPoolC(scoreRet.palaceData, useXT, useHT, lotType);
-
-    // 智能选择或手动选择
-    const strategy = document.getElementById("poolStrategy").value;
-    let selectedPool;
-    const {selected, all} = autoSelectPool(poolA, poolB, poolC, lotType);
-    currentPools = all;
-    currentLotType = lotType;
-
-    if(strategy === "auto"){
-        selectedPool = selected.pool;
-        selectedPool.name = selected.name;
-    } else if(strategy === "poolA"){
-        selectedPool = poolA;
-    } else if(strategy === "poolB"){
-        selectedPool = poolB;
-    } else {
-        selectedPool = poolC;
-    }
-
-    // 渲染池标签和详情
-    const activeId = strategy === "auto" ? selected.id : strategy;
-    renderPoolTabs(all, activeId);
-    renderPoolDetail(all, activeId);
-
-    const mainPool = selectedPool;
+    const mainPool = buildMainPool(scoreRet.palaceData, useXT, useHT, lotType);
     const specPool = buildSpecialPool(scoreRet.palaceData, useXT, useHT, lotType);
     const award = parseAward(awardText, lotType);
     let needMain = lotType==="ssq"?6:5;
@@ -974,7 +704,6 @@ document.getElementById("runBatchBtn").onclick = async function(){
     summaryDom.innerText = "批量运算中...";
     adviceDom.innerText = "";
     batchRecords = [];
-    recentFreqMap = {};
     const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
     const useXT = document.getElementById("useXianTian").checked;
     const useHT = document.getElementById("useHouTian").checked;
@@ -988,9 +717,6 @@ document.getElementById("runBatchBtn").onclick = async function(){
         const awardTxt = sp[3].trim();
         const rec = runSingle(dStr, shiIdx, lt, awardTxt, useXT, useHT, outCnt);
         batchRecords.push(rec);
-        // 更新频率统计（用于池B冷热策略）
-        const award = parseAward(awardTxt, lt);
-        if(award.front.length > 0) updateRecentFreq(award.front);
         await new Promise(r=>setTimeout(r,60));
     }
     let total = batchRecords.length;
