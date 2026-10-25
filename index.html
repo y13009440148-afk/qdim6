@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -52,6 +53,11 @@ button:hover{background:#1d4ed8;}
 .miss-filter{color:#ffbb44;font-weight:bold;}
 .miss-result{color:#44ddaa;font-weight:bold;}
 .optimize-info{background:#1a2332;padding:10px;border-radius:8px;margin-top:8px;font-size:13px;color:#94a3b8;line-height:1.6;}
+#historyPanel{background:#1a2332;padding:12px;border-radius:10px;margin-top:10px;font-size:14px;color:#c8d6e5;line-height:1.5;}
+#historyPanel table{font-size:13px;}
+#historyPanel td{padding:4px 6px;}
+.hist-btn{width:auto;padding:6px 12px;font-size:13px;margin:2px;display:inline-block;}
+.hist-summary{background:#1e2d45;padding:8px;border-radius:8px;margin-top:8px;font-size:13px;}
 </style>
 </head>
 <body>
@@ -188,6 +194,16 @@ button:hover{background:#1d4ed8;}
     <div id="batchSummary"></div>
 </div>
 
+<div class="panel">
+    <h2>📊 历史追踪记录</h2>
+    <div style="margin-bottom:8px;">
+        <button id="histRecentBtn" class="btn-preset hist-btn active">最近20期</button>
+        <button id="histAllBtn" class="btn-preset hist-btn">全部记录</button>
+        <button id="histClearBtn" class="btn-reset hist-btn">清空历史</button>
+    </div>
+    <div id="historyPanel">暂无历史记录，复盘后自动保存</div>
+</div>
+
 <script>
 const poolDom = document.getElementById("poolInfo");
 const resDom = document.getElementById("finalResult");
@@ -214,7 +230,7 @@ const defaultParam = {
 const presetDlt = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":0,"keWo":-5,"woKe":-5,"biHe":2},
-    extra:{"chong":-5,"kongWang":-3,"zhiFuAdd":12},
+    extra:{"chong":-5,"kongWang":-3,"zhiFuAdd":2},
     ji:{"ji":2,"ping":-2,"xiong":-3},
     filter:{sumMin:56,sumMax:149,spanMin:18,spanMax:28,acMin:4,acMax:8}
 };
@@ -222,7 +238,7 @@ const presetDlt = {
 const presetSsq = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":-2,"biHe":7},
-    extra:{"chong":-1,"kongWang":-1,"zhiFuAdd":12},
+    extra:{"chong":-1,"kongWang":-1,"zhiFuAdd":7},
     ji:{"ji":8,"ping":4,"xiong":-5},
     filter:{sumMin:41,sumMax:124,spanMin:24,spanMax:31,acMin:6,acMax:8}
 };
@@ -231,6 +247,7 @@ let param = JSON.parse(JSON.stringify(defaultParam));
 
 const tianGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const diZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const gongDizhiMap = {1:["子"],2:["未","申"],3:["卯"],4:["辰","巳"],5:[],6:["戌","亥"],7:["酉"],8:["丑","寅"],9:["午"]};
 const ganWuxing = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"};
 const chongDizhi = {"子":"午","丑":"未","寅":"申","卯":"酉","辰":"戌","巳":"亥","午":"子","未":"丑","申":"寅","酉":"卯","戌":"辰","亥":"巳"};
 const xunKongTable = {"甲子旬":["戌","亥"],"甲戌旬":["申","酉"],"甲申旬":["午","未"],"甲午旬":["辰","巳"],"甲辰旬":["寅","卯"],"甲寅旬":["子","丑"]};
@@ -442,9 +459,11 @@ function qiMenZhuanPan(dateStr, shiIdx){
     let chongGong = 4;
     let kongGongList = [];
     kongZhi.forEach(z=>{
+        const chongZ = chongDizhi[z];
         for(let g=1;g<=9;g++){
             if(palaceMeta[g].name === "") continue;
-            if(diZhi.indexOf(chongDizhi[z]) >=0) chongGong = g;
+            const gDz = gongDizhiMap[g] || [];
+            if(gDz.includes(chongZ)) { chongGong = g; break; }
         }
     });
     if(kongZhi.includes("子") || kongZhi.includes("丑")) kongGongList = [8];
@@ -584,11 +603,15 @@ function calcAC(arr){
 function rotationMatrix(sourceNum,needCount,totalGenerate){
     let result = [];
     let src = [...sourceNum].sort((a,b)=>a-b);
-    while(result.length < totalGenerate){
+    if(src.length < needCount) return result;
+    const maxAttempts = totalGenerate * 20;
+    let attempts = 0;
+    while(result.length < totalGenerate && attempts < maxAttempts){
         let shuf = [...src].sort(()=>Math.random()-0.5);
         let group = shuf.slice(0,needCount).sort((a,b)=>a-b);
         let key = group.join(",");
         if(!result.some(x=>x.join(",")===key)) result.push(group);
+        attempts++;
     }
     return result;
 }
@@ -688,7 +711,9 @@ document.getElementById("runBtn").onclick = function(){
     });
     resDom.innerHTML = outHtml;
     if(awardTxt.trim() !== ""){
-        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>总池覆盖率：${ret.coverRate}<br>过滤留存率：${ret.passFilterRate}<br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
+        saveHistoryRecord(ret);
+        renderHistory(20);
+        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>总池覆盖率：${ret.coverRate}<br>过滤留存率：${ret.passFilterRate}<br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}<br><span style="color:#4ade80">✅ 已自动保存到历史记录</span>`;
     }else{
         backDom.innerHTML = "<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>";
     }
@@ -712,6 +737,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
         const awardTxt = sp[3].trim();
         const rec = runSingle(dStr, shiIdx, lt, awardTxt, useXT, useHT, outCnt);
         batchRecords.push(rec);
+        saveHistoryRecord(rec);
         await new Promise(r=>setTimeout(r,60));
     }
     let total = batchRecords.length;
@@ -728,7 +754,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
     const avgHit = (sumHit/total).toFixed(3);
     const avgCover = (coverSum/total).toFixed(3);
     const avgPass = (passSum/total).toFixed(3);
-    summaryDom.innerHTML = `<strong>==== 批量汇总【${total}期】====</strong><br>平均命中前区：${avgHit}<br>平均总池覆盖率：${avgCover}<br>平均过滤留存率：${avgPass}<br>命中分布：<br>中0：${hit0}期｜中1：${hit1}期｜中2：${hit2}期｜中3：${hit3}期｜中4：${hit4}期｜中5：${hit5}期｜中6：${hit6}期`;
+    summaryDom.innerHTML = `<strong>==== 批量汇总【${total}期】====</strong><br>平均命中前区：${avgHit}<br>平均总池覆盖率：${avgCover}<br>平均过滤留存率：${avgPass}<br>命中分布：<br>中0：${hit0}期｜中1：${hit1}期｜中2：${hit2}期｜中3：${hit3}期｜中4：${hit4}期｜中5：${hit5}期｜中6：${hit6}期<br><span style="color:#4ade80">✅ ${total}期记录已自动保存</span>`;
 
     let tips = "<strong>📌 调参建议：</strong><br>";
     if(avgCover < 0.55) tips += "👉 覆盖率偏低：尝试切换到专用参数预设<br>";
@@ -736,6 +762,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
     if(hit0/total >0.45) tips += "👉 空命中期偏多：放大生我/比和权重<br>";
     if(avgCover>0.56) tips += "✅ 当前参数回测表现良好<br>";
     adviceDom.innerHTML = tips;
+    renderHistory(20);
 };
 
 document.getElementById("exportCsvBtn").onclick = function(){
@@ -757,6 +784,99 @@ document.getElementById("clearAllBtn").onclick = function(){
     poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = ""; summaryDom.innerText = ""; adviceDom.innerText = "";
     jgDom.innerHTML = ""; panInfoLine.innerText = ""; awardInput.value=""; batchInput.value=""; batchRecords=[];
 };
+
+// ========== 历史追踪功能 ==========
+function saveHistoryRecord(rec){
+    let records = [];
+    try { records = JSON.parse(localStorage.getItem("qimen_history") || "[]"); } catch(e){}
+    records.unshift({
+        ts: new Date().toISOString(),
+        date: rec.date,
+        shiChen: rec.shiChen,
+        lotType: rec.lotType,
+        base: param.base,
+        zhiFuAdd: param.extra.zhiFuAdd,
+        shengWo: param.wu.shengWo,
+        keWo: param.wu.keWo,
+        ji: param.ji.ji,
+        xiong: param.ji.xiong,
+        awardFront: rec.awardFront,
+        awardBack: rec.awardBack,
+        hitFront: rec.hitCountFront,
+        hitBack: rec.hitCountBack,
+        coverRate: rec.coverRate,
+        passRate: rec.passFilterRate,
+        poolList: rec.poolList
+    });
+    if(records.length > 500) records = records.slice(0, 500);
+    localStorage.setItem("qimen_history", JSON.stringify(records));
+}
+function loadHistoryRecords(){
+    try { return JSON.parse(localStorage.getItem("qimen_history") || "[]"); } catch(e){ return []; }
+}
+function renderHistory(limit){
+    const panel = document.getElementById("historyPanel");
+    const records = loadHistoryRecords();
+    if(records.length === 0){
+        panel.innerHTML = "暂无历史记录，复盘后自动保存";
+        return;
+    }
+    const show = limit ? records.slice(0, limit) : records;
+    let html = `<table><tr><th>日期</th><th>彩种</th><th>基准</th><th>开奖前区</th><th>命中</th><th>覆盖率</th></tr>`;
+    show.forEach(r=>{
+        const ltName = r.lotType === "ssq" ? "SSQ" : "DLT";
+        const baseName = r.base === "riGan" ? "日干" : r.base === "shiGan" ? "时干" : "值符";
+        const coverNum = Math.round(Number(r.coverRate) * 100);
+        const coverColor = coverNum >= 60 ? "#4ade80" : coverNum >= 40 ? "#fbbf24" : "#f87171";
+        html += `<tr><td>${r.date}</td><td>${ltName}</td><td>${baseName}</td><td>${r.awardFront}</td><td>${r.hitFront}/${r.lotType==="ssq"?6:5}</td><td style="color:${coverColor};font-weight:bold">${coverNum}%</td></tr>`;
+    });
+    html += `</table>`;
+
+    // 统计摘要
+    const total = records.length;
+    const avgCover = (records.reduce((s,r)=>s+Number(r.coverRate),0)/total*100).toFixed(1);
+    const avgHit = (records.reduce((s,r)=>s+r.hitFront,0)/total).toFixed(2);
+    const hit60 = records.filter(r=>Number(r.coverRate)>=0.6).length;
+    const hitRate = (hit60/total*100).toFixed(0);
+
+    // 按基准主体分组统计
+    const baseStats = {};
+    records.forEach(r=>{
+        if(!baseStats[r.base]) baseStats[r.base] = {count:0, coverSum:0, hitSum:0};
+        baseStats[r.base].count++;
+        baseStats[r.base].coverSum += Number(r.coverRate);
+        baseStats[r.base].hitSum += r.hitFront;
+    });
+    let baseHtml = "";
+    const baseNames = {"riGan":"日干","shiGan":"时干","zhiFu":"值符"};
+    for(let b in baseStats){
+        const s = baseStats[b];
+        baseHtml += `${baseNames[b]}(${s.count}期): 覆盖率${(s.coverSum/s.count*100).toFixed(1)}% 命中${(s.hitSum/s.count).toFixed(2)} | `;
+    }
+
+    html += `<div class="hist-summary">
+        <strong>📈 总体统计（${total}期）：</strong>平均覆盖率 ${avgCover}% | 平均命中 ${avgHit} | 60%+覆盖率占比 ${hitRate}%<br>
+        <strong>📊 基准对比：</strong>${baseHtml}
+    </div>`;
+    panel.innerHTML = html;
+}
+document.getElementById("histRecentBtn").onclick = function(){
+    document.querySelectorAll(".hist-btn").forEach(b=>b.classList.remove("active"));
+    this.classList.add("active");
+    renderHistory(20);
+};
+document.getElementById("histAllBtn").onclick = function(){
+    document.querySelectorAll(".hist-btn").forEach(b=>b.classList.remove("active"));
+    this.classList.add("active");
+    renderHistory(0);
+};
+document.getElementById("histClearBtn").onclick = function(){
+    if(confirm("确定清空所有历史记录？此操作不可恢复。")){
+        localStorage.removeItem("qimen_history");
+        renderHistory(0);
+    }
+};
+renderHistory(20);
 </script>
 </body>
 </html>
