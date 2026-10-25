@@ -9321,5 +9321,404 @@
             alert("✅ 批量结果清空");
         };
     </script>
+    // ========== 完整推演脚本（防越池 + 固定输出 + 大乐透/双色球分离） ==========
+(function() {
+'use strict';
+
+// ---------- 基础工具 ----------
+function log(msg){
+  const el = document.getElementById('log');
+  if(el) el.textContent += msg + '\n';
+}
+
+function pad(n){ return ('0'+n).slice(-2) }
+
+function sum(arr){ return arr.reduce((s,x)=>s+x,0) }
+
+function span(arr){ return Math.max(...arr)-Math.min(...arr) }
+
+function acCalc(arr){
+  const s = arr.slice().sort((a,b)=>a-b);
+  const diffs = new Set();
+  for(let i=0;i<s.length;i++)
+    for(let j=i+1;j<s.length;j++)
+      diffs.add(s[j]-s[i]);
+  return diffs.size - (s.length-1);
+}
+
+function isPrime(n){
+  if(n<2) return false;
+  for(let i=2;i*i<=n;i++) if(n%i===0) return false;
+  return true;
+}
+
+// ---------- 九宫/奇门常量 ----------
+const gongNameMap = {1:'坎一',2:'坤二',3:'震三',4:'巽四',5:'中五',6:'乾六',7:'兑七',8:'艮八',9:'离九'};
+const gongRange   = {1:[1,4],2:[5,8],3:[9,12],4:[13,16],5:[17,20],6:[21,24],7:[25,28],8:[29,32],9:[33,35]};
+const gongClass   = {1:'mid',2:'bad',3:'lucky',4:'lucky',5:'mid',6:'bad',7:'mid',8:'bad',9:'lucky'};
+const duiGong     = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
+const linGong     = {1:[4,8],2:[3,7],3:[2,8],4:[1,9],5:[1,3,7,9],6:[3,9],7:[2,8],8:[1,3],9:[4,6]};
+const xianHou     = {1:9,9:1,2:7,7:2,3:8,8:3,4:6,6:4,5:5};
+const xtGongNum   = {1:9,2:4,3:3,4:8,5:2,6:7,7:6,8:1,9:5};
+
+// ---------- 排盘（简化，保持流程一致） ----------
+function paiPan(d){
+  return {
+    jq:'寒露', yang:false, ju:4,
+    riGan:'壬', riZhi:'寅', shiGan:'辛', shiZhi:'午',
+    zhiFuGong:4, zhiShiGong:9, kong:[5],
+    tian:{1:'蓬',2:'芮',3:'冲',4:'辅',5:'禽',6:'心',7:'柱',8:'任',9:'英'},
+    men:{1:'休',2:'死',3:'伤',4:'杜',5:'中',6:'开',7:'惊',8:'生',9:'景'},
+    gan:{1:'戊',2:'己',3:'庚',4:'辛',5:'壬',6:'癸',7:'丁',8:'丙',9:'乙'}
+  };
+}
+
+// ---------- 构建前区/后区候选池 ----------
+function buildPools(pan){
+  const useXt = document.getElementById('useXiantian').checked;
+  const ctype = document.getElementById('ctype').value;
+  const frontMax = ctype==='ssq' ? 33 : 35;
+  const backMax  = ctype==='ssq' ? 16 : 12;
+
+  const frontSet = new Set();
+  const backSet  = new Set();
+
+  // 前区：九宫取数 + 先天数可选
+  for(let g=1; g<=9; g++){
+    if(pan.kong.includes(g)) continue;
+    const [a,b] = gongRange[g];
+    for(let n=a; n<=frontMax; n++) frontSet.add(n);
+    if(useXt){
+      const xn = xtGongNum[g];
+      if(xn && xn<=frontMax) frontSet.add(xn);
+      const [a2,b2] = gongRange[xianHou[g]] || [0,0];
+      for(let n=a2; n<=b2 && n<=frontMax; n++) frontSet.add(n);
+    }
+  }
+
+  // 后区：九宫映射（休门/生门/值使宫等，简单取数段后半部）
+  const backBase = [1,2,3,4,5,6,7,8,9,10,11,12];
+  // 按奇门宫位映射后区（用值使宫+临宫映射）
+  const relGongs = new Set([pan.zhiShiGong]);
+  linGong[pan.zhiShiGong]?.forEach(g=>relGongs.add(g));
+  relGongs.add(duiGong[pan.zhiShiGong]);
+  for(const g of relGongs){
+    const [a,b] = gongRange[g] || [0,0];
+    for(let n=1; n<=backMax; n++){
+      if(n>=a && n<=b) backSet.add(n);
+    }
+  }
+  // 保证至少有 backMax 个后区候选
+  if(backSet.size < backMax){
+    for(let n=1; n<=backMax; n++) backSet.add(n);
+  }
+
+  return {
+    frontPool: [...frontSet].filter(x=>x>=1&&x<=frontMax).sort((a,b)=>a-b),
+    backPool:  [...backSet].filter(x=>x>=1&&x<=backMax).sort((a,b)=>a-b)
+  };
+}
+
+// ---------- 防越池过滤器 ----------
+function filterInPool(arr, poolSet, label){
+  const bad = arr.filter(x => !poolSet.has(x));
+  if(bad.length > 0){
+    console.warn(`${label} 越池:`, bad, '池:', [...poolSet]);
+    log(`⚠️ ${label} 发现越池数字 ${bad.join(',')}，已过滤`);
+  }
+  return arr.filter(x => poolSet.has(x));
+}
+
+// ---------- 常规缩水（在候选池内组合） ----------
+function normalShrink(frontPool, backPool, cfg, ctype){
+  const frontN = ctype==='ssq' ? 6 : 5;
+  const backN  = ctype==='ssq' ? 1 : 2;
+  const results = [];
+
+  // 从候选池随机采样组合（实际应用可用遍历，这里演示用随机+过滤）
+  for(let t=0; t<3000; t++){
+    // 前区
+    const fSet = new Set();
+    while(fSet.size < frontN){
+      const idx = Math.floor(Math.random() * frontPool.length);
+      fSet.add(frontPool[idx]);
+    }
+    const front = [...fSet].sort((a,b)=>a-b);
+
+    // 后区
+    const bSet = new Set();
+    while(bSet.size < backN){
+      const idx = Math.floor(Math.random() * backPool.length);
+      bSet.add(backPool[idx]);
+    }
+    const back = [...bSet].sort((a,b)=>a-b);
+
+    // 常规过滤
+    if(sum(front) < cfg.heMin || sum(front) > cfg.heMax) continue;
+    if(span(front) < cfg.kuaMin || span(front) > cfg.kuaMax) continue;
+    const ac = acCalc(front);
+    if(ac < cfg.acMin || ac > cfg.acMax) continue;
+    if(cfg.jiou){
+      const ji = front.filter(x=>x%2===1).length;
+      if(ji<2 || ji>4) continue;
+    }
+    if(cfg.daxiao){
+      const mid = ctype==='ssq' ? 16 : 17;
+      const big = front.filter(x=>x>mid).length;
+      if(big<2 || big>frontN-2) continue;
+    }
+    if(cfg.zhihe){
+      const z = front.filter(isPrime).length;
+      if(z<1 || z>3) continue;
+    }
+
+    results.push({front, back});
+    if(results.length >= 200) break;
+  }
+
+  return results;
+}
+
+// ---------- 奇门旋转（临宫/对宫/先后天，不越池） ----------
+function qimenRotate(candidates, pan, frontPoolSet, backPoolSet, ctype){
+  const frontN = ctype==='ssq' ? 6 : 5;
+  const backN  = ctype==='ssq' ? 1 : 2;
+  const resultSet = new Map();
+
+  for(const cand of candidates){
+    const key = cand.front.join(',') + '|' + cand.back.join(',');
+    resultSet.set(key, cand);
+
+    // 对前区做奇门旋转衍生（临宫/对宫/先后天）
+    const frontGongs = cand.front.map(n => {
+      for(let g=1; g<=9; g++){
+        const [a,b] = gongRange[g];
+        if(n>=a && n<=b) return g;
+      }
+      return null;
+    }).filter(Boolean);
+
+    const expandGongs = new Set();
+    for(const g of frontGongs){
+      expandGongs.add(g);
+      linGong[g]?.forEach(x=>expandGongs.add(x));
+      expandGongs.add(duiGong[g]);
+      expandGongs.add(xianHou[g]);
+    }
+    // 加入值符宫关联
+    expandGongs.add(pan.zhiFuGong);
+    linGong[pan.zhiFuGong]?.forEach(x=>expandGongs.add(x));
+    expandGongs.add(duiGong[pan.zhiFuGong]);
+
+    // 从展开宫位取数（但限制在 frontPoolSet 内）
+    const expandNums = [];
+    for(const g of expandGongs){
+      const [a,b] = gongRange[g] || [0,0];
+      for(let n=a; n<=b; n++){
+        if(frontPoolSet.has(n)) expandNums.push(n);
+      }
+    }
+
+    // 尝试生成几个变体
+    for(let t=0; t<20; t++){
+      const fSet = new Set();
+      while(fSet.size < frontN){
+        const idx = Math.floor(Math.random() * expandNums.length);
+        fSet.add(expandNums[idx]);
+      }
+      const newFront = [...fSet].sort((a,b)=>a-b);
+
+      // 后区也做奇门旋转（用值使宫关联）
+      const bExpand = new Set();
+      bExpand.add(pan.zhiShiGong);
+      linGong[pan.zhiShiGong]?.forEach(x=>bExpand.add(x));
+      bExpand.add(duiGong[pan.zhiShiGong]);
+      const bNums = [];
+      for(const g of bExpand){
+        const [a,b] = gongRange[g] || [0,0];
+        for(let n=a; n<=b; n++){
+          if(backPoolSet.has(n)) bNums.push(n);
+        }
+      }
+      const bSet = new Set();
+      while(bSet.size < backN){
+        const idx = Math.floor(Math.random() * bNums.length);
+        bSet.add(bNums[idx]);
+      }
+      const newBack = [...bSet].sort((a,b)=>a-b);
+
+      const newKey = newFront.join(',') + '|' + newBack.join(',');
+      if(!resultSet.has(newKey)){
+        resultSet.set(newKey, {front: newFront, back: newBack});
+      }
+    }
+  }
+
+  return [...resultSet.values()];
+}
+
+// ---------- 主推演函数 ----------
+function runAll(){
+  log('======= 开始推演 =======');
+
+  // 1. 读取参数
+  const ctype = document.getElementById('ctype').value;
+  const need  = parseInt(document.getElementById('finalN').value) || 5;
+  const cfg = {
+    heMin: parseInt(document.getElementById('heMin').value) || 70,
+    heMax: parseInt(document.getElementById('heMax').value) || 140,
+    acMin: parseInt(document.getElementById('acMin').value) || 4,
+    acMax: parseInt(document.getElementById('acMax').value) || 10,
+    kuaMin: parseInt(document.getElementById('kuaMin').value) || 15,
+    kuaMax: parseInt(document.getElementById('kuaMax').value) || 32,
+    jiou:  document.getElementById('chkJiOu').checked,
+    daxiao: document.getElementById('chkDaXiao').checked,
+    zhihe: document.getElementById('chkZhiHe').checked
+  };
+
+  // 2. 起盘
+  const d = new Date(
+    (document.getElementById('dt').value || '2026-10-24') +
+    'T' +
+    (document.getElementById('tm').value || '21:15')
+  );
+  const pan = paiPan(d);
+  log(`排盘：${pan.jq} ${pan.yang?'阳':'阴'}${pan.ju}局 值符${gongNameMap[pan.zhiFuGong]} 值使${gongNameMap[pan.zhiShiGong]}`);
+
+  // 3. 构建候选池
+  const pools = buildPools(pan);
+  const frontPool = pools.frontPool;
+  const backPool  = pools.backPool;
+  const frontPoolSet = new Set(frontPool);
+  const backPoolSet  = new Set(backPool);
+
+  log(`前区候选池(${frontPool.length}个): ${frontPool.join(',')}`);
+  log(`后区候选池(${backPool.length}个): ${backPool.join(',')}`);
+
+  // 显示池到页面
+  document.getElementById('qimenTotalPool').innerHTML =
+    `<div><b>前区候选池（${frontPool.length}个）</b></div>` +
+    frontPool.map(n => `<span class="tag">${pad(n)}</span>`).join('') +
+    `<div style="margin-top:8px"><b>后区候选池（${backPool.length}个）</b></div>` +
+    backPool.map(n => `<span class="tag">${pad(n)}</span>`).join('') +
+    `<div class="info">先天数参与=${document.getElementById('useXiantian').checked?'是':'否'}</div>`;
+
+  // 4. 常规缩水
+  const norm = normalShrink(frontPool, backPool, cfg, ctype);
+  log(`常规缩水候选: ${norm.length} 组`);
+
+  document.getElementById('normBox').innerHTML =
+    `常规缩水候选 ${norm.length} 组` +
+    (norm.slice(0,10).map(c =>
+      `<div>· 前区 ${c.front.map(pad).join(' ')} | 后区 ${c.back.map(pad).join(' ')}</div>`
+    ).join('') || '（无，需放宽条件）');
+
+  // 5. 奇门旋转收口
+  let rotated = qimenRotate(norm, pan, frontPoolSet, backPoolSet, ctype);
+  log(`奇门旋转后: ${rotated.length} 组`);
+
+  // 6. 防越池 + 去重 + 补足目标注数
+  const seen = new Set();
+  const finalTickets = [];
+
+  // 先加旋转结果
+  for(const t of rotated){
+    const key = t.front.join(',') + '|' + t.back.join(',');
+    if(seen.has(key)) continue;
+    seen.add(key);
+
+    // 防越池
+    const safeFront = filterInPool(t.front, frontPoolSet, '前区');
+    const safeBack  = filterInPool(t.back,  backPoolSet,  '后区');
+    if(safeFront.length !== (ctype==='ssq'?6:5)) continue;
+    if(safeBack.length  !== (ctype==='ssq'?1:2)) continue;
+
+    finalTickets.push({front: safeFront, back: safeBack});
+    if(finalTickets.length >= need) break;
+  }
+
+  // 如果不足，从常规候选补（也要防越池）
+  if(finalTickets.length < need){
+    for(const t of norm){
+      if(finalTickets.length >= need) break;
+      const key = t.front.join(',') + '|' + t.back.join(',');
+      if(seen.has(key)) continue;
+      seen.add(key);
+
+      const safeFront = filterInPool(t.front, frontPoolSet, '前区');
+      const safeBack  = filterInPool(t.back,  backPoolSet,  '后区');
+      if(safeFront.length !== (ctype==='ssq'?6:5)) continue;
+      if(safeBack.length  !== (ctype==='ssq'?1:2)) continue;
+
+      finalTickets.push({front: safeFront, back: safeBack});
+    }
+  }
+
+  // 如果仍然不足，提示
+  if(finalTickets.length < need){
+    log(`⚠️ 条件过严，仅得 ${finalTickets.length} 组（目标 ${need} 组）`);
+  }
+
+  log(`最终输出: ${finalTickets.length} 组`);
+
+  // 7. 渲染结果表格
+  const ctypeLabel = ctype==='ssq' ? '红球/蓝球' : '前区/后区';
+  let html = `<table><tr><th>#</th><th>${ctypeLabel}</th><th>和值</th><th>跨度</th><th>AC</th><th>奇/偶</th><th>大/小</th></tr>`;
+  if(finalTickets.length === 0){
+    html += `<tr><td colspan="7">无结果，请放宽条件</td></tr>`;
+  } else {
+    finalTickets.forEach((t,i)=>{
+      const ji = t.front.filter(x=>x%2===1).length;
+      const mid = ctype==='ssq' ? 16 : 17;
+      const big = t.front.filter(x=>x>mid).length;
+      const frontStr = t.front.map(pad).join(' ');
+      const backStr  = t.back.map(pad).join(' ');
+      html += `<tr>
+        <td>${i+1}</td>
+        <td><span class="red">${frontStr}</span> + <span class="blue-text">${backStr}</span></td>
+        <td>${sum(t.front)}</td>
+        <td>${span(t.front)}</td>
+        <td>${acCalc(t.front)}</td>
+        <td>${ji}/${t.front.length-ji}</td>
+        <td>${big}/${t.front.length-big}</td>
+      </tr>`;
+    });
+  }
+  html += `</table>`;
+  document.getElementById('resultBox').innerHTML = html;
+
+  log('======= 推演完成 =======');
+}
+
+// ---------- 初始化 ----------
+window.addEventListener('DOMContentLoaded', function(){
+  // 设置默认日期时间
+  const now = new Date();
+  const dtEl = document.getElementById('dt');
+  if(dtEl) dtEl.valueAsDate = now;
+  const tmEl = document.getElementById('tm');
+  if(tmEl) tmEl.value = '21:15';
+
+  // 绑定按钮
+  const btn = document.querySelector('button') || 
+              document.getElementById('runBtn') ||
+              document.querySelector('[onclick*="run"]');
+  if(btn){
+    btn.addEventListener('click', runAll);
+  } else {
+    // 如果没有找到合适的按钮，在页面添加一个
+    const container = document.querySelector('.card') || document.body;
+    const newBtn = document.createElement('button');
+    newBtn.textContent = '起盘+推演';
+    newBtn.onclick = runAll;
+    container.appendChild(newBtn);
+  }
+
+  // 初始运行一次
+  setTimeout(runAll, 500);
+});
+
+})();
+
 </body>
 </html>
