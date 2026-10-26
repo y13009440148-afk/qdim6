@@ -86,10 +86,6 @@ button:hover{background:#1d4ed8;}
         <tr><td>凶格</td><td><input id="jXiong" value="-4"></td></tr>
         <tr><td>和值最小</td><td><input id="fsumMin" value="70"></td></tr>
         <tr><td>和值最大</td><td><input id="fsumMax" value="106"></td></tr>
-        <tr><td>跨度最小</td><td><input id="fspanMin" value="17"></td></tr>
-        <tr><td>跨度最大</td><td><input id="fspanMax" value="28"></td></tr>
-        <tr><td>AC最小</td><td><input id="facMin" value="3"></td></tr>
-        <tr><td>AC最大</td><td><input id="facMax" value="8"></td></tr>
     </table>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button id="saveParamBtn" class="btn-save">保存当前参数</button>
@@ -137,7 +133,6 @@ button:hover{background:#1d4ed8;}
             <option value="10" selected>戌时 19-21</option>
             <option value="11">亥时 21-23</option>
         </select>
-        <span style="color:#666;font-size:12px;margin-left:8px;">（双色球默认戌时，大乐透默认亥时）</span>
     </div>
     <div style="margin:8px 0;">
         <label>当期开奖号（留空则只推演不复盘）</label>
@@ -274,10 +269,6 @@ function loadParamToUI(){
     document.getElementById("jXiong").value = param.ji.xiong;
     document.getElementById("fsumMin").value = param.filter.sumMin;
     document.getElementById("fsumMax").value = param.filter.sumMax;
-    document.getElementById("fspanMin").value = param.filter.spanMin;
-    document.getElementById("fspanMax").value = param.filter.spanMax;
-    document.getElementById("facMin").value = param.filter.acMin;
-    document.getElementById("facMax").value = param.filter.acMax;
 }
 function readParamFromUI(){
     param.base = document.getElementById("baseTarget").value;
@@ -294,10 +285,6 @@ function readParamFromUI(){
     param.ji.xiong = Number(document.getElementById("jXiong").value);
     param.filter.sumMin = Number(document.getElementById("fsumMin").value);
     param.filter.sumMax = Number(document.getElementById("fsumMax").value);
-    param.filter.spanMin = Number(document.getElementById("fspanMin").value);
-    param.filter.spanMax = Number(document.getElementById("fspanMax").value);
-    param.filter.acMin = Number(document.getElementById("facMin").value);
-    param.filter.acMax = Number(document.getElementById("facMax").value);
 }
 
 function clearPresetActive(){
@@ -357,13 +344,8 @@ function getNextLotteryDate(lotType) {
     }
 }
 function refreshDate(){ dateInput.value = getNextLotteryDate(typeSel.value); }
-function refreshShiChen(){
-    // 双色球21:15→戌时(10)，大乐透21:25→亥时(11)
-    shiChenSel.value = typeSel.value === "ssq" ? "10" : "11";
-}
 typeSel.onchange = function(){
     refreshDate();
-    refreshShiChen();
     if(typeSel.value === "dlt"){
         document.getElementById("presetDltBtn").click();
     } else {
@@ -371,7 +353,6 @@ typeSel.onchange = function(){
     }
 };
 refreshDate();
-refreshShiChen();
 
 function getDayGanZhi(dateObj){
     const base = new Date("2000-01-01");
@@ -591,19 +572,19 @@ function calcAC(arr){
 function rotationMatrix(sourceNum,needCount,totalGenerate){
     let result = [];
     let src = [...sourceNum].sort((a,b)=>a-b);
-    while(result.length < totalGenerate){
+    let attempts = 0;
+    while(result.length < totalGenerate && attempts < totalGenerate * 10){
         let shuf = [...src].sort(()=>Math.random()-0.5);
         let group = shuf.slice(0,needCount).sort((a,b)=>a-b);
         let key = group.join(",");
         if(!result.some(x=>x.join(",")===key)) result.push(group);
+        attempts++;
     }
     return result;
 }
 function filterGroup(g,rule){
     const sum = g.reduce((a,b)=>a+b,0);
-    const span = g[g.length-1] - g[0];
-    const ac = calcAC(g);
-    return !(sum < rule.sumMin || sum>rule.sumMax || span < rule.spanMin || span>rule.spanMax || ac < rule.acMin || ac>rule.acMax);
+    return !(sum < rule.sumMin || sum > rule.sumMax);
 }
 function parseAward(str,type){
     let front=[],back=[];
@@ -629,8 +610,14 @@ function runSingle(dateStr, shiIdx, lotType, awardText, useXT, useHT, outCnt){
     const specPool = buildSpecialPool(scoreRet.palaceData, useXT, useHT, lotType);
     const award = parseAward(awardText, lotType);
     let needMain = lotType==="ssq"?6:5;
-    let matrixAll = rotationMatrix(mainPool.rawPool, needMain, 80);
+    let matrixAll = rotationMatrix(mainPool.rawPool, needMain, 500);
     let afterFilter = matrixAll.filter(g=>filterGroup(g, param.filter));
+    // 筛选不足时，用剩余组合补齐
+    if(afterFilter.length < outCnt){
+        let used = new Set(afterFilter.map(g=>g.join(",")));
+        let remaining = matrixAll.filter(g=>!used.has(g.join(",")));
+        afterFilter = afterFilter.concat(remaining.slice(0, outCnt - afterFilter.length));
+    }
     let finalMain = afterFilter.slice(0, outCnt);
 
     const setMainPool = new Set(mainPool.rawPool);
