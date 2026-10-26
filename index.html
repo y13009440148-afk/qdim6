@@ -25,8 +25,6 @@ button:hover{background:#1d4ed8;}
 .btn-save{background:#7c3aed;}
 .btn-preset{background:#0e7490;font-size:14px;padding:8px 10px;}
 .btn-preset.active{background:#06b6d4;box-shadow:0 0 8px #06b6d4;}
-.btn-scheme{background:#0e7490;font-size:14px;padding:8px 10px;flex:1;}
-.btn-scheme.active{background:#06b6d4;box-shadow:0 0 8px #06b6d4;}
 #jiugongBox{width:100%;max-width:600px;margin:10px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
 .gong{background:#1a2e4f;border:2px solid #4788e8;border-radius:8px;padding:6px;font-size:11.5px;line-height:1.3;min-height:120px;}
 .gong strong{color:#ffd343;font-size:13px;display:block;margin-bottom:2px;}
@@ -114,18 +112,6 @@ button:hover{background:#1d4ed8;}
             <option value="ssq">双色球（6红+1蓝）</option>
             <option value="dlt">大乐透（5前+2后）</option>
         </select>
-    </div>
-    <div style="margin:8px 0;">
-        <label>选号方案：</label>
-        <div style="display:flex;gap:6px;margin-top:4px;">
-            <button id="schemeABtn" class="btn-scheme active" data-scheme="A">方案A</button>
-            <button id="schemeBBtn" class="btn-scheme" data-scheme="B">方案B</button>
-            <button id="schemeCBtn" class="btn-scheme" data-scheme="C">方案C</button>
-        </div>
-    </div>
-    <div style="margin:8px 0;">
-        <label><input type="checkbox" id="useXianTian" checked>启用先天数</label>
-        <label><input type="checkbox" id="useHouTian" checked>启用后天数</label>
     </div>
     <div style="margin:8px 0;">
         <label>推演日期：</label>
@@ -376,16 +362,6 @@ typeSel.onchange = function(){
 };
 refreshDate();
 
-// 方案选择按钮
-let currentScheme = "A";
-document.querySelectorAll(".btn-scheme").forEach(btn=>{
-    btn.onclick = function(){
-        document.querySelectorAll(".btn-scheme").forEach(b=>b.classList.remove("active"));
-        this.classList.add("active");
-        currentScheme = this.dataset.scheme;
-    };
-});
-
 function getDayGanZhi(dateObj){
     const base = new Date("2000-01-01");
     const diff = Math.floor((dateObj - base)/(1000*60*60*24));
@@ -408,58 +384,6 @@ function getXunKong(dayZhi){
         if(zList.includes(dayZhi)) return {xunName:k, kongZhi:xunKongTable[k]};
     }
     return {xunName:"", kongZhi:[]};
-}
-// 24节气（近似日期）
-const solarTerms=[
-{name:"小寒",m:1,d:6},{name:"大寒",m:1,d:20},
-{name:"立春",m:2,d:4},{name:"雨水",m:2,d:19},
-{name:"惊蛰",m:3,d:6},{name:"春分",m:3,d:21},
-{name:"清明",m:4,d:5},{name:"谷雨",m:4,d:20},
-{name:"立夏",m:5,d:6},{name:"小满",m:5,d:21},
-{name:"芒种",m:6,d:6},{name:"夏至",m:6,d:21},
-{name:"小暑",m:7,d:7},{name:"大暑",m:7,d:23},
-{name:"立秋",m:8,d:7},{name:"处暑",m:8,d:23},
-{name:"白露",m:9,d:8},{name:"秋分",m:9,d:23},
-{name:"寒露",m:10,d:8},{name:"霜降",m:10,d:23},
-{name:"立冬",m:11,d:7},{name:"小雪",m:11,d:22},
-{name:"大雪",m:12,d:7},{name:"冬至",m:12,d:22}
-];
-// 拆补法定局表：[上元,中元,下元]
-const dingJuTable={
-"冬至":[1,4,7],"小寒":[2,5,8],"大寒":[3,6,9],
-"立春":[8,5,2],"雨水":[9,6,3],"惊蛰":[1,7,4],
-"春分":[3,9,6],"清明":[4,1,7],"谷雨":[5,2,8],
-"立夏":[4,1,7],"小满":[5,2,8],"芒种":[6,3,9],
-"夏至":[9,6,3],"小暑":[8,5,2],"大暑":[7,4,1],
-"立秋":[2,5,8],"处暑":[1,4,7],"白露":[9,3,6],
-"秋分":[7,1,4],"寒露":[6,9,3],"霜降":[5,8,2],
-"立冬":[6,9,3],"小雪":[5,8,2],"大雪":[4,7,1]
-};
-function getSolarTerm(dateObj){
-    const m=dateObj.getMonth()+1, d=dateObj.getDate();
-    let best=null, bestDiff=999;
-    for(let st of solarTerms){
-        let diff=Math.abs((m-st.m)*31+(d-st.d));
-        if(diff<bestDiff){bestDiff=diff;best=st;}
-    }
-    return best.name;
-}
-function getFuTouYuan(dayGanZhi){
-    const ganIdx=tianGan.indexOf(dayGanZhi.dayGan);
-    const zhiIdx=diZhi.indexOf(dayGanZhi.dayZhi);
-    let daysBack=0, g=ganIdx;
-    while(g!==0 && g!==5){ g=(g-1+10)%10; daysBack++; }
-    let fuTouZhiIdx=(zhiIdx-daysBack+12)%12;
-    let fuTouZhi=diZhi[fuTouZhiIdx];
-    if(["子","午","卯","酉"].includes(fuTouZhi)) return 0;
-    if(["寅","申","巳","亥"].includes(fuTouZhi)) return 1;
-    return 2;
-}
-function getDunJuBySolarTerm(solarTerm, yuan){
-    const jues=dingJuTable[solarTerm];
-    const yangTerms=["冬至","小寒","大寒","立春","雨水","惊蛰","春分","清明","谷雨","立夏","小满","芒种"];
-    const yangDun=yangTerms.includes(solarTerm);
-    return {yangDun, ju:jues[yuan]};
 }
 function getDunJu(dayZhi){
     const zhiIdx = diZhi.indexOf(dayZhi);
@@ -484,12 +408,7 @@ function qiMenZhuanPan(dateStr, shiIdx){
     const gz = getDayGanZhi(d);
     const hourGan = getHourGan(gz.dayGan, shiIdx);
     const {xunName, kongZhi} = getXunKong(gz.dayZhi);
-    
-    // 拆补法真盘：节气定阴阳遁和局数
-    const solarTerm = getSolarTerm(d);
-    const yuan = getFuTouYuan(gz);
-    const {yangDun, ju} = getDunJuBySolarTerm(solarTerm, yuan);
-    
+    const {yangDun, ju} = getDunJu(gz.dayZhi);
     const diPan = arrangeDiPan(ju, yangDun);
 
     const fuYuanGong = Object.keys(diPan).find(k=>diPan[k]==="戊")*1;
@@ -505,25 +424,7 @@ function qiMenZhuanPan(dateStr, shiIdx){
         tianPan[g] = diPan[srcG];
     }
     const zhiFuGong = sgGong;
-    
-    // 值使宫计算（跳过中五宫）
-    const palaceSeq=[1,2,3,4,6,7,8,9];
-    const fuOrigIdx=palaceSeq.indexOf(fuYuanGong);
-    let zsIdx;
-    if(yangDun) zsIdx=(fuOrigIdx+hourGanIdx)%8;
-    else zsIdx=(fuOrigIdx-hourGanIdx+8)%8;
-    const zhiShiGong=palaceSeq[zsIdx];
-    
-    // 八门从值使宫起排
-    const menList=["休","死","伤","杜","开","惊","生","景"];
-    const zhiShiMen=palaceMeta[fuYuanGong].men;
-    const menStartIdx=menList.indexOf(zhiShiMen);
-    const menArrangement={};
-    for(let i=0;i<8;i++){
-        let pi=yangDun?(zsIdx+i)%8:(zsIdx-i+8)%8;
-        let mi=(menStartIdx+i)%8;
-        menArrangement[palaceSeq[pi]]=menList[mi];
-    }
+    const zhiShiGong = ((1-1)+hourGanIdx)%9 +1;
 
     const shen = {};
     for(let i=0;i<8;i++){
@@ -556,7 +457,6 @@ function qiMenZhuanPan(dateStr, shiIdx){
             diGan:diPan[g],
             tianGan:tianPan[g],
             shen:shen[g] || "",
-            men: menArrangement[g] || meta.men,
             isZhiFu:g===zhiFuGong,
             isZhiShi:g===zhiShiGong,
             isChong:g===chongGong,
@@ -564,7 +464,7 @@ function qiMenZhuanPan(dateStr, shiIdx){
             score:0
         };
     }
-    return {palaceData, gz, hourGan, zhiFuGong, zhiShiGong, ju, yangDun, xunName, solarTerm, yuan};
+    return {palaceData, gz, hourGan, zhiFuGong, ju, yangDun, xunName};
 }
 function calcScore(panData, baseType){
     const {palaceData, gz, hourGan, zhiFuGong} = panData;
@@ -709,34 +609,17 @@ function parseAward(str,type){
     }
     return {front,back};
 }
-function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
+function runSingle(dateStr, shiIdx, lotType, awardText, useXT, useHT, outCnt){
     const panRaw = qiMenZhuanPan(dateStr, shiIdx);
     const scoreRet = calcScore(panRaw, param.base);
-    const panInfo = `${panRaw.xunName}｜${panRaw.solarTerm}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局（${["上元","中元","下元"][panRaw.yuan]}）｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
+    const panInfo = `${panRaw.xunName}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
     renderJiuGong(scoreRet.palaceData, scoreRet.baseWx, panInfo);
-    
-    // 计算三个方案
-    const poolA = buildPoolA(scoreRet.palaceData, lotType);
-    const poolB = buildPoolB(scoreRet.palaceData, lotType);
-    const poolC = buildPoolC(scoreRet.palaceData, lotType);
-    const specPool = buildSpecialPool(scoreRet.palaceData, lotType);
-    
-    // 根据选择的方案出号
-    let selectedPool;
-    if(selectedScheme === "B") selectedPool = poolB;
-    else if(selectedScheme === "C") selectedPool = poolC;
-    else selectedPool = poolA;
-    
-    const mainPool = selectedPool;
+    const mainPool = buildMainPool(scoreRet.palaceData, useXT, useHT, lotType);
+    const specPool = buildSpecialPool(scoreRet.palaceData, useXT, useHT, lotType);
     const award = parseAward(awardText, lotType);
     let needMain = lotType==="ssq"?6:5;
-    let matrixAll = rotationMatrix(mainPool.rawPool, needMain, 500);
+    let matrixAll = rotationMatrix(mainPool.rawPool, needMain, 80);
     let afterFilter = matrixAll.filter(g=>filterGroup(g, param.filter));
-    if(afterFilter.length < outCnt){
-        let used = new Set(afterFilter.map(g=>g.join(",")));
-        let remaining = matrixAll.filter(g=>!used.has(g.join(",")));
-        afterFilter = afterFilter.concat(remaining.slice(0, outCnt - afterFilter.length));
-    }
     let finalMain = afterFilter.slice(0, outCnt);
 
     const setMainPool = new Set(mainPool.rawPool);
@@ -761,34 +644,20 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     const coverRate = allAwardFrontCnt>0 ? (coverCnt/allAwardFrontCnt).toFixed(3) : 0;
     const passCnt = award.front.filter(x=>setPassFilter.has(x)).length;
     const passRate = allAwardFrontCnt>0 ? (passCnt/allAwardFrontCnt).toFixed(3) : 0;
-    
-    // 计算三个方案的覆盖率
-    const coverRateA = allAwardFrontCnt>0 ? (award.front.filter(x=>new Set(poolA.rawPool).has(x)).length/allAwardFrontCnt).toFixed(3) : 0;
-    const coverRateB = allAwardFrontCnt>0 ? (award.front.filter(x=>new Set(poolB.rawPool).has(x)).length/allAwardFrontCnt).toFixed(3) : 0;
-    const coverRateC = allAwardFrontCnt>0 ? (award.front.filter(x=>new Set(poolC.rawPool).has(x)).length/allAwardFrontCnt).toFixed(3) : 0;
 
     return {
-        date:dateStr, shiChen:shiIdx, lotType, selectedScheme,
+        date:dateStr, shiChen:shiIdx, lotType,
         awardFront:award.front.join(" "), awardBack:award.back.join(" "),
         hitCountFront:hitFront.length, hitCountBack:hitBack.length,
         coverRate, passFilterRate:passRate,
-        coverRateA, coverRateB, coverRateC,
         missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
         missPoolBack:missPoolBack.join(" "),
         poolList:mainPool.rawPool.join(" "),
-        poolAList:poolA.rawPool.join(" "),
-        poolBList:poolB.rawPool.join(" "),
-        poolCList:poolC.rawPool.join(" "),
         filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
         finalBets:finalMain.map((g)=>{
             let sb = [...specPool.list].sort(()=>Math.random()-0.5);
             if(lotType==="ssq") return g.join(" ")+"+"+sb[0];
             else return g.join(" ")+"+"+sb[0]+","+sb[1];
-        }).join("|"),
-        poolHtml:`<div><strong>方案A：</strong>${poolA.colorHtml} 覆盖率${coverRateA}</div><div><strong>方案B：</strong>${poolB.colorHtml} 覆盖率${coverRateB}</div><div><strong>方案C：</strong>${poolC.colorHtml} 覆盖率${coverRateC}</div><div style="margin-top:8px;color:#5eead4"><strong>当前使用：方案${selectedScheme}</strong></div>`,
-        specHtml:specPool.colorHtml, finalMain, specPool
-    };
-}
         }).join("|"),
         poolHtml:mainPool.colorHtml, specHtml:specPool.colorHtml, finalMain, specPool
     };
@@ -802,7 +671,7 @@ document.getElementById("runBtn").onclick = function(){
     const shiIdx = Number(shiChenSel.value);
     const awardTxt = awardInput.value;
     const outCnt = Number(document.getElementById("outCount").value);
-    if(!dStr){ backDom.innerText="⚠️ 推演日期不能为空"; return; }
+    if(!dStr){ backDom.innerText="️ 推演日期不能为空"; return; }
     const ret = runSingle(dStr, shiIdx, lt, awardTxt, outCnt, currentScheme);
     poolDom.innerHTML = `<div>前区初选池：${ret.poolHtml}</div><div>后区候选池：${ret.specHtml}</div>`;
     let outHtml = "";
@@ -834,6 +703,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
         const lt = sp[2].trim();
         const awardTxt = sp[3].trim();
         const rec = runSingle(dStr, shiIdx, lt, awardTxt, outCnt, currentScheme);
+        const rec = runSingle(dStr, shiIdx, lt, awardTxt, useXT, useHT, outCnt);
         batchRecords.push(rec);
         await new Promise(r=>setTimeout(r,60));
     }
@@ -863,9 +733,9 @@ document.getElementById("runBatchBtn").onclick = async function(){
 
 document.getElementById("exportCsvBtn").onclick = function(){
     if(batchRecords.length===0){ alert("没有批量记录"); return; }
-    let csv = "\uFEFF日期,时辰,彩种,使用方案,开奖前区,开奖后区,命中前区,命中后区,池覆盖率,方案A覆盖率,方案B覆盖率,方案C覆盖率,过滤留存率,候选池,最终投注\n";
+    let csv = "\uFEFF日期,时辰,彩种,开奖前区,开奖后区,命中前区,命中后区,池覆盖率,过滤留存率,候选池,最终投注\n";
     batchRecords.forEach(r=>{
-        csv += `${r.date},${r.shiChen},${r.lotType},${r.selectedScheme},"${r.awardFront}","${r.awardBack}",${r.hitCountFront},${r.hitCountBack},${r.coverRate},${r.coverRateA},${r.coverRateB},${r.coverRateC},${r.passFilterRate},"${r.poolList}","${r.finalBets}"\n`;
+        csv += `${r.date},${r.shiChen},${r.lotType},"${r.awardFront}","${r.awardBack}",${r.hitCountFront},${r.hitCountBack},${r.coverRate},${r.passFilterRate},"${r.poolList}","${r.finalBets}"\n`;
     });
     const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
     const url = URL.createObjectURL(blob);
