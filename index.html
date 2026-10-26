@@ -353,8 +353,10 @@ function getNextLotteryDate(lotType) {
     }
 }
 function refreshDate(){ dateInput.value = getNextLotteryDate(typeSel.value); }
+function refreshShiChen(){ shiChenSel.value = "11"; }
 typeSel.onchange = function(){
     refreshDate();
+    refreshShiChen();
     if(typeSel.value === "dlt"){
         document.getElementById("presetDltBtn").click();
     } else {
@@ -362,6 +364,7 @@ typeSel.onchange = function(){
     }
 };
 refreshDate();
+refreshShiChen();
 
 function getDayGanZhi(dateObj){
     const base = new Date("2000-01-01");
@@ -668,14 +671,12 @@ document.getElementById("runBtn").onclick = function(){
     readParamFromUI();
     poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = "";
     const lt = typeSel.value;
-    const useXT = document.getElementById("useXianTian").checked;
-    const useHT = document.getElementById("useHouTian").checked;
     const dStr = dateInput.value;
     const shiIdx = Number(shiChenSel.value);
     const awardTxt = awardInput.value;
     const outCnt = Number(document.getElementById("outCount").value);
     if(!dStr){ backDom.innerText="⚠️ 推演日期不能为空"; return; }
-    const ret = runSingle(dStr, shiIdx, lt, awardTxt, useXT, useHT, outCnt);
+    const ret = runSingle(dStr, shiIdx, lt, awardTxt, outCnt);
     poolDom.innerHTML = `<div>前区初选池：${ret.poolHtml}</div><div>后区候选池：${ret.specHtml}</div>`;
     let outHtml = "";
     ret.finalMain.forEach((g,idx)=>{
@@ -697,8 +698,6 @@ document.getElementById("runBatchBtn").onclick = async function(){
     adviceDom.innerText = "";
     batchRecords = [];
     const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
-    const useXT = document.getElementById("useXianTian").checked;
-    const useHT = document.getElementById("useHouTian").checked;
     const outCnt = Number(document.getElementById("outCount").value);
     for(let line of lines){
         const sp = line.split(",");
@@ -707,7 +706,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
         const shiIdx = Number(sp[1].trim());
         const lt = sp[2].trim();
         const awardTxt = sp[3].trim();
-        const rec = runSingle(dStr, shiIdx, lt, awardTxt, useXT, useHT, outCnt);
+        const rec = runSingle(dStr, shiIdx, lt, awardTxt, outCnt);
         batchRecords.push(rec);
         await new Promise(r=>setTimeout(r,60));
     }
