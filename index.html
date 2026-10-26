@@ -86,6 +86,10 @@ button:hover{background:#1d4ed8;}
         <tr><td>凶格</td><td><input id="jXiong" value="-4"></td></tr>
         <tr><td>和值最小</td><td><input id="fsumMin" value="70"></td></tr>
         <tr><td>和值最大</td><td><input id="fsumMax" value="106"></td></tr>
+        <tr><td>跨度最小</td><td><input id="fspanMin" value="17"></td></tr>
+        <tr><td>跨度最大</td><td><input id="fspanMax" value="28"></td></tr>
+        <tr><td>AC最小</td><td><input id="facMin" value="3"></td></tr>
+        <tr><td>AC最大</td><td><input id="facMax" value="8"></td></tr>
     </table>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button id="saveParamBtn" class="btn-save">保存当前参数</button>
@@ -269,6 +273,10 @@ function loadParamToUI(){
     document.getElementById("jXiong").value = param.ji.xiong;
     document.getElementById("fsumMin").value = param.filter.sumMin;
     document.getElementById("fsumMax").value = param.filter.sumMax;
+    document.getElementById("fspanMin").value = param.filter.spanMin;
+    document.getElementById("fspanMax").value = param.filter.spanMax;
+    document.getElementById("facMin").value = param.filter.acMin;
+    document.getElementById("facMax").value = param.filter.acMax;
 }
 function readParamFromUI(){
     param.base = document.getElementById("baseTarget").value;
@@ -285,6 +293,10 @@ function readParamFromUI(){
     param.ji.xiong = Number(document.getElementById("jXiong").value);
     param.filter.sumMin = Number(document.getElementById("fsumMin").value);
     param.filter.sumMax = Number(document.getElementById("fsumMax").value);
+    param.filter.spanMin = Number(document.getElementById("fspanMin").value);
+    param.filter.spanMax = Number(document.getElementById("fspanMax").value);
+    param.filter.acMin = Number(document.getElementById("facMin").value);
+    param.filter.acMax = Number(document.getElementById("facMax").value);
 }
 
 function clearPresetActive(){
@@ -515,7 +527,8 @@ function getColorClass(idx,total){
     const ratio = idx/total;
     if(ratio<0.2) return "c1";if(ratio<0.4) return "c2";if(ratio<0.6) return "c3";if(ratio<0.8) return "c4";return "c5";
 }
-function buildMainPool(palaceData,useXT,useHT,lotType){
+// 方案A：先天数+后天数（经典方法）
+function buildPoolA(palaceData,useXT,useHT,lotType){
     let allMap = {};
     const maxNum = lotType === "ssq" ? 33 : 35;
     for(let g=1;g<=9;g++){
@@ -538,6 +551,101 @@ function buildMainPool(palaceData,useXT,useHT,lotType){
     let colorHtml = "";
     for(let i=0;i<mainKeep.length;i++) colorHtml += `<span class="${getColorClass(i,mainKeep.length)}">${mainKeep[i]}</span> `;
     return {rawPool:mainKeep,shortPool:mainKeep.slice(0,lotType==="ssq"?7:6),colorHtml:colorHtml};
+}
+
+// 方案B：对冲宫数+六合数+九星数+八门数
+function buildPoolB(palaceData,useXT,useHT,lotType){
+    let allMap = {};
+    const maxNum = lotType === "ssq" ? 33 : 35;
+    const liuheMap = {"子":1,"丑":1,"寅":2,"亥":2,"卯":3,"戌":3,"辰":4,"酉":4,"巳":5,"申":5,"午":6,"未":6};
+    const xingNum = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
+    const menNum = {"休":1,"死":2,"伤":3,"杜":4,"禽":5,"开":6,"惊":7,"生":8,"景":9};
+    
+    for(let g=1;g<=9;g++){
+        let p = palaceData[g];
+        let numList = [];
+        
+        // 对冲宫数
+        if(p.isChong) numList = numList.concat(p.tianXian);
+        
+        // 六合数
+        const dizhi = p.name === "坎" ? "子" : p.name === "坤" ? "未" : p.name === "震" ? "卯" : 
+                      p.name === "巽" ? "辰" : p.name === "乾" ? "戌" : p.name === "兑" ? "酉" : 
+                      p.name === "艮" ? "寅" : p.name === "离" ? "午" : "";
+        if(dizhi && liuheMap[dizhi]) numList.push(liuheMap[dizhi]);
+        
+        // 九星数
+        if(p.xing && xingNum[p.xing]) numList.push(xingNum[p.xing]);
+        
+        // 八门数
+        if(p.men && menNum[p.men]) numList.push(menNum[p.men]);
+        
+        let extend = [];
+        for(let base of numList){
+            let n = base;
+            while(n <= maxNum){ extend.push(n); n +=9; }
+        }
+        extend = [...new Set(extend)];
+        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
+    }
+    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
+    arr.sort((a,b)=>b.score - a.score);
+    const mainAll = arr.map(x=>x.num);
+    const mainKeep = mainAll.slice(0,18);
+    let colorHtml = "";
+    for(let i=0;i<mainKeep.length;i++) colorHtml += `<span class="${getColorClass(i,mainKeep.length)}">${mainKeep[i]}</span> `;
+    return {rawPool:mainKeep,shortPool:mainKeep.slice(0,lotType==="ssq"?7:6),colorHtml:colorHtml};
+}
+
+// 方案C：星门相加+门神相加+飞行数+天地盘干数
+function buildPoolC(palaceData,useXT,useHT,lotType){
+    let allMap = {};
+    const maxNum = lotType === "ssq" ? 33 : 35;
+    const xingNum = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
+    const menNum = {"休":1,"死":2,"伤":3,"杜":4,"禽":5,"开":6,"惊":7,"生":8,"景":9};
+    const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
+    const ganNum = {"甲":1,"乙":2,"丙":3,"丁":4,"戊":5,"己":6,"庚":7,"辛":8,"壬":9,"癸":10};
+    
+    for(let g=1;g<=9;g++){
+        let p = palaceData[g];
+        let numList = [];
+        
+        // 星门相加
+        if(p.xing && p.men && xingNum[p.xing] && menNum[p.men]){
+            numList.push(xingNum[p.xing] + menNum[p.men]);
+        }
+        
+        // 门神相加
+        if(p.men && p.shen && menNum[p.men] && shenNum[p.shen]){
+            numList.push(menNum[p.men] + shenNum[p.shen]);
+        }
+        
+        // 飞行数（宫位本身）
+        numList.push(g);
+        
+        // 天地盘干数
+        if(p.tianGan && ganNum[p.tianGan]) numList.push(ganNum[p.tianGan]);
+        if(p.diGan && ganNum[p.diGan]) numList.push(ganNum[p.diGan]);
+        
+        let extend = [];
+        for(let base of numList){
+            let n = base;
+            while(n <= maxNum){ extend.push(n); n +=9; }
+        }
+        extend = [...new Set(extend)];
+        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
+    }
+    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
+    arr.sort((a,b)=>b.score - a.score);
+    const mainAll = arr.map(x=>x.num);
+    const mainKeep = mainAll.slice(0,18);
+    let colorHtml = "";
+    for(let i=0;i<mainKeep.length;i++) colorHtml += `<span class="${getColorClass(i,mainKeep.length)}">${mainKeep[i]}</span> `;
+    return {rawPool:mainKeep,shortPool:mainKeep.slice(0,lotType==="ssq"?7:6),colorHtml:colorHtml};
+}
+
+function buildMainPool(palaceData,useXT,useHT,lotType){
+    return buildPoolA(palaceData,useXT,useHT,lotType);
 }
 function buildSpecialPool(palaceData,useXT,useHT,lotType){
     let allMap = {};
@@ -572,19 +680,19 @@ function calcAC(arr){
 function rotationMatrix(sourceNum,needCount,totalGenerate){
     let result = [];
     let src = [...sourceNum].sort((a,b)=>a-b);
-    let attempts = 0;
-    while(result.length < totalGenerate && attempts < totalGenerate * 10){
+    while(result.length < totalGenerate){
         let shuf = [...src].sort(()=>Math.random()-0.5);
         let group = shuf.slice(0,needCount).sort((a,b)=>a-b);
         let key = group.join(",");
         if(!result.some(x=>x.join(",")===key)) result.push(group);
-        attempts++;
     }
     return result;
 }
 function filterGroup(g,rule){
     const sum = g.reduce((a,b)=>a+b,0);
-    return !(sum < rule.sumMin || sum > rule.sumMax);
+    const span = g[g.length-1] - g[0];
+    const ac = calcAC(g);
+    return !(sum < rule.sumMin || sum>rule.sumMax || span < rule.spanMin || span>rule.spanMax || ac < rule.acMin || ac>rule.acMax);
 }
 function parseAward(str,type){
     let front=[],back=[];
@@ -606,11 +714,31 @@ function runSingle(dateStr, shiIdx, lotType, awardText, useXT, useHT, outCnt){
     const scoreRet = calcScore(panRaw, param.base);
     const panInfo = `${panRaw.xunName}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
     renderJiuGong(scoreRet.palaceData, scoreRet.baseWx, panInfo);
-    const mainPool = buildMainPool(scoreRet.palaceData, useXT, useHT, lotType);
+    
+    // 三个方案
+    const poolA = buildPoolA(scoreRet.palaceData, useXT, useHT, lotType);
+    const poolB = buildPoolB(scoreRet.palaceData, useXT, useHT, lotType);
+    const poolC = buildPoolC(scoreRet.palaceData, useXT, useHT, lotType);
     const specPool = buildSpecialPool(scoreRet.palaceData, useXT, useHT, lotType);
+    
+    // 选择最佳方案（按池子分数总和）
+    const pools = [{name:"A",pool:poolA},{name:"B",pool:poolB},{name:"C",pool:poolC}];
+    pools.sort((a,b)=>{
+        let scoreA = a.pool.rawPool.reduce((sum,n)=>{
+            for(let g=1;g<=9;g++) if(scoreRet.palaceData[g].tianXian.includes(n%9||9) || scoreRet.palaceData[g].houTian.includes(n%9||9)) return sum + scoreRet.palaceData[g].score;
+            return sum;
+        },0);
+        let scoreB = b.pool.rawPool.reduce((sum,n)=>{
+            for(let g=1;g<=9;g++) if(scoreRet.palaceData[g].tianXian.includes(n%9||9) || scoreRet.palaceData[g].houTian.includes(n%9||9)) return sum + scoreRet.palaceData[g].score;
+            return sum;
+        },0);
+        return scoreB - scoreA;
+    });
+    
+    const bestPool = pools[0].pool;
     const award = parseAward(awardText, lotType);
     let needMain = lotType==="ssq"?6:5;
-    let matrixAll = rotationMatrix(mainPool.rawPool, needMain, 500);
+    let matrixAll = rotationMatrix(bestPool.rawPool, needMain, 500);
     let afterFilter = matrixAll.filter(g=>filterGroup(g, param.filter));
     // 筛选不足时，用剩余组合补齐
     if(afterFilter.length < outCnt){
@@ -620,7 +748,7 @@ function runSingle(dateStr, shiIdx, lotType, awardText, useXT, useHT, outCnt){
     }
     let finalMain = afterFilter.slice(0, outCnt);
 
-    const setMainPool = new Set(mainPool.rawPool);
+    const setMainPool = new Set(bestPool.rawPool);
     const setSpecPool = new Set(specPool.list);
     const setPassFilter = new Set();
     afterFilter.forEach(g=>g.forEach(x=>setPassFilter.add(x)));
@@ -650,14 +778,17 @@ function runSingle(dateStr, shiIdx, lotType, awardText, useXT, useHT, outCnt){
         coverRate, passFilterRate:passRate,
         missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
         missPoolBack:missPoolBack.join(" "),
-        poolList:mainPool.rawPool.join(" "),
+        poolList:bestPool.rawPool.join(" "),
         filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
         finalBets:finalMain.map((g)=>{
             let sb = [...specPool.list].sort(()=>Math.random()-0.5);
             if(lotType==="ssq") return g.join(" ")+"+"+sb[0];
             else return g.join(" ")+"+"+sb[0]+","+sb[1];
         }).join("|"),
-        poolHtml:mainPool.colorHtml, specHtml:specPool.colorHtml, finalMain, specPool
+        poolHtml:`<div><strong>方案${pools[0].name}（自动选中）：</strong>${pools[0].pool.colorHtml}</div>
+                  <div><strong>方案${pools[1].name}：</strong>${pools[1].pool.colorHtml}</div>
+                  <div><strong>方案${pools[2].name}：</strong>${pools[2].pool.colorHtml}</div>`, 
+        specHtml:specPool.colorHtml, finalMain, specPool
     };
 }
 
