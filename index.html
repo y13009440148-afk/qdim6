@@ -114,10 +114,6 @@ button:hover{background:#1d4ed8;}
         </select>
     </div>
     <div style="margin:8px 0;">
-        <label><input type="checkbox" id="useXianTian" checked>启用先天数</label>
-        <label><input type="checkbox" id="useHouTian" checked>启用后天数</label>
-    </div>
-    <div style="margin:8px 0;">
         <label>推演日期：</label>
         <input id="calcDate" type="date">
     </div>
@@ -357,13 +353,8 @@ function getNextLotteryDate(lotType) {
     }
 }
 function refreshDate(){ dateInput.value = getNextLotteryDate(typeSel.value); }
-function refreshShiChen(){
-    // 双色球21:15、大乐透21:25 都是亥时(21-23点)
-    shiChenSel.value = "11";
-}
 typeSel.onchange = function(){
     refreshDate();
-    refreshShiChen();
     if(typeSel.value === "dlt"){
         document.getElementById("presetDltBtn").click();
     } else {
@@ -371,7 +362,6 @@ typeSel.onchange = function(){
     }
 };
 refreshDate();
-refreshShiChen();
 
 function getDayGanZhi(dateObj){
     const base = new Date("2000-01-01");
