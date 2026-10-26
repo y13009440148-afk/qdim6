@@ -64,6 +64,9 @@ button:hover{background:#1d4ed8;}
 .pool-tab-name{font-weight:bold;font-size:15px;color:#72b8ff;}
 .pool-tab-score{font-size:13px;color:#94a3b8;}
 .pool-tab-best{background:#14532d;color:#4ade80;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:bold;}
+.pool-section{background:#1a2540;border:1px solid #3a4b70;border-radius:10px;padding:10px;margin:8px 0;}
+.pool-section-title{font-size:14px;color:#72b8ff;font-weight:bold;margin-bottom:6px;}
+.pool-section-numbers{font-size:15px;color:#fcd34d;line-height:1.8;}
 </style>
 </head>
 <body>
@@ -224,6 +227,7 @@ const batchInput = document.getElementById("batchInput");
 let batchRecords = [];
 let currentPoolIndex = 0;
 let allPools = [];
+let currentSpecPool = [];
 
 const defaultParam = {
     base:"riGan",
@@ -232,7 +236,6 @@ const defaultParam = {
     ji:{"ji":7,"ping":1,"xiong":-4},
     filter:{sumMin:70,sumMax:106,spanMin:17,spanMax:28,acMin:3,acMax:8}
 };
-
 const presetDlt = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":0,"keWo":-5,"woKe":-5,"biHe":2},
@@ -240,7 +243,6 @@ const presetDlt = {
     ji:{"ji":2,"ping":-2,"xiong":-3},
     filter:{sumMin:56,sumMax:149,spanMin:18,spanMax:28,acMin:4,acMax:8}
 };
-
 const presetSsq = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":-2,"biHe":7},
@@ -248,7 +250,6 @@ const presetSsq = {
     ji:{"ji":8,"ping":4,"xiong":-5},
     filter:{sumMin:41,sumMax:124,spanMin:24,spanMax:31,acMin:6,acMax:8}
 };
-
 let param = JSON.parse(JSON.stringify(defaultParam));
 
 const tianGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
@@ -277,11 +278,10 @@ const palaceMeta = {
 };
 const gridOrder = [4,9,2,3,5,7,8,1,6];
 const liuYi = ["戊","己","庚","辛","壬","癸","丁","丙","乙"];
-const shenList = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
+const shenList = ["值符","蛇","太阴","六合","白虎","玄武","九地","九天"];
 const menList = ["休","死","伤","杜","禽","开","惊","生","景"];
 const xingList = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
 
-// 多池策略常量
 const chongGongMap = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4,5:5};
 const liuHeMap = {"子":"丑","丑":"子","寅":"亥","亥":"寅","卯":"戌","戌":"卯","辰":"酉","酉":"辰","巳":"申","申":"巳","午":"未","未":"午"};
 const xingNumMap = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
@@ -331,715 +331,256 @@ function readParamFromUI(){
     param.filter.acMin = Number(document.getElementById("facMin").value);
     param.filter.acMax = Number(document.getElementById("facMax").value);
 }
-
-function clearPresetActive(){
-    document.querySelectorAll(".btn-preset").forEach(b=>b.classList.remove("active"));
-}
-
-document.getElementById("presetJointBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(defaultParam));
-    loadParamToUI();
-    clearPresetActive();
-    this.classList.add("active");
-    adviceDom.innerHTML = "<strong> 联合优化参数已加载</strong><br>基于100期DLT+100期SSQ数据优化，兼顾两种彩种表现";
-}
-document.getElementById("presetDltBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(presetDlt));
-    loadParamToUI();
-    clearPresetActive();
-    this.classList.add("active");
-    adviceDom.innerHTML = "<strong> 大乐透专用参数已加载</strong><br>100期DLT回测：覆盖率58.2%，平均命中2.91";
-}
-document.getElementById("presetSsqBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(presetSsq));
-    loadParamToUI();
-    clearPresetActive();
-    this.classList.add("active");
-    adviceDom.innerHTML = "<strong>📌 双色球专用参数已加载</strong><br>100期SSQ回测：覆盖率58.3%，平均命中3.50";
-}
-
-document.getElementById("saveParamBtn").onclick = function(){
-    readParamFromUI();
-    clearPresetActive();
-    adviceDom.innerHTML = "<strong>✅ 自定义参数已生效</strong>";
-}
-document.getElementById("resetParamBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(defaultParam));
-    loadParamToUI();
-    clearPresetActive();
-    document.getElementById("presetJointBtn").classList.add("active");
-    adviceDom.innerText = "";
-    alert("🔄 已重置为联合优化默认参数");
-}
+function clearPresetActive(){ document.querySelectorAll(".btn-preset").forEach(b=>b.classList.remove("active")); }
+document.getElementById("presetJointBtn").onclick = function(){ param = JSON.parse(JSON.stringify(defaultParam)); loadParamToUI(); clearPresetActive(); this.classList.add("active"); adviceDom.innerHTML = "<strong>联合优化参数已加载</strong><br>基于100期DLT+100期SSQ数据优化"; };
+document.getElementById("presetDltBtn").onclick = function(){ param = JSON.parse(JSON.stringify(presetDlt)); loadParamToUI(); clearPresetActive(); this.classList.add("active"); adviceDom.innerHTML = "<strong>大乐透专用参数已加载</strong><br>100期DLT回测：覆盖率58.2%"; };
+document.getElementById("presetSsqBtn").onclick = function(){ param = JSON.parse(JSON.stringify(presetSsq)); loadParamToUI(); clearPresetActive(); this.classList.add("active"); adviceDom.innerHTML = "<strong>双色球专用参数已加载</strong><br>100期SSQ回测：覆盖率58.3%"; };
+document.getElementById("saveParamBtn").onclick = function(){ readParamFromUI(); clearPresetActive(); adviceDom.innerHTML = "<strong>✅ 自定义参数已生效</strong>"; };
+document.getElementById("resetParamBtn").onclick = function(){ param = JSON.parse(JSON.stringify(defaultParam)); loadParamToUI(); clearPresetActive(); document.getElementById("presetJointBtn").classList.add("active"); adviceDom.innerText = ""; alert("🔄 已重置为联合优化默认参数"); };
 loadParamToUI();
 
-function getNextLotteryDate(lotType) {
-    const today = new Date();
-    const targetWeek = lotType === "ssq" ? [2,4,0] : [1,3,6];
-    let d = new Date(today);
-    for(let i = 0; i < 10; i++){
-        let w = d.getDay();
-        if(targetWeek.includes(w)){
-            const y = d.getFullYear();
-            const m = String(d.getMonth()+1).padStart(2,'0');
-            const day = String(d.getDate()).padStart(2,'0');
-            return `${y}-${m}-${day}`;
-        }
-        d.setDate(d.getDate() + 1);
-    }
-}
-function refreshDate(){ dateInput.value = getNextLotteryDate(typeSel.value); }
-typeSel.onchange = function(){
-    refreshDate();
-    if(typeSel.value === "dlt"){
-        document.getElementById("presetDltBtn").click();
-    } else {
-        document.getElementById("presetSsqBtn").click();
-    }
-};
+function getNextLotteryDate(lotType){ const today=new Date(); const tw=lotType==="ssq"?[2,4,0]:[1,3,6]; let d=new Date(today); for(let i=0;i<10;i++){ let w=d.getDay(); if(tw.includes(w)){ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; } d.setDate(d.getDate()+1); } }
+function refreshDate(){ dateInput.value=getNextLotteryDate(typeSel.value); }
+typeSel.onchange=function(){ refreshDate(); if(typeSel.value==="dlt") document.getElementById("presetDltBtn").click(); else document.getElementById("presetSsqBtn").click(); };
 refreshDate();
 
-function getDayGanZhi(dateObj){
-    const base = new Date("2000-01-01");
-    const diff = Math.floor((dateObj - base)/(1000*60*60*24));
-    const gIdx = (diff + 5) % 10;
-    const zIdx = (diff + 11) % 12;
-    return {dayGan:tianGan[gIdx], dayZhi:diZhi[zIdx]};
-}
-function getHourGan(dayGan, shiIdx){
-    const dayIdx = tianGan.indexOf(dayGan);
-    const startIdx = (dayIdx % 5) * 2;
-    const hIdx = (startIdx + shiIdx) % 10;
-    return tianGan[hIdx];
-}
-function getXunKong(dayZhi){
-    for(let k in xunKongTable){
-        const startZ = k.slice(-1);
-        const zIdx = diZhi.indexOf(startZ);
-        const zList = [];
-        for(let i=0;i<10;i++) zList.push(diZhi[(zIdx+i)%12]);
-        if(zList.includes(dayZhi)) return {xunName:k, kongZhi:xunKongTable[k]};
-    }
-    return {xunName:"", kongZhi:[]};
-}
-function getDunJu(dayZhi){
-    const zhiIdx = diZhi.indexOf(dayZhi);
-    const juMap = {1:1,2:8,3:3,4:4,5:5,6:9,7:1,8:8,9:3,10:4,11:5,0:9};
-    const isYang = zhiIdx >= 6 && zhiIdx <= 11;
-    return {yangDun:isYang, ju:juMap[zhiIdx]};
-}
-function arrangeDiPan(ju, yangDun){
-    const gongSeq = [1,2,3,4,5,6,7,8,9];
-    const pos = {};
-    let start = gongSeq.indexOf(ju);
-    for(let i=0;i<9;i++){
-        let p;
-        if(yangDun) p = gongSeq[(start+i)%9];
-        else p = gongSeq[(start-i+9)%9];
-        pos[p] = liuYi[i];
-    }
-    return pos;
-}
-function qiMenZhuanPan(dateStr, shiIdx){
-    const d = new Date(dateStr);
-    const gz = getDayGanZhi(d);
-    const hourGan = getHourGan(gz.dayGan, shiIdx);
-    const {xunName, kongZhi} = getXunKong(gz.dayZhi);
-    const {yangDun, ju} = getDunJu(gz.dayZhi);
-    const diPan = arrangeDiPan(ju, yangDun);
+function getDayGanZhi(dateObj){ const base=new Date("2000-01-01"); const diff=Math.floor((dateObj-base)/(1000*60*60*24)); return {dayGan:tianGan[(diff+5)%10], dayZhi:diZhi[(diff+11)%12]}; }
+function getHourGan(dayGan,shiIdx){ const dayIdx=tianGan.indexOf(dayGan); return tianGan[((dayIdx%5)*2+shiIdx)%10]; }
+function getXunKong(dayZhi){ for(let k in xunKongTable){ const startZ=k.slice(-1); const zIdx=diZhi.indexOf(startZ); const zList=[]; for(let i=0;i<10;i++) zList.push(diZhi[(zIdx+i)%12]); if(zList.includes(dayZhi)) return {xunName:k, kongZhi:xunKongTable[k]}; } return {xunName:"", kongZhi:[]}; }
+function getDunJu(dayZhi){ const zhiIdx=diZhi.indexOf(dayZhi); const juMap={1:1,2:8,3:3,4:4,5:5,6:9,7:1,8:8,9:3,10:4,11:5,0:9}; return {yangDun:zhiIdx>=6&&zhiIdx<=11, ju:juMap[zhiIdx]}; }
+function arrangeDiPan(ju,yangDun){ const gongSeq=[1,2,3,4,5,6,7,8,9]; const pos={}; let start=gongSeq.indexOf(ju); for(let i=0;i<9;i++){ pos[yangDun?gongSeq[(start+i)%9]:gongSeq[(start-i+9)%9]]=liuYi[i]; } return pos; }
 
-    const fuYuanGong = Object.keys(diPan).find(k=>diPan[k]==="戊")*1;
-    const hourGanIdx = tianGan.indexOf(hourGan);
-    let sgGong;
-    if(yangDun) sgGong = ((fuYuanGong-1)+hourGanIdx)%9 +1;
-    else sgGong = ((fuYuanGong-1)-hourGanIdx+9)%9 +1;
-
-    const tianPan = {};
-    for(let g=1;g<=9;g++){
-        let offset = (g - sgGong +9)%9;
-        let srcG = ((fuYuanGong-1) + offset)%9 +1;
-        tianPan[g] = diPan[srcG];
-    }
-    const zhiFuGong = sgGong;
-    const zhiShiGong = ((1-1)+hourGanIdx)%9 +1;
-
-    const shen = {};
-    for(let i=0;i<8;i++){
-        let g;
-        if(yangDun) g = (zhiFuGong-1+i)%9 +1;
-        else g = (zhiFuGong-1-i+9)%9 +1;
-        shen[g] = shenList[i];
-    }
-
-    let palaceData = {};
-    let chongGong = 4;
-    let kongGongList = [];
-    kongZhi.forEach(z=>{
-        const chongZ = chongDizhi[z];
-        for(let g=1;g<=9;g++){
-            if(palaceMeta[g].name === "") continue;
-            const gDz = gongDizhiMap[g] || [];
-            if(gDz.includes(chongZ)) { chongGong = g; break; }
-        }
-    });
-    if(kongZhi.includes("子") || kongZhi.includes("丑")) kongGongList = [8];
-    if(kongZhi.includes("寅") || kongZhi.includes("卯")) kongGongList = [3,4];
-    if(kongZhi.includes("辰") || kongZhi.includes("巳")) kongGongList = [4,9];
-    if(kongZhi.includes("午") || kongZhi.includes("未")) kongGongList = [9,2];
-    if(kongZhi.includes("申") || kongZhi.includes("酉")) kongGongList = [2,7];
-    if(kongZhi.includes("戌") || kongZhi.includes("亥")) kongGongList = [6,7];
-
-    for(let g=1;g<=9;g++){
-        let meta = palaceMeta[g];
-        palaceData[g] = {
-            ...meta,
-            diGan:diPan[g],
-            tianGan:tianPan[g],
-            shen:shen[g] || "",
-            isZhiFu:g===zhiFuGong,
-            isZhiShi:g===zhiShiGong,
-            isChong:g===chongGong,
-            isKong:kongGongList.includes(g),
-            score:0
-        };
-    }
+function qiMenZhuanPan(dateStr,shiIdx){
+    const d=new Date(dateStr); const gz=getDayGanZhi(d); const hourGan=getHourGan(gz.dayGan,shiIdx);
+    const {xunName,kongZhi}=getXunKong(gz.dayZhi); const {yangDun,ju}=getDunJu(gz.dayZhi);
+    const diPan=arrangeDiPan(ju,yangDun);
+    const fuYuanGong=Object.keys(diPan).find(k=>diPan[k]==="戊")*1;
+    const hourGanIdx=tianGan.indexOf(hourGan);
+    let sgGong=yangDun?((fuYuanGong-1)+hourGanIdx)%9+1:((fuYuanGong-1)-hourGanIdx+9)%9+1;
+    const tianPan={}; for(let g=1;g<=9;g++){ tianPan[g]=diPan[((fuYuanGong-1)+(g-sgGong+9)%9)%9+1]; }
+    const zhiFuGong=sgGong, zhiShiGong=((1-1)+hourGanIdx)%9+1;
+    const shen={}; for(let i=0;i<8;i++){ shen[yangDun?(zhiFuGong-1+i)%9+1:(zhiFuGong-1-i+9)%9+1]=shenList[i]; }
+    let chongGong=4, kongGongList=[];
+    kongZhi.forEach(z=>{ const chongZ=chongDizhi[z]; for(let g=1;g<=9;g++){ if(palaceMeta[g].name==="") continue; if((gongDizhiMap[g]||[]).includes(chongZ)){chongGong=g;break;} } });
+    if(kongZhi.includes("子")||kongZhi.includes("丑")) kongGongList=[8];
+    if(kongZhi.includes("寅")||kongZhi.includes("卯")) kongGongList=[3,4];
+    if(kongZhi.includes("辰")||kongZhi.includes("巳")) kongGongList=[4,9];
+    if(kongZhi.includes("午")||kongZhi.includes("未")) kongGongList=[9,2];
+    if(kongZhi.includes("申")||kongZhi.includes("酉")) kongGongList=[2,7];
+    if(kongZhi.includes("戌")||kongZhi.includes("亥")) kongGongList=[6,7];
+    const palaceData={};
+    for(let g=1;g<=9;g++){ palaceData[g]={...palaceMeta[g], diGan:diPan[g], tianGan:tianPan[g], shen:shen[g]||"", isZhiFu:g===zhiFuGong, isZhiShi:g===zhiShiGong, isChong:g===chongGong, isKong:kongGongList.includes(g), score:0}; }
     return {palaceData, gz, hourGan, zhiFuGong, ju, yangDun, xunName, chongGong};
 }
-function calcScore(panData, baseType){
-    const {palaceData, gz, hourGan, zhiFuGong} = panData;
-    let baseWx;
-    if(baseType === "riGan") baseWx = ganWuxing[gz.dayGan];
-    else if(baseType === "shiGan") baseWx = ganWuxing[hourGan];
-    else baseWx = palaceData[zhiFuGong].wuXing;
 
-    const rel = wuxingMap[baseWx];
+function calcScore(panData,baseType){
+    const {palaceData,gz,hourGan,zhiFuGong}=panData;
+    let baseWx=baseType==="riGan"?ganWuxing[gz.dayGan]:baseType==="shiGan"?ganWuxing[hourGan]:palaceData[zhiFuGong].wuXing;
+    const rel=wuxingMap[baseWx];
     for(let g=1;g<=9;g++){
-        const p = palaceData[g];
-        let s = 0;
-        const gWx = p.wuXing;
-        if(gWx === rel.shengWo) s += param.wu.shengWo;
-        else if(gWx === rel.woSheng) s += param.wu.woSheng;
-        else if(gWx === rel.keWo) s += param.wu.keWo;
-        else if(gWx === rel.woKe) s += param.wu.woKe;
-        else if(gWx === rel.tong) s += param.wu.biHe;
-        if(p.jiXiong === "吉") s += param.ji.ji;
-        else if(p.jiXiong === "凶") s += param.ji.xiong;
-        else s += param.ji.ping;
-        if(p.isZhiFu) s += param.extra.zhiFuAdd;
-        if(p.isChong) s += param.extra.chong;
-        if(p.isKong) s += param.extra.kongWang;
-        p.score = s;
+        const p=palaceData[g]; let s=0; const gWx=p.wuXing;
+        if(gWx===rel.shengWo) s+=param.wu.shengWo; else if(gWx===rel.woSheng) s+=param.wu.woSheng; else if(gWx===rel.keWo) s+=param.wu.keWo; else if(gWx===rel.woKe) s+=param.wu.woKe; else if(gWx===rel.tong) s+=param.wu.biHe;
+        if(p.jiXiong==="吉") s+=param.ji.ji; else if(p.jiXiong==="凶") s+=param.ji.xiong; else s+=param.ji.ping;
+        if(p.isZhiFu) s+=param.extra.zhiFuAdd; if(p.isChong) s+=param.extra.chong; if(p.isKong) s+=param.extra.kongWang;
+        p.score=s;
     }
     return {palaceData, baseWx};
 }
-function renderJiuGong(palace, baseWx, panInfo){
-    jgDom.innerHTML = "";
-    panInfoLine.innerText = panInfo;
+
+function renderJiuGong(palace,baseWx,panInfo){
+    jgDom.innerHTML=""; panInfoLine.innerText=panInfo;
     for(let g of gridOrder){
-        let p = palace[g];
-        let cls = "gong";
-        if(p.isKong) cls += " kongGong";
-        else if(p.jiXiong === "凶") cls += " xiongGong";
-        let tagHtml = "";
-        if(p.isZhiFu) tagHtml += `<span class="tag tag-zhifu">值符</span>`;
-        if(p.isZhiShi) tagHtml += `<span class="tag tag-zhishi">值使</span>`;
-        if(p.isChong) tagHtml += `<span class="tag tag-chong">冲</span>`;
-        if(p.isKong) tagHtml += `<span class="tag tag-kong">空亡</span>`;
-        if(p.jiXiong === "吉") tagHtml += `<span class="tag tag-jix">吉</span>`;
-        if(p.jiXiong === "凶") tagHtml += `<span class="tag tag-xiong">凶</span>`;
-        jgDom.innerHTML += `<div class="${cls}">
-            <strong>${g}宫 ${p.name}</strong>
-            八神：${p.shen||"-"}<br>
-            九星：${p.xing}｜八门：${p.men}<br>
-            天盘：${p.tianGan}｜地盘：${p.diGan}<br>
-            五行：${p.wuXing}<br>
-            得分：${p.score.toFixed(1)}<br>
-            ${tagHtml}
-        </div>`;
+        let p=palace[g], cls="gong"; if(p.isKong) cls+=" kongGong"; else if(p.jiXiong==="凶") cls+=" xiongGong";
+        let tagHtml=""; if(p.isZhiFu) tagHtml+=`<span class="tag tag-zhifu">值符</span>`; if(p.isZhiShi) tagHtml+=`<span class="tag tag-zhishi">值使</span>`; if(p.isChong) tagHtml+=`<span class="tag tag-chong">冲</span>`; if(p.isKong) tagHtml+=`<span class="tag tag-kong">空亡</span>`; if(p.jiXiong==="吉") tagHtml+=`<span class="tag tag-jix">吉</span>`; if(p.jiXiong==="凶") tagHtml+=`<span class="tag tag-xiong">凶</span>`;
+        jgDom.innerHTML+=`<div class="${cls}"><strong>${g}宫 ${p.name}</strong>八神：${p.shen||"-"}<br>九星：${p.xing}｜八门：${p.men}<br>天盘：${p.tianGan}｜地盘：${p.diGan}<br>五行：${p.wuXing}<br>得分：${p.score.toFixed(1)}<br>${tagHtml}</div>`;
     }
 }
-function getColorClass(idx,total){
-    const ratio = idx/total;
-    if(ratio<0.2) return "c1";if(ratio<0.4) return "c2";if(ratio<0.6) return "c3";if(ratio<0.8) return "c4";return "c5";
+function getColorClass(idx,total){ const r=idx/total; if(r<0.2) return "c1"; if(r<0.4) return "c2"; if(r<0.6) return "c3"; if(r<0.8) return "c4"; return "c5"; }
+function numListHtml(arr){ let h=""; for(let i=0;i<arr.length;i++) h+=`<span class="${getColorClass(i,arr.length)}">${arr[i]}</span> `; return h; }
+
+// ========== 三方案前区取数 ==========
+function buildPoolA(palaceData,lotType){
+    let allMap={}; const maxNum=lotType==="ssq"?33:35;
+    for(let g=1;g<=9;g++){ let p=palaceData[g]; let nums=[...p.tianXian,...p.houTian]; let ext=[]; for(let b of nums){ let n=b; while(n<=maxNum){ext.push(n);n+=9;} } ext=[...new Set(ext)]; for(let n of ext){if(!allMap[n])allMap[n]=0; allMap[n]+=p.score;} }
+    let arr=Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v})); arr.sort((a,b)=>b.score-a.score); return arr.map(x=>x.num).slice(0,18);
+}
+function buildPoolB(palaceData,lotType){
+    let allMap={}; const maxNum=lotType==="ssq"?33:35;
+    for(let g=1;g<=9;g++){ let p=palaceData[g]; let nums=[chongGongMap[g], xingNumMap[p.xing]||0, menNumMap[p.men]||0]; (gongDizhiMap[g]||[]).forEach(dz=>{let lh=liuHeMap[dz]; if(lh&&diZhiNumMap[lh]) nums.push(diZhiNumMap[lh]);}); nums=nums.filter(n=>n>0&&n<=9); let ext=[]; for(let b of nums){let n=b; while(n<=maxNum){ext.push(n);n+=9;}} ext=[...new Set(ext)]; for(let n of ext){if(!allMap[n])allMap[n]=0; allMap[n]+=p.score;} }
+    let arr=Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v})); arr.sort((a,b)=>b.score-a.score); return arr.map(x=>x.num).slice(0,18);
+}
+function buildPoolC(palaceData,lotType){
+    let allMap={}; const maxNum=lotType==="ssq"?33:35;
+    for(let g=1;g<=9;g++){ let p=palaceData[g]; let nums=[]; let xn=xingNumMap[p.xing]||0, mn=menNumMap[p.men]||0; if(xn&&mn) nums.push((xn+mn)%9||9); let sn=shenNumMap[p.shen]||0; if(mn&&sn) nums.push((mn+sn)%9||9); nums.push(feiXingOrder[(g-1)%8]); let tg=ganNumMap[p.tianGan]||0; if(tg) nums.push(tg%9||9); let dg=ganNumMap[p.diGan]||0; if(dg) nums.push(dg%9||9); nums=nums.filter(n=>n>0&&n<=9); let ext=[]; for(let b of nums){let n=b; while(n<=maxNum){ext.push(n);n+=9;}} ext=[...new Set(ext)]; for(let n of ext){if(!allMap[n])allMap[n]=0; allMap[n]+=p.score;} }
+    let arr=Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v})); arr.sort((a,b)=>b.score-a.score); return arr.map(x=>x.num).slice(0,18);
 }
 
-// ========== 三方案取数 ==========
-// 方案A：先天数 + 后天数（经典方法）
-function buildPoolA(palaceData, lotType){
-    let allMap = {};
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = [...p.tianXian, ...p.houTian];
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    return arr.map(x=>x.num).slice(0,18);
+// ========== 后区/蓝球池（独立计算） ==========
+function buildSpecialPool(palaceData,lotType){
+    let allMap={}; const maxNum=lotType==="ssq"?16:12;
+    for(let g=1;g<=9;g++){ let p=palaceData[g]; let nums=[...p.tianXian,...p.houTian]; let ext=[]; for(let b of nums){let n=b; while(n<=maxNum){ext.push(n);n+=9;}} ext=[...new Set(ext)]; for(let n of ext){if(!allMap[n])allMap[n]=0; allMap[n]+=p.score;} }
+    let arr=Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v})); arr.sort((a,b)=>b.score-a.score);
+    return lotType==="ssq" ? arr.map(x=>x.num).slice(0,7) : arr.map(x=>x.num).slice(0,6);
 }
 
-// 方案B：对冲宫数 + 六合数 + 九星数 + 八门数
-function buildPoolB(palaceData, lotType){
-    let allMap = {};
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = [];
-        numList.push(chongGongMap[g]);
-        numList.push(xingNumMap[p.xing] || 0);
-        numList.push(menNumMap[p.men] || 0);
-        let gDz = gongDizhiMap[g] || [];
-        gDz.forEach(dz=>{
-            let lh = liuHeMap[dz];
-            if(lh && diZhiNumMap[lh]) numList.push(diZhiNumMap[lh]);
-        });
-        numList = numList.filter(n=>n>0 && n<=9);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    return arr.map(x=>x.num).slice(0,18);
-}
+function evalPoolQuality(pool,awardFront){ if(awardFront&&awardFront.length>0){ let hit=awardFront.filter(n=>pool.includes(n)).length; return hit/awardFront.length; } return 0; }
+function autoSelectPool(pools,awardFront){ let bestIdx=0, bestScore=-1; pools.forEach((pool,idx)=>{ let q=evalPoolQuality(pool,awardFront); if(q>bestScore){bestScore=q;bestIdx=idx;} }); return bestIdx; }
 
-// 方案C：星门相加 + 门神相加 + 飞行数 + 天地盘干数
-function buildPoolC(palaceData, lotType){
-    let allMap = {};
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = [];
-        let xn = xingNumMap[p.xing] || 0;
-        let mn = menNumMap[p.men] || 0;
-        if(xn && mn) numList.push((xn + mn) % 9 || 9);
-        let sn = shenNumMap[p.shen] || 0;
-        if(mn && sn) numList.push((mn + sn) % 9 || 9);
-        let fi = (g - 1) % 8;
-        numList.push(feiXingOrder[fi]);
-        let tgNum = ganNumMap[p.tianGan] || 0;
-        if(tgNum) numList.push(tgNum % 9 || 9);
-        let dgNum = ganNumMap[p.diGan] || 0;
-        if(dgNum) numList.push(dgNum % 9 || 9);
-        numList = numList.filter(n=>n>0 && n<=9);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    return arr.map(x=>x.num).slice(0,18);
-}
+function calcAC(arr){ let s=new Set(); arr.sort((a,b)=>a-b); for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) s.add(arr[j]-arr[i]); return s.size-1; }
+function rotationMatrix(sourceNum,needCount,totalGenerate){ let result=[], src=[...sourceNum].sort((a,b)=>a-b); if(src.length<needCount) return result; const maxA=totalGenerate*20; let att=0; while(result.length<totalGenerate&&att<maxA){ let shuf=[...src].sort(()=>Math.random()-0.5); let group=shuf.slice(0,needCount).sort((a,b)=>a-b); let key=group.join(","); if(!result.some(x=>x.join(",")===key)) result.push(group); att++; } return result; }
+function filterGroup(g,rule){ const sum=g.reduce((a,b)=>a+b,0), span=g[g.length-1]-g[0], ac=calcAC(g); return !(sum<rule.sumMin||sum>rule.sumMax||span<rule.spanMin||span>rule.spanMax||ac<rule.acMin||ac>rule.acMax); }
+function parseAward(str,type){ let front=[],back=[]; str=str.trim(); if(!str) return {front,back}; if(str.includes("+")){ let sp=str.split("+"); front=sp[0].trim().split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x)); back=sp[1].trim().split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x)); } else { let all=str.split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x)); if(type==="ssq"){front=all.slice(0,6);back=all.slice(6,7);} else{front=all.slice(0,5);back=all.slice(5,7);} } return {front,back}; }
 
-function evalPoolQuality(pool, awardFront){
-    if(awardFront && awardFront.length > 0){
-        let hit = awardFront.filter(n=>pool.includes(n)).length;
-        return hit / awardFront.length;
-    }
-    return 0;
-}
-
-function autoSelectPool(pools, awardFront){
-    let bestIdx = 0;
-    let bestScore = -1;
-    pools.forEach((pool, idx)=>{
-        let q = evalPoolQuality(pool, awardFront);
-        if(q > bestScore){ bestScore = q; bestIdx = idx; }
+function renderPoolTabs(pools,awardFront){
+    const names=["方案A：先天+后天数","方案B：对冲+六合+星门数","方案C：星门相加+飞行数"];
+    const bestIdx=autoSelectPool(pools,awardFront);
+    let html="";
+    pools.forEach((pool,idx)=>{
+        let isActive=idx===currentPoolIndex?"active":"", isBest=idx===bestIdx?"best":"";
+        let coverInfo=""; if(awardFront&&awardFront.length>0){ let hit=awardFront.filter(n=>pool.includes(n)).length; coverInfo=`覆盖${hit}/${awardFront.length}(${(hit/awardFront.length*100).toFixed(0)}%)`; }
+        let bestLabel=idx===bestIdx?'<span class="pool-tab-best">推荐</span>':'';
+        html+=`<div class="pool-tab ${isActive} ${isBest}" onclick="selectPool(${idx})"><div class="pool-tab-header"><span class="pool-tab-name">${names[idx]}</span><span>${bestLabel} <span class="pool-tab-score">${coverInfo}</span></span></div><div style="font-size:13px;color:#94a3b8;">${pool.join(" ")}</div></div>`;
     });
-    return bestIdx;
+    poolTabsDom.innerHTML=html;
+}
+function selectPool(idx){ currentPoolIndex=idx; if(allPools.length>0){ renderPoolTabs(allPools,allPools._awardFront||[]); showPools(idx); } }
+function showPools(idx){
+    const pool=allPools[idx]; if(!pool) return;
+    const lt=typeSel.value;
+    const frontName=lt==="ssq"?"红球池（前区）":"前区池";
+    const backName=lt==="ssq"?"蓝球池（后区）":"后区池";
+    poolDom.innerHTML=`<div class="pool-section"><div class="pool-section-title">${frontName}（方案${['A','B','C'][idx]}，18码）</div><div class="pool-section-numbers">${numListHtml(pool)}</div></div><div class="pool-section"><div class="pool-section-title">${backName}（${lt==="ssq"?"7码":"6码"}）</div><div class="pool-section-numbers">${numListHtml(currentSpecPool)}</div></div>`;
 }
 
-function buildSpecialPool(palaceData, lotType){
-    let allMap = {};
-    const maxNum = lotType === "ssq" ? 16 : 12;
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = [...p.tianXian, ...p.houTian];
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    const specAll = arr.map(x=>x.num);
-    return lotType==="ssq" ? specAll.slice(0,7) : specAll.slice(0,6);
-}
-function calcAC(arr){
-    let s = new Set();
-    arr.sort((a,b)=>a-b);
-    for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) s.add(arr[j]-arr[i]);
-    return s.size - 1;
-}
-function rotationMatrix(sourceNum,needCount,totalGenerate){
-    let result = [];
-    let src = [...sourceNum].sort((a,b)=>a-b);
-    if(src.length < needCount) return result;
-    const maxAttempts = totalGenerate * 20;
-    let attempts = 0;
-    while(result.length < totalGenerate && attempts < maxAttempts){
-        let shuf = [...src].sort(()=>Math.random()-0.5);
-        let group = shuf.slice(0,needCount).sort((a,b)=>a-b);
-        let key = group.join(",");
-        if(!result.some(x=>x.join(",")===key)) result.push(group);
-        attempts++;
-    }
-    return result;
-}
-function filterGroup(g,rule){
-    const sum = g.reduce((a,b)=>a+b,0);
-    const span = g[g.length-1] - g[0];
-    const ac = calcAC(g);
-    return !(sum < rule.sumMin || sum>rule.sumMax || span < rule.spanMin || span>rule.spanMax || ac < rule.acMin || ac>rule.acMax);
-}
-function parseAward(str,type){
-    let front=[],back=[];
-    str = str.trim();
-    if(!str) return {front,back};
-    if(str.includes("+")){
-        let sp = str.split("+");
-        front = sp[0].trim().split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-        back = sp[1].trim().split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-    }else{
-        let all = str.split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-        if(type==="ssq"){ front = all.slice(0,6); back = all.slice(6,7); }
-        else{ front = all.slice(0,5); back = all.slice(5,7); }
-    }
-    return {front,back};
-}
+function runSingle(dateStr,shiIdx,lotType,awardText,outCnt){
+    const panRaw=qiMenZhuanPan(dateStr,shiIdx);
+    const scoreRet=calcScore(panRaw,param.base);
+    const panInfo=`${panRaw.xunName}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
+    renderJiuGong(scoreRet.palaceData,scoreRet.baseWx,panInfo);
 
-function renderPoolTabs(pools, awardFront){
-    const names = ["方案A：先天+后天数", "方案B：对冲+六合+星门数", "方案C：星门相加+飞行数"];
-    const bestIdx = autoSelectPool(pools, awardFront);
-    let html = "";
-    pools.forEach((pool, idx)=>{
-        let isActive = idx === currentPoolIndex ? "active" : "";
-        let isBest = idx === bestIdx ? "best" : "";
-        let coverInfo = "";
-        if(awardFront && awardFront.length > 0){
-            let hit = awardFront.filter(n=>pool.includes(n)).length;
-            let rate = (hit/awardFront.length*100).toFixed(0);
-            coverInfo = `覆盖${hit}/${awardFront.length}(${rate}%)`;
-        }
-        let bestLabel = idx === bestIdx ? '<span class="pool-tab-best">推荐</span>' : '';
-        html += `<div class="pool-tab ${isActive} ${isBest}" onclick="selectPool(${idx})">
-            <div class="pool-tab-header">
-                <span class="pool-tab-name">${names[idx]}</span>
-                <span>${bestLabel} <span class="pool-tab-score">${coverInfo}</span></span>
-            </div>
-            <div style="font-size:13px;color:#94a3b8;">${pool.join(" ")}</div>
-        </div>`;
-    });
-    poolTabsDom.innerHTML = html;
-}
-function selectPool(idx){
-    currentPoolIndex = idx;
-    if(allPools.length > 0){
-        let awardFront = allPools._awardFront || [];
-        renderPoolTabs(allPools, awardFront);
-        showSelectedPool(idx);
-    }
-}
-function showSelectedPool(idx){
-    const pool = allPools[idx];
-    if(!pool) return;
-    let colorHtml = "";
-    for(let i=0;i<pool.length;i++) colorHtml += `<span class="${getColorClass(i,pool.length)}">${pool[i]}</span> `;
-    poolDom.innerHTML = `<div>当前方案池（${allPools.length > 0 ? ['A','B','C'][idx] : ''}）：${colorHtml}</div>`;
-}
+    const poolA=buildPoolA(scoreRet.palaceData,lotType);
+    const poolB=buildPoolB(scoreRet.palaceData,lotType);
+    const poolC=buildPoolC(scoreRet.palaceData,lotType);
+    allPools=[poolA,poolB,poolC];
+    const award=parseAward(awardText,lotType);
+    allPools._awardFront=award.front;
 
-function runSingle(dateStr, shiIdx, lotType, awardText, outCnt){
-    const panRaw = qiMenZhuanPan(dateStr, shiIdx);
-    const scoreRet = calcScore(panRaw, param.base);
-    const panInfo = `${panRaw.xunName}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
-    renderJiuGong(scoreRet.palaceData, scoreRet.baseWx, panInfo);
+    const bestIdx=autoSelectPool(allPools,award.front);
+    currentPoolIndex=bestIdx;
+    const mainPool=allPools[bestIdx];
+    currentSpecPool=buildSpecialPool(scoreRet.palaceData,lotType);
 
-    const poolA = buildPoolA(scoreRet.palaceData, lotType);
-    const poolB = buildPoolB(scoreRet.palaceData, lotType);
-    const poolC = buildPoolC(scoreRet.palaceData, lotType);
-    allPools = [poolA, poolB, poolC];
+    renderPoolTabs(allPools,award.front);
+    showPools(bestIdx);
 
-    const award = parseAward(awardText, lotType);
-    allPools._awardFront = award.front;
+    let needMain=lotType==="ssq"?6:5;
+    let matrixAll=rotationMatrix(mainPool,needMain,80);
+    let afterFilter=matrixAll.filter(g=>filterGroup(g,param.filter));
+    let finalMain=afterFilter.slice(0,outCnt);
 
-    const bestIdx = autoSelectPool(allPools, award.front);
-    currentPoolIndex = bestIdx;
-    const mainPool = allPools[bestIdx];
-
-    renderPoolTabs(allPools, award.front);
-    showSelectedPool(bestIdx);
-
-    const specPool = buildSpecialPool(scoreRet.palaceData, lotType);
-    let needMain = lotType==="ssq"?6:5;
-    let matrixAll = rotationMatrix(mainPool, needMain, 80);
-    let afterFilter = matrixAll.filter(g=>filterGroup(g, param.filter));
-    let finalMain = afterFilter.slice(0, outCnt);
-
-    const setMainPool = new Set(mainPool);
-    const setSpecPool = new Set(specPool);
-    const setPassFilter = new Set();
-    afterFilter.forEach(g=>g.forEach(x=>setPassFilter.add(x)));
-    const setFinal = new Set();
-    finalMain.forEach(g=>g.forEach(x=>setFinal.add(x)));
+    const setMainPool=new Set(mainPool), setSpecPool=new Set(currentSpecPool);
+    const setPassFilter=new Set(); afterFilter.forEach(g=>g.forEach(x=>setPassFilter.add(x)));
+    const setFinal=new Set(); finalMain.forEach(g=>g.forEach(x=>setFinal.add(x)));
 
     let missPoolFront=[],missFilterFront=[],missResultFront=[],hitFront=[];
     let missPoolBack=[],hitBack=[];
-    award.front.forEach(n=>{
-        if(!setMainPool.has(n)) missPoolFront.push(n);
-        else if(!setPassFilter.has(n)) missFilterFront.push(n);
-        else if(!setFinal.has(n)) missResultFront.push(n);
-        else hitFront.push(n);
-    });
+    award.front.forEach(n=>{ if(!setMainPool.has(n)) missPoolFront.push(n); else if(!setPassFilter.has(n)) missFilterFront.push(n); else if(!setFinal.has(n)) missResultFront.push(n); else hitFront.push(n); });
     award.back.forEach(n=>{ if(setSpecPool.has(n)) hitBack.push(n); else missPoolBack.push(n); });
 
-    const allAwardFrontCnt = award.front.length;
-    const coverCnt = award.front.filter(x=>setMainPool.has(x)).length;
-    const coverRate = allAwardFrontCnt>0 ? (coverCnt/allAwardFrontCnt).toFixed(3) : 0;
-    const passCnt = award.front.filter(x=>setPassFilter.has(x)).length;
-    const passRate = allAwardFrontCnt>0 ? (passCnt/allAwardFrontCnt).toFixed(3) : 0;
+    const allAwardFrontCnt=award.front.length;
+    const coverCnt=award.front.filter(x=>setMainPool.has(x)).length;
+    const coverRate=allAwardFrontCnt>0?(coverCnt/allAwardFrontCnt).toFixed(3):0;
+    const passCnt=award.front.filter(x=>setPassFilter.has(x)).length;
+    const passRate=allAwardFrontCnt>0?(passCnt/allAwardFrontCnt).toFixed(3):0;
 
-    let poolCompare = "";
-    const poolNames = ["A(先天+后天)", "B(对冲+星门)", "C(星门相加+飞行)"];
-    allPools.forEach((p, i)=>{
-        let h = award.front.filter(n=>p.includes(n)).length;
-        let r = allAwardFrontCnt>0 ? (h/allAwardFrontCnt*100).toFixed(0) : 0;
-        let mark = i===bestIdx ? "★" : " ";
-        poolCompare += `${mark}${poolNames[i]}:${h}/${allAwardFrontCnt}(${r}%)  `;
-    });
+    // 后区覆盖率
+    const allAwardBackCnt=award.back.length;
+    const backCoverCnt=award.back.filter(x=>setSpecPool.has(x)).length;
+    const backCoverRate=allAwardBackCnt>0?(backCoverCnt/allAwardBackCnt).toFixed(3):0;
 
-    return {
-        date:dateStr, shiChen:shiIdx, lotType,
-        awardFront:award.front.join(" "), awardBack:award.back.join(" "),
-        hitCountFront:hitFront.length, hitCountBack:hitBack.length,
-        coverRate, passFilterRate:passRate,
-        missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
-        missPoolBack:missPoolBack.join(" "),
-        poolList:mainPool.join(" "),
-        poolCompare,
-        filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
-        finalBets:finalMain.map((g)=>{
-            let sb = [...specPool].sort(()=>Math.random()-0.5);
-            if(lotType==="ssq") return g.join(" ")+"+"+sb[0];
-            else return g.join(" ")+"+"+sb[0]+","+sb[1];
-        }).join("|"),
-        poolHtml:"", specPool, finalMain, bestPoolIdx:bestIdx
-    };
+    let poolCompare=""; const poolNames=["A(先天+后天)","B(对冲+星门)","C(星门相加+飞行)"];
+    allPools.forEach((p,i)=>{ let h=award.front.filter(n=>p.includes(n)).length; let r=allAwardFrontCnt>0?(h/allAwardFrontCnt*100).toFixed(0):0; let mark=i===bestIdx?"★":" "; poolCompare+=`${mark}${poolNames[i]}:${h}/${allAwardFrontCnt}(${r}%)  `; });
+
+    return { date:dateStr, shiChen:shiIdx, lotType, awardFront:award.front.join(" "), awardBack:award.back.join(" "), hitCountFront:hitFront.length, hitCountBack:hitBack.length, coverRate, passFilterRate:passRate, backCoverRate, missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "), missPoolBack:missPoolBack.join(" "), poolList:mainPool.join(" "), specList:currentSpecPool.join(" "), poolCompare, filterPassList:afterFilter.map(x=>x.join("-")).join("|"), finalBets:finalMain.map(g=>{ let sb=[...currentSpecPool].sort(()=>Math.random()-0.5); return lotType==="ssq"?g.join(" ")+"+"+sb[0]:g.join(" ")+"+"+sb[0]+","+sb[1]; }).join("|"), poolHtml:"", specPool:currentSpecPool, finalMain, bestPoolIdx:bestIdx };
 }
 
-document.getElementById("runBtn").onclick = function(){
-    readParamFromUI();
-    poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = ""; poolTabsDom.innerHTML = "";
-    const lt = typeSel.value;
-    const dStr = dateInput.value;
-    const shiIdx = Number(shiChenSel.value);
-    const awardTxt = awardInput.value;
-    const outCnt = Number(document.getElementById("outCount").value);
+document.getElementById("runBtn").onclick=function(){
+    readParamFromUI(); poolDom.innerText=""; resDom.innerText=""; backDom.innerText=""; poolTabsDom.innerHTML="";
+    const lt=typeSel.value, dStr=dateInput.value, shiIdx=Number(shiChenSel.value), awardTxt=awardInput.value, outCnt=Number(document.getElementById("outCount").value);
     if(!dStr){ backDom.innerText="⚠️ 推演日期不能为空"; return; }
-    const ret = runSingle(dStr, shiIdx, lt, awardTxt, outCnt);
-    let outHtml = "";
-    ret.finalMain.forEach((g,idx)=>{
-        let sb = [...ret.specPool].sort(()=>Math.random()-0.5);
-        if(lt==="ssq") outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]}<br>`;
-        else outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]},${sb[1]}<br>`;
-    });
-    resDom.innerHTML = outHtml;
-    if(awardTxt.trim() !== ""){
-        saveHistoryRecord(ret);
-        renderHistory(20);
-        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>总池覆盖率：${ret.coverRate}<br>过滤留存率：${ret.passFilterRate}<br><strong>三方案对比：</strong>${ret.poolCompare}<br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}<br><span style="color:#4ade80">✅ 已自动保存到历史记录</span>`;
-    }else{
-        backDom.innerHTML = "<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>";
-    }
+    const ret=runSingle(dStr,shiIdx,lt,awardTxt,outCnt);
+    let outHtml=""; ret.finalMain.forEach((g,idx)=>{ let sb=[...ret.specPool].sort(()=>Math.random()-0.5); outHtml+=`第${idx+1}注：${g.join(" ")} + ${lt==="ssq"?sb[0]:sb[0]+","+sb[1]}<br>`; });
+    resDom.innerHTML=outHtml;
+    if(awardTxt.trim()!==""){
+        saveHistoryRecord(ret); renderHistory(20);
+        backDom.innerHTML=`<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>前区总池覆盖率：${ret.coverRate}｜后区覆盖率：${ret.backCoverRate}<br>过滤留存率：${ret.passFilterRate}<br><strong>三方案前区对比：</strong>${ret.poolCompare}<br><span class="miss-pool">前区总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}<br><span style="color:#4ade80">✅ 已自动保存到历史记录</span>`;
+    } else { backDom.innerHTML="<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>"; }
 };
 
-document.getElementById("runBatchBtn").onclick = async function(){
-    readParamFromUI();
-    summaryDom.innerText = "批量运算中...";
-    adviceDom.innerText = "";
-    batchRecords = [];
-    const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
-    const outCnt = Number(document.getElementById("outCount").value);
-    for(let line of lines){
-        const sp = line.split(",");
-        if(sp.length<4) continue;
-        const dStr = sp[0].trim();
-        const shiIdx = Number(sp[1].trim());
-        const lt = sp[2].trim();
-        const awardTxt = sp[3].trim();
-        const rec = runSingle(dStr, shiIdx, lt, awardTxt, outCnt);
-        batchRecords.push(rec);
-        saveHistoryRecord(rec);
-        await new Promise(r=>setTimeout(r,60));
-    }
-    let total = batchRecords.length;
-    if(total ===0){ summaryDom.innerText="没有有效数据"; return; }
-    let sumHit=0,hit0=0,hit1=0,hit2=0,hit3=0,hit4=0,hit5=0,hit6=0;
-    let coverSum=0,passSum=0;
-    batchRecords.forEach(r=>{
-        let h = Number(r.hitCountFront);
-        sumHit += h;
-        if(h===0)hit0++;if(h===1)hit1++;if(h===2)hit2++;if(h===3)hit3++;if(h===4)hit4++;if(h===5)hit5++;if(h===6)hit6++;
-        coverSum += Number(r.coverRate);
-        passSum += Number(r.passFilterRate);
-    });
-    const avgHit = (sumHit/total).toFixed(3);
-    const avgCover = (coverSum/total).toFixed(3);
-    const avgPass = (passSum/total).toFixed(3);
-    summaryDom.innerHTML = `<strong>==== 批量汇总【${total}期】====</strong><br>平均命中前区：${avgHit}<br>平均总池覆盖率：${avgCover}<br>平均过滤留存率：${avgPass}<br>命中分布：<br>中0：${hit0}期｜中1：${hit1}期｜中2：${hit2}期｜中3：${hit3}期｜中4：${hit4}期｜中5：${hit5}期｜中6：${hit6}期<br><span style="color:#4ade80">✅ ${total}期记录已自动保存</span>`;
-
-    let tips = "<strong>📌 调参建议：</strong><br>";
-    if(avgCover < 0.55) tips += "👉 覆盖率偏低：尝试切换到专用参数预设<br>";
-    if(avgPass < 0.55) tips += "👉 留存率低：放宽和值/跨度/AC区间<br>";
-    if(hit0/total >0.45) tips += "👉 空命中期偏多：放大生我/比和权重<br>";
-    if(avgCover>0.56) tips += "✅ 当前参数回测表现良好<br>";
-    adviceDom.innerHTML = tips;
-    renderHistory(20);
+document.getElementById("runBatchBtn").onclick=async function(){
+    readParamFromUI(); summaryDom.innerText="批量运算中..."; adviceDom.innerText=""; batchRecords=[];
+    const lines=batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
+    const outCnt=Number(document.getElementById("outCount").value);
+    for(let line of lines){ const sp=line.split(","); if(sp.length<4) continue; const rec=runSingle(sp[0].trim(),Number(sp[1].trim()),sp[2].trim(),sp[3].trim(),outCnt); batchRecords.push(rec); saveHistoryRecord(rec); await new Promise(r=>setTimeout(r,60)); }
+    let total=batchRecords.length; if(total===0){ summaryDom.innerText="没有有效数据"; return; }
+    let sumHit=0,hit0=0,hit1=0,hit2=0,hit3=0,hit4=0,hit5=0,hit6=0,coverSum=0,passSum=0,backCoverSum=0;
+    batchRecords.forEach(r=>{ let h=Number(r.hitCountFront); sumHit+=h; if(h===0)hit0++;if(h===1)hit1++;if(h===2)hit2++;if(h===3)hit3++;if(h===4)hit4++;if(h===5)hit5++;if(h===6)hit6++; coverSum+=Number(r.coverRate); passSum+=Number(r.passFilterRate); backCoverSum+=Number(r.backCoverRate); });
+    const avgHit=(sumHit/total).toFixed(3), avgCover=(coverSum/total).toFixed(3), avgPass=(passSum/total).toFixed(3), avgBackCover=(backCoverSum/total).toFixed(3);
+    summaryDom.innerHTML=`<strong>==== 批量汇总【${total}期】====</strong><br>平均命中前区：${avgHit}<br>平均前区总池覆盖率：${avgCover}<br>平均后区覆盖率：${avgBackCover}<br>平均过滤留存率：${avgPass}<br>命中分布：<br>中0：${hit0}期｜中1：${hit1}期｜中2：${hit2}期｜中3：${hit3}期｜中4：${hit4}期｜中5：${hit5}期｜中6：${hit6}期<br><span style="color:#4ade80">✅ ${total}期记录已自动保存</span>`;
+    let tips="<strong>📌 调参建议：</strong><br>";
+    if(avgCover<0.55) tips+="👉 前区覆盖率偏低：尝试切换到专用参数预设<br>";
+    if(avgBackCover<0.55) tips+="👉 后区覆盖率偏低：检查后区池大小<br>";
+    if(avgPass<0.55) tips+=" 留存率低：放宽和值/跨度/AC区间<br>";
+    if(hit0/total>0.45) tips+="👉 空命中期偏多：放大生我/比和权重<br>";
+    if(avgCover>0.56) tips+="✅ 当前参数回测表现良好<br>";
+    adviceDom.innerHTML=tips; renderHistory(20);
 };
 
-document.getElementById("exportCsvBtn").onclick = function(){
+document.getElementById("exportCsvBtn").onclick=function(){
     if(batchRecords.length===0){ alert("没有批量记录"); return; }
-    let csv = "\uFEFF日期,时辰,彩种,开奖前区,开奖后区,命中前区,命中后区,池覆盖率,过滤留存率,最优方案,候选池,最终投注\n";
-    batchRecords.forEach(r=>{
-        csv += `${r.date},${r.shiChen},${r.lotType},"${r.awardFront}","${r.awardBack}",${r.hitCountFront},${r.hitCountBack},${r.coverRate},${r.passFilterRate},${['A','B','C'][r.bestPoolIdx]||'A'},"${r.poolList}","${r.finalBets}"\n`;
-    });
-    const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "奇门动态转盘回测数据集.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    let csv="\uFEFF日期,时辰,彩种,开奖前区,开奖后区,命中前区,命中后区,前区覆盖率,后区覆盖率,过滤留存率,最优方案,前区候选池,后区候选池,最终投注\n";
+    batchRecords.forEach(r=>{ csv+=`${r.date},${r.shiChen},${r.lotType},"${r.awardFront}","${r.awardBack}",${r.hitCountFront},${r.hitCountBack},${r.coverRate},${r.backCoverRate},${r.passFilterRate},${['A','B','C'][r.bestPoolIdx]||'A'},"${r.poolList}","${r.specList}","${r.finalBets}"\n`; });
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="奇门动态转盘回测数据集.csv"; a.click(); URL.revokeObjectURL(url);
 };
 
-document.getElementById("clearAllBtn").onclick = function(){
-    poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = ""; summaryDom.innerText = ""; adviceDom.innerText = "";
-    jgDom.innerHTML = ""; panInfoLine.innerText = ""; poolTabsDom.innerHTML = ""; awardInput.value=""; batchInput.value=""; batchRecords=[];
-};
+document.getElementById("clearAllBtn").onclick=function(){ poolDom.innerText=""; resDom.innerText=""; backDom.innerText=""; summaryDom.innerText=""; adviceDom.innerText=""; jgDom.innerHTML=""; panInfoLine.innerText=""; poolTabsDom.innerHTML=""; awardInput.value=""; batchInput.value=""; batchRecords=[]; };
 
 // ========== 历史追踪功能 ==========
 function saveHistoryRecord(rec){
-    let records = [];
-    try { records = JSON.parse(localStorage.getItem("qimen_history") || "[]"); } catch(e){}
-    records.unshift({
-        ts: new Date().toISOString(),
-        date: rec.date,
-        shiChen: rec.shiChen,
-        lotType: rec.lotType,
-        base: param.base,
-        zhiFuAdd: param.extra.zhiFuAdd,
-        shengWo: param.wu.shengWo,
-        keWo: param.wu.keWo,
-        ji: param.ji.ji,
-        xiong: param.ji.xiong,
-        awardFront: rec.awardFront,
-        awardBack: rec.awardBack,
-        hitFront: rec.hitCountFront,
-        hitBack: rec.hitCountBack,
-        coverRate: rec.coverRate,
-        passRate: rec.passFilterRate,
-        poolList: rec.poolList,
-        bestPool: ['A','B','C'][rec.bestPoolIdx] || 'A',
-        poolCompare: rec.poolCompare || ""
-    });
-    if(records.length > 500) records = records.slice(0, 500);
-    localStorage.setItem("qimen_history", JSON.stringify(records));
+    let records=[]; try{records=JSON.parse(localStorage.getItem("qimen_history")||"[]");}catch(e){}
+    records.unshift({ts:new Date().toISOString(), date:rec.date, shiChen:rec.shiChen, lotType:rec.lotType, base:param.base, zhiFuAdd:param.extra.zhiFuAdd, shengWo:param.wu.shengWo, keWo:param.wu.keWo, ji:param.ji.ji, xiong:param.ji.xiong, awardFront:rec.awardFront, awardBack:rec.awardBack, hitFront:rec.hitCountFront, hitBack:rec.hitCountBack, coverRate:rec.coverRate, backCoverRate:rec.backCoverRate, passRate:rec.passFilterRate, poolList:rec.poolList, specList:rec.specList, bestPool:['A','B','C'][rec.bestPoolIdx]||'A', poolCompare:rec.poolCompare||""});
+    if(records.length>500) records=records.slice(0,500);
+    localStorage.setItem("qimen_history",JSON.stringify(records));
 }
-function loadHistoryRecords(){
-    try { return JSON.parse(localStorage.getItem("qimen_history") || "[]"); } catch(e){ return []; }
-}
+function loadHistoryRecords(){ try{return JSON.parse(localStorage.getItem("qimen_history")||"[]");}catch(e){return [];} }
 function renderHistory(limit){
-    const panel = document.getElementById("historyPanel");
-    const records = loadHistoryRecords();
-    if(records.length === 0){
-        panel.innerHTML = "暂无历史记录，复盘后自动保存";
-        return;
-    }
-    const show = limit ? records.slice(0, limit) : records;
-    let html = `<table><tr><th>日期</th><th>彩种</th><th>基准</th><th>方案</th><th>开奖前区</th><th>命中</th><th>覆盖率</th></tr>`;
+    const panel=document.getElementById("historyPanel"); const records=loadHistoryRecords();
+    if(records.length===0){ panel.innerHTML="暂无历史记录，复盘后自动保存"; return; }
+    const show=limit?records.slice(0,limit):records;
+    let html=`<table><tr><th>日期</th><th>彩种</th><th>基准</th><th>方案</th><th>开奖前区</th><th>前区命中</th><th>前区覆盖率</th><th>后区覆盖率</th></tr>`;
     show.forEach(r=>{
-        const ltName = r.lotType === "ssq" ? "SSQ" : "DLT";
-        const baseName = r.base === "riGan" ? "日干" : r.base === "shiGan" ? "时干" : "值符";
-        const coverNum = Math.round(Number(r.coverRate) * 100);
-        const coverColor = coverNum >= 60 ? "#4ade80" : coverNum >= 40 ? "#fbbf24" : "#f87171";
-        html += `<tr><td>${r.date}</td><td>${ltName}</td><td>${baseName}</td><td>${r.bestPool||'A'}</td><td>${r.awardFront}</td><td>${r.hitFront}/${r.lotType==="ssq"?6:5}</td><td style="color:${coverColor};font-weight:bold">${coverNum}%</td></tr>`;
+        const ltName=r.lotType==="ssq"?"SSQ":"DLT", baseName=r.base==="riGan"?"日干":r.base==="shiGan"?"时干":"值符";
+        const coverNum=Math.round(Number(r.coverRate)*100), backCoverNum=Math.round(Number(r.backCoverRate||0)*100);
+        const coverColor=coverNum>=60?"#4ade80":coverNum>=40?"#fbbf24":"#f87171";
+        const backColor=backCoverNum>=60?"#4ade80":backCoverNum>=40?"#fbbf24":"#f87171";
+        html+=`<tr><td>${r.date}</td><td>${ltName}</td><td>${baseName}</td><td>${r.bestPool||'A'}</td><td>${r.awardFront}</td><td>${r.hitFront}/${r.lotType==="ssq"?6:5}</td><td style="color:${coverColor};font-weight:bold">${coverNum}%</td><td style="color:${backColor};font-weight:bold">${backCoverNum}%</td></tr>`;
     });
-    html += `</table>`;
-
-    const total = records.length;
-    const avgCover = (records.reduce((s,r)=>s+Number(r.coverRate),0)/total*100).toFixed(1);
-    const avgHit = (records.reduce((s,r)=>s+r.hitFront,0)/total).toFixed(2);
-    const hit60 = records.filter(r=>Number(r.coverRate)>=0.6).length;
-    const hitRate = (hit60/total*100).toFixed(0);
-
-    const baseStats = {};
-    records.forEach(r=>{
-        if(!baseStats[r.base]) baseStats[r.base] = {count:0, coverSum:0, hitSum:0};
-        baseStats[r.base].count++;
-        baseStats[r.base].coverSum += Number(r.coverRate);
-        baseStats[r.base].hitSum += r.hitFront;
-    });
-    let baseHtml = "";
-    const baseNames = {"riGan":"日干","shiGan":"时干","zhiFu":"值符"};
-    for(let b in baseStats){
-        const s = baseStats[b];
-        baseHtml += `${baseNames[b]}(${s.count}期): 覆盖率${(s.coverSum/s.count*100).toFixed(1)}% 命中${(s.hitSum/s.count).toFixed(2)} | `;
-    }
-
-    const poolStats = {};
-    records.forEach(r=>{
-        let p = r.bestPool || 'A';
-        if(!poolStats[p]) poolStats[p] = {count:0, coverSum:0, hitSum:0};
-        poolStats[p].count++;
-        poolStats[p].coverSum += Number(r.coverRate);
-        poolStats[p].hitSum += r.hitFront;
-    });
-    let poolHtml = "";
-    const poolNames2 = {"A":"方案A(先天+后天)","B":"方案B(对冲+星门)","C":"方案C(星门相加+飞行)"};
-    for(let p in poolStats){
-        const s = poolStats[p];
-        poolHtml += `${poolNames2[p]}(${s.count}期): 覆盖率${(s.coverSum/s.count*100).toFixed(1)}% 命中${(s.hitSum/s.count).toFixed(2)} | `;
-    }
-
-    html += `<div class="hist-summary">
-        <strong> 总体统计（${total}期）：</strong>平均覆盖率 ${avgCover}% | 平均命中 ${avgHit} | 60%+覆盖率占比 ${hitRate}%<br>
-        <strong> 基准对比：</strong>${baseHtml}<br>
-        <strong>🎯 方案对比：</strong>${poolHtml}
-    </div>`;
-    panel.innerHTML = html;
+    html+=`</table>`;
+    const total=records.length;
+    const avgCover=(records.reduce((s,r)=>s+Number(r.coverRate),0)/total*100).toFixed(1);
+    const avgBackCover=(records.reduce((s,r)=>s+Number(r.backCoverRate||0),0)/total*100).toFixed(1);
+    const avgHit=(records.reduce((s,r)=>s+r.hitFront,0)/total).toFixed(2);
+    const hit60=records.filter(r=>Number(r.coverRate)>=0.6).length;
+    const baseStats={}; records.forEach(r=>{ if(!baseStats[r.base]) baseStats[r.base]={count:0,coverSum:0,hitSum:0}; baseStats[r.base].count++; baseStats[r.base].coverSum+=Number(r.coverRate); baseStats[r.base].hitSum+=r.hitFront; });
+    let baseHtml=""; const baseNames={"riGan":"日干","shiGan":"时干","zhiFu":"值符"}; for(let b in baseStats){ const s=baseStats[b]; baseHtml+=`${baseNames[b]}(${s.count}期): 前区覆盖率${(s.coverSum/s.count*100).toFixed(1)}% 命中${(s.hitSum/s.count).toFixed(2)} | `; }
+    const poolStats={}; records.forEach(r=>{ let p=r.bestPool||'A'; if(!poolStats[p]) poolStats[p]={count:0,coverSum:0,hitSum:0}; poolStats[p].count++; poolStats[p].coverSum+=Number(r.coverRate); poolStats[p].hitSum+=r.hitFront; });
+    let poolHtml=""; const poolNames2={"A":"方案A(先天+后天)","B":"方案B(对冲+星门)","C":"方案C(星门相加+飞行)"}; for(let p in poolStats){ const s=poolStats[p]; poolHtml+=`${poolNames2[p]}(${s.count}期): 覆盖率${(s.coverSum/s.count*100).toFixed(1)}% 命中${(s.hitSum/s.count).toFixed(2)} | `; }
+    html+=`<div class="hist-summary"><strong>📈 总体统计（${total}期）：</strong>前区平均覆盖率 ${avgCover}% | 后区平均覆盖率 ${avgBackCover}% | 平均命中 ${avgHit} | 60%+占比 ${(hit60/total*100).toFixed(0)}%<br><strong>📊 基准对比：</strong>${baseHtml}<br><strong>🎯 方案对比：</strong>${poolHtml}</div>`;
+    panel.innerHTML=html;
 }
-document.getElementById("histRecentBtn").onclick = function(){
-    document.querySelectorAll(".hist-btn").forEach(b=>b.classList.remove("active"));
-    this.classList.add("active");
-    renderHistory(20);
-};
-document.getElementById("histAllBtn").onclick = function(){
-    document.querySelectorAll(".hist-btn").forEach(b=>b.classList.remove("active"));
-    this.classList.add("active");
-    renderHistory(0);
-};
-document.getElementById("histClearBtn").onclick = function(){
-    if(confirm("确定清空所有历史记录？此操作不可恢复。")){
-        localStorage.removeItem("qimen_history");
-        renderHistory(0);
-    }
-};
+document.getElementById("histRecentBtn").onclick=function(){ document.querySelectorAll(".hist-btn").forEach(b=>b.classList.remove("active")); this.classList.add("active"); renderHistory(20); };
+document.getElementById("histAllBtn").onclick=function(){ document.querySelectorAll(".hist-btn").forEach(b=>b.classList.remove("active")); this.classList.add("active"); renderHistory(0); };
+document.getElementById("histClearBtn").onclick=function(){ if(confirm("确定清空所有历史记录？此操作不可恢复。")){ localStorage.removeItem("qimen_history"); renderHistory(0); } };
 renderHistory(20);
 </script>
 </body>
