@@ -360,8 +360,8 @@ function getDunJuBySolarTerm(solarTerm, yuan){
 function getDayGanZhi(dateObj){
     const base = new Date("2000-01-01");
     const diff = Math.floor((dateObj - base)/(1000*60*60*24));
-    const gIdx = (diff + 5) % 10;
-    const zIdx = (diff + 11) % 12;
+    const gIdx = ((diff + 5) % 10 + 10) % 10;
+    const zIdx = ((diff + 11) % 12 + 12) % 12;
     return {dayGan:tianGan[gIdx], dayZhi:diZhi[zIdx]};
 }
 function getHourGan(dayGan, shiIdx){
@@ -603,11 +603,14 @@ function applyPersonalScore(palaceData){
     const y = Number(document.getElementById("birthYear").value);
     const m = Number(document.getElementById("birthMonth").value);
     const d = Number(document.getElementById("birthDay").value);
-    if(!y || !m || !d) return;
+    if(!y || !m || !d || y<1900 || y>2100 || m<1 || m>12 || d<1 || d>31) return;
     const bd = new Date(y, m-1, d);
+    if(isNaN(bd.getTime())) return;
     const gz = getDayGanZhi(bd);
     const myWx = ganWuxing[gz.dayGan];
+    if(!myWx) return;
     const rel = wuxingMap[myWx];
+    if(!rel) return;
     const pw = param.personal;
     for(let g=1; g<=9; g++){
         let p = palaceData[g];
