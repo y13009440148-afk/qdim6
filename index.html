@@ -179,6 +179,7 @@ input:checked + .slider:before{transform:translateX(20px);}
     <div style="margin:8px 0;">
         <label>当期开奖号（留空则只推演不复盘）</label>
         <input id="awardNum" placeholder="示例：03 08 12 17 22 29 + 05">
+        <button id="fetchLatestBtn" style="background:#7c3aed;margin-top:6px;">📡 自动获取最新开奖</button>
     </div>
     <div style="margin:8px 0;">
         <label>输出注数</label>
@@ -1101,6 +1102,46 @@ document.getElementById("exportCsvBtn").onclick = function(){
 document.getElementById("clearAllBtn").onclick = function(){
     poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = ""; summaryDom.innerText = ""; adviceDom.innerText = "";
     jgDom.innerHTML = ""; panInfoLine.innerText = ""; awardInput.value=""; batchInput.value=""; batchRecords=[];
+};
+
+// ========== 自动获取最新开奖 ==========
+document.getElementById("fetchLatestBtn").onclick = async function(){
+    const lt = typeSel.value;
+    const btn = this;
+    btn.innerText = "获取中...";
+    btn.disabled = true;
+    try{
+        let url;
+        if(lt === "ssq"){
+            url = "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?id=88888888&key=88888888";
+        } else {
+            url = "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
+        }
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if(data.code !== 200) throw new Error(data.msg || "接口返回错误");
+        const nums = data.number.split("|").map(x=>x.trim());
+        let front, back;
+        if(lt === "ssq"){
+            front = nums.slice(0,6).join(" ");
+            back = nums[6];
+        } else {
+            front = nums.slice(0,5).join(" ");
+            back = nums.slice(5).join(",");
+        }
+        awardInput.value = front + " + " + back;
+        // 自动填入开奖日期
+        const dateStr = data.time.replace(/[()（].*?[)）]/g,"").trim();
+        if(dateStr) dateInput.value = dateStr;
+        // 自动设时辰为亥时
+        shiChenSel.value = "11";
+        alert("✅ 已获取 " + data.qihao + "期（" + data.time + "）\n" + front + " + " + back);
+    }catch(e){
+        alert("❌ 获取失败：" + e.message + "\n请检查网络或手动输入");
+    }finally{
+        btn.innerText = "📡 自动获取最新开奖";
+        btn.disabled = false;
+    }
 };
 </script>
 </body>
