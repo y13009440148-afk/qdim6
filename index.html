@@ -54,6 +54,9 @@ button:hover{background:#1d4ed8;}
 .miss-filter{color:#ffbb44;font-weight:bold;}
 .miss-result{color:#44ddaa;font-weight:bold;}
 .optimize-info{background:#1a2332;padding:10px;border-radius:8px;margin-top:8px;font-size:13px;color:#94a3b8;line-height:1.6;}
+.hot-tag{display:inline-block;background:#7f1d1d;color:#fca5a5;padding:2px 5px;border-radius:4px;font-size:12px;margin:2px;}
+.cold-tag{display:inline-block;background:#1e3a5f;color:#93c5fd;padding:2px 5px;border-radius:4px;font-size:12px;margin:2px;}
+#hotColdInfo{background:#1a2332;padding:12px;border-radius:10px;margin:10px 14px;font-size:14px;color:#e2e8f0;line-height:1.6;display:none;}
 </style>
 </head>
 <body>
@@ -68,26 +71,7 @@ button:hover{background:#1d4ed8;}
         <button id="presetSsqBtn" class="btn-preset">双色球专用</button>
     </div>
     <table>
-        <tr><td>基准主体</td><td>
-            <select id="baseTarget">
-                <option value="riGan">日干五行</option>
-                <option value="shiGan">时干五行</option>
-                <option value="zhiFu">动态值符宫五行</option>
-            </select>
-        </td></tr>
-        <tr><td>生我（本宫生主体）</td><td><input id="wShengWo" value="8"></td></tr>
-        <tr><td>我生（主体生本宫）</td><td><input id="wWoSheng" value="2"></td></tr>
-        <tr><td>克我（本宫克主体）</td><td><input id="wKeWo" value="-5"></td></tr>
-        <tr><td>我克（主体克本宫）</td><td><input id="wWoKe" value="0"></td></tr>
-        <tr><td>比和（同五行帮扶）</td><td><input id="wBiHe" value="4"></td></tr>
-        <tr><td>相冲</td><td><input id="wChong" value="-4"></td></tr>
-        <tr><td>空亡</td><td><input id="wKongWang" value="0"></td></tr>
-        <tr><td>值符宫加成</td><td><input id="wZhiFuAdd" value="15"></td></tr>
-        <tr><td>吉格</td><td><input id="jJi" value="7"></td></tr>
-        <tr><td>平格</td><td><input id="jPing" value="1"></td></tr>
-        <tr><td>凶格</td><td><input id="jXiong" value="-4"></td></tr>
-        <tr><td>和值最小</td><td><input id="fsumMin" value="70"></td></tr>
-        <tr><td>和值最大</td><td><input id="fsumMax" value="106"></td></tr>
+        <tr><td>冷热权重(0-10)</td><td><input id="wHotCold" value="3"></td></tr>
     </table>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button id="saveParamBtn" class="btn-save">保存当前参数</button>
@@ -101,6 +85,8 @@ button:hover{background:#1d4ed8;}
         原始默认：DLT覆盖率53.6%/命中2.68 | SSQ覆盖率54.3%/命中3.26
     </div>
 </div>
+
+<div id="hotColdInfo"></div>
 
 <div class="panel">
     <h2>单期推演（日期+时辰起局）</h2>
@@ -204,13 +190,15 @@ const typeSel = document.getElementById("lotteryType");
 const awardInput = document.getElementById("awardNum");
 const batchInput = document.getElementById("batchInput");
 let batchRecords = [];
+let hotColdData = { freq:{}, gap:{}, totalPeriods:0 };
 
 const defaultParam = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":0,"biHe":4},
     extra:{"chong":-4,"kongWang":0,"zhiFuAdd":15},
     ji:{"ji":7,"ping":1,"xiong":-4},
-    filter:{sumMin:70,sumMax:106}
+    filter:{sumMin:70,sumMax:106},
+    hotColdWeight:3
 };
 
 const presetDlt = {
@@ -218,7 +206,8 @@ const presetDlt = {
     wu:{"shengWo":8,"woSheng":0,"keWo":-5,"woKe":-5,"biHe":2},
     extra:{"chong":-5,"kongWang":-3,"zhiFuAdd":15},
     ji:{"ji":2,"ping":-2,"xiong":-3},
-    filter:{sumMin:56,sumMax:149}
+    filter:{sumMin:56,sumMax:149},
+    hotColdWeight:3
 };
 
 const presetSsq = {
@@ -226,7 +215,8 @@ const presetSsq = {
     wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":-2,"biHe":7},
     extra:{"chong":-1,"kongWang":-1,"zhiFuAdd":15},
     ji:{"ji":8,"ping":4,"xiong":-5},
-    filter:{sumMin:41,sumMax:124}
+    filter:{sumMin:41,sumMax:124},
+    hotColdWeight:3
 };
 
 let param = JSON.parse(JSON.stringify(defaultParam));
@@ -505,6 +495,55 @@ function renderJiuGong(palace, baseWx, panInfo){
     }
 }
 
+// ========== 冷热号自动计算 ==========
+function autoCalcHotCold(lotType){
+    const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
+    if(lines.length < 5){ hotColdData = {freq:{},gap:{},totalPeriods:0}; return; }
+    const maxNum = lotType === "ssq" ? 33 : 35;
+    let freq = {}, lastSeen = {};
+    for(let n=1; n<=maxNum; n++){ freq[n]=0; lastSeen[n]=-1; }
+    for(let i=0; i<lines.length; i++){
+        const sp = lines[i].split(",");
+        if(sp.length < 4) continue;
+        let nums = sp[3].split("+")[0].trim().split(/\s+/).map(Number).filter(x=>!isNaN(x)&&x>=1&&x<=maxNum);
+        for(let n of nums){ freq[n]++; lastSeen[n]=i; }
+    }
+    let gap = {};
+    for(let n=1; n<=maxNum; n++){ gap[n] = lastSeen[n]===-1 ? lines.length : lines.length-1-lastSeen[n]; }
+    hotColdData = {freq, gap, totalPeriods:lines.length};
+    const hcDom = document.getElementById("hotColdInfo");
+    const avgFreq = lines.length * (lotType==="ssq"?6:5) / maxNum;
+    const avgGap = lines.length * (1-(lotType==="ssq"?6:5)/maxNum);
+    let hotList=[], coldList=[];
+    for(let n=1; n<=maxNum; n++){
+        if(freq[n] > avgFreq*1.3) hotList.push({n, f:freq[n]});
+        if(gap[n] > avgGap*1.8) coldList.push({n, g:gap[n]});
+    }
+    hotList.sort((a,b)=>b.f-a.f); coldList.sort((a,b)=>b.g-a.g);
+    let html = `<strong>\ud83d\udd25 冷热号自动统计（${lines.length}期）</strong><br>`;
+    html += `<span style="color:#fca5a5">热号（频次高）：</span>`;
+    html += hotList.slice(0,10).map(x=>`<span class="hot-tag">${x.n}(${x.f}\u6b21)</span>`).join("") || "\u65e0";
+    html += `<br><span style="color:#93c5fd">冷号（遗漏长）：</span>`;
+    html += coldList.slice(0,10).map(x=>`<span class="cold-tag">${x.n}(\u6f0f${x.g}\u671f)</span>`).join("") || "\u65e0";
+    hcDom.innerHTML = html;
+    hcDom.style.display = "block";
+}
+
+function getHotColdBonus(num){
+    const w = param.hotColdWeight;
+    if(w === 0 || hotColdData.totalPeriods === 0) return 0;
+    const maxNum = typeSel.value === "ssq" ? 33 : 35;
+    const pickCount = typeSel.value === "ssq" ? 6 : 5;
+    const avgFreq = hotColdData.totalPeriods * pickCount / maxNum;
+    let bonus = 0;
+    const freq = hotColdData.freq[num] || 0;
+    if(freq > avgFreq) bonus += (freq - avgFreq) / avgFreq * w;
+    const gap = hotColdData.gap[num] || 0;
+    const avgGap = hotColdData.totalPeriods * (1 - pickCount/maxNum);
+    if(gap > avgGap * 1.5) bonus += (gap - avgGap) / avgGap * w * 0.8;
+    return bonus;
+}
+
 // ========== 三个方案候选池 ==========
 function getColorClass(idx,total){
     const ratio = idx/total;
@@ -526,6 +565,7 @@ function buildPoolA(palaceData, lotType){
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
     }
+    for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
     let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
     arr.sort((a,b)=>b.score - a.score);
     const keep = arr.map(x=>x.num).slice(0,18);
@@ -564,6 +604,7 @@ function buildPoolB(palaceData, lotType){
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
     }
+    for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
     let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
     arr.sort((a,b)=>b.score - a.score);
     const keep = arr.map(x=>x.num).slice(0,18);
@@ -605,6 +646,7 @@ function buildPoolC(palaceData, lotType){
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
     }
+    for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
     let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
     arr.sort((a,b)=>b.score - a.score);
     const keep = arr.map(x=>x.num).slice(0,18);
@@ -764,36 +806,10 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
 
 // ========== 参数UI ==========
 function loadParamToUI(){
-    document.getElementById("baseTarget").value = param.base;
-    document.getElementById("wShengWo").value = param.wu.shengWo;
-    document.getElementById("wWoSheng").value = param.wu.woSheng;
-    document.getElementById("wKeWo").value = param.wu.keWo;
-    document.getElementById("wWoKe").value = param.wu.woKe;
-    document.getElementById("wBiHe").value = param.wu.biHe;
-    document.getElementById("wChong").value = param.extra.chong;
-    document.getElementById("wKongWang").value = param.extra.kongWang;
-    document.getElementById("wZhiFuAdd").value = param.extra.zhiFuAdd;
-    document.getElementById("jJi").value = param.ji.ji;
-    document.getElementById("jPing").value = param.ji.ping;
-    document.getElementById("jXiong").value = param.ji.xiong;
-    document.getElementById("fsumMin").value = param.filter.sumMin;
-    document.getElementById("fsumMax").value = param.filter.sumMax;
+    document.getElementById("wHotCold").value = param.hotColdWeight;
 }
 function readParamFromUI(){
-    param.base = document.getElementById("baseTarget").value;
-    param.wu.shengWo = Number(document.getElementById("wShengWo").value);
-    param.wu.woSheng = Number(document.getElementById("wWoSheng").value);
-    param.wu.keWo = Number(document.getElementById("wKeWo").value);
-    param.wu.woKe = Number(document.getElementById("wWoKe").value);
-    param.wu.biHe = Number(document.getElementById("wBiHe").value);
-    param.extra.chong = Number(document.getElementById("wChong").value);
-    param.extra.kongWang = Number(document.getElementById("wKongWang").value);
-    param.extra.zhiFuAdd = Number(document.getElementById("wZhiFuAdd").value);
-    param.ji.ji = Number(document.getElementById("jJi").value);
-    param.ji.ping = Number(document.getElementById("jPing").value);
-    param.ji.xiong = Number(document.getElementById("jXiong").value);
-    param.filter.sumMin = Number(document.getElementById("fsumMin").value);
-    param.filter.sumMax = Number(document.getElementById("fsumMax").value);
+    param.hotColdWeight = Number(document.getElementById("wHotCold").value);
 }
 
 function clearPresetActive(){
@@ -882,6 +898,7 @@ document.getElementById("runBtn").onclick = function(){
     readParamFromUI();
     poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = "";
     const lt = typeSel.value;
+    autoCalcHotCold(lt);
     const dStr = dateInput.value;
     const shiIdx = Number(shiChenSel.value);
     const awardTxt = awardInput.value;
@@ -914,6 +931,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
     readParamFromUI();
     summaryDom.innerText = "批量运算中...";
     adviceDom.innerText = "";
+    autoCalcHotCold(typeSel.value);
     batchRecords = [];
     const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
     const outCnt = Number(document.getElementById("outCount").value);
