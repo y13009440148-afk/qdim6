@@ -847,13 +847,14 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
         coverRateC = (award.front.filter(x=>setC.has(x)).length / award.front.length).toFixed(3);
     }
 
-    let missPoolFront=[], missFilterFront=[], missResultFront=[], hitFront=[];
+    let missPoolFront=[], missFilterFront=[], missResultFront=[], hitFront=[], poolHitFront=[];
     let missPoolBack=[], hitBack=[];
     const setSelected = new Set(selectedPool.rawPool);
     const setPassFilter = new Set();
     afterFilter.forEach(g=>g.forEach(x=>setPassFilter.add(x)));
 
     award.front.forEach(n=>{
+        if(setSelected.has(n)) poolHitFront.push(n);
         if(!setSelected.has(n)) missPoolFront.push(n);
         else if(!setPassFilter.has(n)) missFilterFront.push(n);
         else if(!setFinal.has(n)) missResultFront.push(n);
@@ -872,6 +873,7 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
         hitCountFront:hitFront.length, hitCountBack:hitBack.length,
         coverRate, passFilterRate:passRate,
         coverRateA, coverRateB, coverRateC,
+        poolHit:poolHitFront.join(" "),
         missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
         missPoolBack:missPoolBack.join(" "),
         poolList:selectedPool.rawPool.join(" "),
@@ -1024,7 +1026,7 @@ document.getElementById("runBtn").onclick = function(){
     });
     resDom.innerHTML = outHtml;
     if(awardTxt.trim() !== ""){
-        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>当前方案覆盖率：${ret.coverRate}<br>方案A覆盖率：${ret.coverRateA}｜方案B覆盖率：${ret.coverRateB}｜方案C覆盖率：${ret.coverRateC}<br>过滤留存率：${ret.passFilterRate}<br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
+        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>当前方案覆盖率：${ret.coverRate}<br>方案A覆盖率：${ret.coverRateA}｜方案B覆盖率：${ret.coverRateB}｜方案C覆盖率：${ret.coverRateC}<br>过滤留存率：${ret.passFilterRate}<br><span style="color:#44ddaa;font-weight:bold">池内命中：${ret.poolHit||"无"}</span><br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
     }else{
         backDom.innerHTML = "<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>";
     }
