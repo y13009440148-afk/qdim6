@@ -57,6 +57,9 @@ button:hover{background:#1d4ed8;}
 .hot-tag{display:inline-block;background:#7f1d1d;color:#fca5a5;padding:2px 5px;border-radius:4px;font-size:12px;margin:2px;}
 .cold-tag{display:inline-block;background:#1e3a5f;color:#93c5fd;padding:2px 5px;border-radius:4px;font-size:12px;margin:2px;}
 #hotColdInfo{background:#1a2332;padding:12px;border-radius:10px;margin:10px 14px;font-size:14px;color:#e2e8f0;line-height:1.6;display:none;}
+.personal-panel{border:1px solid #4a3a10;background:#1e1a0c;border-radius:10px;padding:12px;margin-top:10px;}
+.personal-panel h3{color:#ffd343;font-size:15px;margin-bottom:8px;}
+.personal-panel table{margin:0;}
 </style>
 </head>
 <body>
@@ -71,6 +74,9 @@ button:hover{background:#1d4ed8;}
         <button id="presetSsqBtn" class="btn-preset">双色球专用</button>
     </div>
     <table>
+        <tr><td>相冲加成</td><td><input id="wChong" value="5"></td></tr>
+        <tr><td>空亡加成</td><td><input id="wKongWang" value="5"></td></tr>
+        <tr><td>凶格加成</td><td><input id="jXiong" value="5"></td></tr>
         <tr><td>冷热权重(0-10)</td><td><input id="wHotCold" value="3"></td></tr>
     </table>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
@@ -83,6 +89,34 @@ button:hover{background:#1d4ed8;}
         联合优化：DLT覆盖率57.2%/命中2.86 | SSQ覆盖率56.7%/命中3.40<br>
         大乐透专用：覆盖率58.2%/命中2.91 | 双色球专用：覆盖率58.3%/命中3.50<br>
         原始默认：DLT覆盖率53.6%/命中2.68 | SSQ覆盖率54.3%/命中3.26
+    </div>
+    <div class="personal-panel">
+        <h3>个人感应层（可选）</h3>
+        <table>
+            <tr><td>出生日期</td><td><input id="birthDate" type="date" value=""></td></tr>
+            <tr><td>出生时辰</td><td>
+                <select id="birthShiChen">
+                    <option value="0">子时 23-01</option>
+                    <option value="1">丑时 01-03</option>
+                    <option value="2">寅时 03-05</option>
+                    <option value="3">卯时 05-07</option>
+                    <option value="4">辰时 07-09</option>
+                    <option value="5">巳时 09-11</option>
+                    <option value="6">午时 11-13</option>
+                    <option value="7">未时 13-15</option>
+                    <option value="8">申时 15-17</option>
+                    <option value="9">酉时 17-19</option>
+                    <option value="10">戌时 19-21</option>
+                    <option value="11">亥时 21-23</option>
+                </select>
+            </td></tr>
+            <tr><td>宫生我(+)</td><td><input id="pShengWo" value="5"></td></tr>
+            <tr><td>我克宫(+)</td><td><input id="pWoKe" value="3"></td></tr>
+            <tr><td>比和(+)</td><td><input id="pBiHe" value="2"></td></tr>
+            <tr><td>我生宫(-)</td><td><input id="pWoSheng" value="-1"></td></tr>
+            <tr><td>宫克我(-)</td><td><input id="pKeWo" value="-4"></td></tr>
+        </table>
+        <label style="font-size:13px;color:#94a3b8;">留空则个人感应层不生效，所有分值置0</label>
     </div>
 </div>
 
@@ -195,28 +229,31 @@ let hotColdData = { freq:{}, gap:{}, totalPeriods:0 };
 const defaultParam = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":0,"biHe":4},
-    extra:{"chong":-4,"kongWang":0,"zhiFuAdd":15},
-    ji:{"ji":7,"ping":1,"xiong":-4},
+    extra:{"chong":5,"kongWang":5,"zhiFuAdd":15},
+    ji:{"ji":7,"ping":1,"xiong":5},
     filter:{sumMin:70,sumMax:106},
-    hotColdWeight:3
+    hotColdWeight:3,
+    personal:{shengWo:5,woKe:3,biHe:2,woSheng:-1,keWo:-4}
 };
 
 const presetDlt = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":0,"keWo":-5,"woKe":-5,"biHe":2},
-    extra:{"chong":-5,"kongWang":-3,"zhiFuAdd":15},
-    ji:{"ji":2,"ping":-2,"xiong":-3},
+    extra:{"chong":5,"kongWang":5,"zhiFuAdd":15},
+    ji:{"ji":2,"ping":-2,"xiong":5},
     filter:{sumMin:56,sumMax:149},
-    hotColdWeight:3
+    hotColdWeight:3,
+    personal:{shengWo:5,woKe:3,biHe:2,woSheng:-1,keWo:-4}
 };
 
 const presetSsq = {
     base:"riGan",
     wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":-2,"biHe":7},
-    extra:{"chong":-1,"kongWang":-1,"zhiFuAdd":15},
-    ji:{"ji":8,"ping":4,"xiong":-5},
+    extra:{"chong":5,"kongWang":5,"zhiFuAdd":15},
+    ji:{"ji":8,"ping":4,"xiong":5},
     filter:{sumMin:41,sumMax:124},
-    hotColdWeight:3
+    hotColdWeight:3,
+    personal:{shengWo:5,woKe:3,biHe:2,woSheng:-1,keWo:-4}
 };
 
 let param = JSON.parse(JSON.stringify(defaultParam));
@@ -520,28 +557,50 @@ function autoCalcHotCold(lotType){
         if(gap[n] > avgGap*1.8) coldList.push({n, g:gap[n]});
     }
     hotList.sort((a,b)=>b.f-a.f); coldList.sort((a,b)=>b.g-a.g);
-    let html = `<strong>\ud83d\udd25 冷热号自动统计（${lines.length}期）</strong><br>`;
-    html += `<span style="color:#fca5a5">热号（频次高）：</span>`;
-    html += hotList.slice(0,10).map(x=>`<span class="hot-tag">${x.n}(${x.f}\u6b21)</span>`).join("") || "\u65e0";
-    html += `<br><span style="color:#93c5fd">冷号（遗漏长）：</span>`;
-    html += coldList.slice(0,10).map(x=>`<span class="cold-tag">${x.n}(\u6f0f${x.g}\u671f)</span>`).join("") || "\u65e0";
+    let html = '<strong>冷热号自动统计（'+lines.length+'期）</strong><br>';
+    html += '<span style="color:#fca5a5">热号：</span>';
+    html += hotList.slice(0,10).map(function(x){return '<span class="hot-tag">'+x.n+'('+x.f+'次)</span>'}).join("") || '无';
+    html += '<br><span style="color:#93c5fd">冷号：</span>';
+    html += coldList.slice(0,10).map(function(x){return '<span class="cold-tag">'+x.n+'(漏'+x.g+'期)</span>'}).join("") || '无';
     hcDom.innerHTML = html;
     hcDom.style.display = "block";
 }
 
 function getHotColdBonus(num){
-    const w = param.hotColdWeight;
+    var w = param.hotColdWeight;
     if(w === 0 || hotColdData.totalPeriods === 0) return 0;
-    const maxNum = typeSel.value === "ssq" ? 33 : 35;
-    const pickCount = typeSel.value === "ssq" ? 6 : 5;
-    const avgFreq = hotColdData.totalPeriods * pickCount / maxNum;
-    let bonus = 0;
-    const freq = hotColdData.freq[num] || 0;
+    var maxNum = typeSel.value === "ssq" ? 33 : 35;
+    var pickCount = typeSel.value === "ssq" ? 6 : 5;
+    var avgFreq = hotColdData.totalPeriods * pickCount / maxNum;
+    var bonus = 0;
+    var freq = hotColdData.freq[num] || 0;
     if(freq > avgFreq) bonus += (freq - avgFreq) / avgFreq * w;
-    const gap = hotColdData.gap[num] || 0;
-    const avgGap = hotColdData.totalPeriods * (1 - pickCount/maxNum);
+    var gap = hotColdData.gap[num] || 0;
+    var avgGap = hotColdData.totalPeriods * (1 - pickCount/maxNum);
     if(gap > avgGap * 1.5) bonus += (gap - avgGap) / avgGap * w * 0.8;
     return bonus;
+}
+
+// ========== 个人感应层 ==========
+function applyPersonalScore(palaceData){
+    const bDate = document.getElementById("birthDate").value;
+    if(!bDate) return; // 留空不生效
+    const d = new Date(bDate);
+    const gz = getDayGanZhi(d);
+    const myWx = ganWuxing[gz.dayGan];
+    const rel = wuxingMap[myWx];
+    const pw = param.personal;
+    for(let g=1; g<=9; g++){
+        let p = palaceData[g];
+        const gWx = p.wuXing;
+        let bonus = 0;
+        if(gWx === rel.shengWo) bonus = pw.shengWo;      // 宫生我
+        else if(gWx === rel.woKe) bonus = pw.woKe;        // 我克宫
+        else if(gWx === rel.tong) bonus = pw.biHe;        // 比和
+        else if(gWx === rel.woSheng) bonus = pw.woSheng;  // 我生宫
+        else if(gWx === rel.keWo) bonus = pw.keWo;        // 宫克我
+        p.score += bonus;
+    }
 }
 
 // ========== 三个方案候选池 ==========
@@ -717,6 +776,7 @@ function parseAward(str, type){
 function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     const panRaw = qiMenZhuanPan(dateStr, shiIdx);
     const scoreRet = calcScore(panRaw, param.base);
+    applyPersonalScore(scoreRet.palaceData);
     const panInfo = `${panRaw.xunName}｜${panRaw.solarTerm}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局（${["上元","中元","下元"][panRaw.yuan]}）｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
     renderJiuGong(scoreRet.palaceData, scoreRet.baseWx, panInfo);
 
@@ -806,12 +866,27 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
 
 // ========== 参数UI ==========
 function loadParamToUI(){
+    document.getElementById("wChong").value = param.extra.chong;
+    document.getElementById("wKongWang").value = param.extra.kongWang;
+    document.getElementById("jXiong").value = param.ji.xiong;
     document.getElementById("wHotCold").value = param.hotColdWeight;
+    document.getElementById("pShengWo").value = param.personal.shengWo;
+    document.getElementById("pWoKe").value = param.personal.woKe;
+    document.getElementById("pBiHe").value = param.personal.biHe;
+    document.getElementById("pWoSheng").value = param.personal.woSheng;
+    document.getElementById("pKeWo").value = param.personal.keWo;
 }
 function readParamFromUI(){
+    param.extra.chong = Number(document.getElementById("wChong").value);
+    param.extra.kongWang = Number(document.getElementById("wKongWang").value);
+    param.ji.xiong = Number(document.getElementById("jXiong").value);
     param.hotColdWeight = Number(document.getElementById("wHotCold").value);
+    param.personal.shengWo = Number(document.getElementById("pShengWo").value);
+    param.personal.woKe = Number(document.getElementById("pWoKe").value);
+    param.personal.biHe = Number(document.getElementById("pBiHe").value);
+    param.personal.woSheng = Number(document.getElementById("pWoSheng").value);
+    param.personal.keWo = Number(document.getElementById("pKeWo").value);
 }
-
 function clearPresetActive(){
     document.querySelectorAll(".btn-preset").forEach(b=>b.classList.remove("active"));
 }
