@@ -60,6 +60,14 @@ button:hover{background:#1d4ed8;}
 .personal-panel{border:1px solid #4a3a10;background:#1e1a0c;border-radius:10px;padding:12px;margin-top:10px;}
 .personal-panel h3{color:#ffd343;font-size:15px;margin-bottom:8px;}
 .personal-panel table{margin:0;}
+.switch-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.switch{position:relative;display:inline-block;width:44px;height:24px;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#445577;transition:.3s;border-radius:24px;}
+.slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;transition:.3s;border-radius:50%;}
+input:checked + .slider{background:#06b6d4;}
+input:checked + .slider:before{transform:translateX(20px);}
+.p-disabled{opacity:0.4;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -91,9 +99,16 @@ button:hover{background:#1d4ed8;}
         原始默认：DLT覆盖率53.6%/命中2.68 | SSQ覆盖率54.3%/命中3.26
     </div>
     <div class="personal-panel">
-        <h3>个人感应层（可选）</h3>
+        <div class="switch-row">
+            <h3 style="margin:0;">个人感应层</h3>
+            <label class="switch"><input type="checkbox" id="personalSwitch"><span class="slider"></span></label>
+            <span id="switchLabel" style="color:#94a3b8;font-size:14px;">已关闭</span>
+        </div>
+        <div id="personalBody" class="p-disabled">
         <table>
-            <tr><td>出生日期</td><td><input id="birthDate" type="date" value=""></td></tr>
+            <tr><td>出生年份</td><td><input id="birthYear" type="number" min="1900" max="2100" placeholder="2000"></td></tr>
+            <tr><td>出生月份</td><td><input id="birthMonth" type="number" min="1" max="12" placeholder="1"></td></tr>
+            <tr><td>出生日期</td><td><input id="birthDay" type="number" min="1" max="31" placeholder="10"></td></tr>
             <tr><td>出生时辰</td><td>
                 <select id="birthShiChen">
                     <option value="0">子时 23-01</option>
@@ -107,7 +122,7 @@ button:hover{background:#1d4ed8;}
                     <option value="8">申时 15-17</option>
                     <option value="9">酉时 17-19</option>
                     <option value="10">戌时 19-21</option>
-                    <option value="11">亥时 21-23</option>
+                    <option value="11" selected>亥时 21-23</option>
                 </select>
             </td></tr>
             <tr><td>宫生我(+)</td><td><input id="pShengWo" value="5"></td></tr>
@@ -116,7 +131,8 @@ button:hover{background:#1d4ed8;}
             <tr><td>我生宫(-)</td><td><input id="pWoSheng" value="-1"></td></tr>
             <tr><td>宫克我(-)</td><td><input id="pKeWo" value="-4"></td></tr>
         </table>
-        <label style="font-size:13px;color:#94a3b8;">留空则个人感应层不生效，所有分值置0</label>
+        <label style="font-size:13px;color:#94a3b8;">开关关闭时全部视为0，打开才生效</label>
+        </div>
     </div>
 </div>
 
@@ -583,10 +599,13 @@ function getHotColdBonus(num){
 
 // ========== 个人感应层 ==========
 function applyPersonalScore(palaceData){
-    const bDate = document.getElementById("birthDate").value;
-    if(!bDate) return; // 留空不生效
-    const d = new Date(bDate);
-    const gz = getDayGanZhi(d);
+    if(!document.getElementById("personalSwitch").checked) return;
+    const y = Number(document.getElementById("birthYear").value);
+    const m = Number(document.getElementById("birthMonth").value);
+    const d = Number(document.getElementById("birthDay").value);
+    if(!y || !m || !d) return;
+    const bd = new Date(y, m-1, d);
+    const gz = getDayGanZhi(bd);
     const myWx = ganWuxing[gz.dayGan];
     const rel = wuxingMap[myWx];
     const pw = param.personal;
@@ -594,14 +613,21 @@ function applyPersonalScore(palaceData){
         let p = palaceData[g];
         const gWx = p.wuXing;
         let bonus = 0;
-        if(gWx === rel.shengWo) bonus = pw.shengWo;      // 宫生我
-        else if(gWx === rel.woKe) bonus = pw.woKe;        // 我克宫
-        else if(gWx === rel.tong) bonus = pw.biHe;        // 比和
-        else if(gWx === rel.woSheng) bonus = pw.woSheng;  // 我生宫
-        else if(gWx === rel.keWo) bonus = pw.keWo;        // 宫克我
+        if(gWx === rel.shengWo) bonus = pw.shengWo;
+        else if(gWx === rel.woKe) bonus = pw.woKe;
+        else if(gWx === rel.tong) bonus = pw.biHe;
+        else if(gWx === rel.woSheng) bonus = pw.woSheng;
+        else if(gWx === rel.keWo) bonus = pw.keWo;
         p.score += bonus;
     }
 }
+
+document.getElementById("personalSwitch").onchange = function(){
+    const body = document.getElementById("personalBody");
+    const lbl = document.getElementById("switchLabel");
+    if(this.checked){ body.classList.remove("p-disabled"); lbl.innerText = "已开启"; lbl.style.color = "#06b6d4"; }
+    else { body.classList.add("p-disabled"); lbl.innerText = "已关闭"; lbl.style.color = "#94a3b8"; }
+};
 
 // ========== 三个方案候选池 ==========
 function getColorClass(idx,total){
