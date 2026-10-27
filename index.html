@@ -194,6 +194,12 @@ input:checked + .slider:before{transform:translateX(20px);}
         <label>样例：2026-10-22,10,ssq,01 05 09 16 22 31 + 07</label>
         <textarea id="batchInput" placeholder="粘贴多期数据，一行一期"></textarea>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
+        <label style="color:#94a3b8;font-size:13px;">批量获取期数：</label>
+        <input id="batchFetchCount" type="number" value="50" min="10" max="100" style="width:60px;">
+        <button id="batchFetchBtn" style="background:#0e7490;">📥 批量获取历史</button>
+        <span id="batchFetchProgress" style="color:#67e8f9;font-size:12px;"></span>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;">
         <button id="runBatchBtn">开始批量回测</button>
         <button id="exportCsvBtn" class="btn-csv">导出CSV数据集</button>
@@ -1140,6 +1146,94 @@ document.getElementById("fetchLatestBtn").onclick = async function(){
         alert("❌ 获取失败：" + e.message + "\n请检查网络或手动输入");
     }finally{
         btn.innerText = "📡 自动获取最新开奖";
+        btn.disabled = false;
+    }
+};
+
+// ===== 批量获取历史开奖 =====
+document.getElementById("batchFetchBtn").onclick = async function(){
+    const lt = typeSel.value;
+    const count = Math.min(100, Math.max(10, Number(document.getElementById("batchFetchCount").value) || 50));
+    const btn = this;
+    const prog = document.getElementById("batchFetchProgress");
+    btn.disabled = true;
+    prog.innerText = "准备中...";
+
+    const apiBase = lt === "ssq"
+        ? "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?id=88888888&key=88888888"
+        : "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
+
+    try{
+        // 1. 获取最新一期确定期号
+        const firstResp = await fetch(apiBase);
+        const firstData = await firstResp.json();
+        if(firstData.code !== 200) throw new Error("无法获取最新期号");
+
+        const latestQH = firstData.qihao; // e.g. "2025120" (ssq) or "25120" (dlt)
+        let year, seq;
+        if(lt === "ssq"){
+            year = parseInt(latestQH.substring(0,4));
+            seq = parseInt(latestQH.substring(4));
+        } else {
+            year = parseInt(latestQH.substring(0,2));
+            seq = parseInt(latestQH.substring(2));
+        }
+
+        // 2. 循环获取 N 期
+        const lines = [];
+        let curYear = year, curSeq = seq, got = 0;
+        const maxSeqPerYear = lt === "ssq" ? 154 : 154;
+        const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+        for(let i = 0; i < count + 30 && got < count; i++){
+            if(curSeq < 1){
+                curYear--;
+                curSeq = maxSeqPerYear;
+            }
+            let qh;
+            if(lt === "ssq"){
+                qh = String(curYear).padStart(4,'0') + String(curSeq).padStart(3,'0');
+            } else {
+                qh = String(curYear).padStart(2,'0') + String(curSeq).padStart(3,'0');
+            }
+
+            try{
+                const resp = await fetch(apiBase + "&qh=" + qh);
+                const data = await resp.json();
+                if(data.code === 200 && data.number){
+                    const nums = data.number.split("|").map(x=>x.trim());
+                    let front, back;
+                    if(lt === "ssq"){
+                        front = nums.slice(0,6).join(" ");
+                        back = nums[6];
+                    } else {
+                        front = nums.slice(0,5).join(" ");
+                        back = nums.slice(5).join(",");
+                    }
+                    const dateStr = data.time.replace(/[()（].*?[)）]/g,"").trim();
+                    lines.push(dateStr + ",11," + lt + "," + front + " + " + back);
+                    got++;
+                    curSeq--;
+                } else {
+                    curSeq--;
+                }
+            }catch(e){
+                curSeq--;
+            }
+            prog.innerText = "已获取 " + got + "/" + count + " 期";
+            await delay(300);
+        }
+
+        // 3. 填入文本框
+        const existing = document.getElementById("batchInput").value.trim();
+        const newBlock = lines.join("\n");
+        document.getElementById("batchInput").value = newBlock;
+        prog.innerText = "✅ 成功获取 " + got + " 期";
+        // 自动触发冷热计算
+        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
+    }catch(e){
+        prog.innerText = "❌ 失败：" + e.message;
+    }finally{
         btn.disabled = false;
     }
 };
