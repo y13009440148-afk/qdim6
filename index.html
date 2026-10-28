@@ -648,6 +648,8 @@ function getColorClass(idx,total){
 function buildPoolA(palaceData, lotType){
     // 方案A：先天数+后天数（微调：仅追加八神数）
     const maxNum = lotType === "ssq" ? 33 : 35;
+    const extStep = lotType === "ssq" ? 9 : 7;
+    const poolSize = lotType === "ssq" ? 18 : 20;
     const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
     let allMap = {};
     for(let g=1;g<=9;g++){
@@ -659,7 +661,7 @@ function buildPoolA(palaceData, lotType){
         let extend = [];
         for(let base of numList){
             let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
+            while(n <= maxNum){ extend.push(n); n += extStep; }
         }
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
@@ -667,7 +669,7 @@ function buildPoolA(palaceData, lotType){
     for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
     let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
     arr.sort((a,b)=>b.score - a.score);
-    const keep = arr.map(x=>x.num).slice(0,18);
+    const keep = arr.map(x=>x.num).slice(0,poolSize);
     let colorHtml = "";
     for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
     return {rawPool:keep, colorHtml};
@@ -676,6 +678,8 @@ function buildPoolA(palaceData, lotType){
 function buildPoolB(palaceData, lotType){
     // 方案B：对冲宫+六合+九星+八门
     const maxNum = lotType === "ssq" ? 33 : 35;
+    const extStep = lotType === "ssq" ? 9 : 7;
+    const poolSize = lotType === "ssq" ? 18 : 20;
     const liuheMap = {"子":1,"丑":1,"寅":2,"亥":2,"卯":3,"戌":3,"辰":4,"酉":4,"巳":5,"申":5,"午":6,"未":6};
     const xingNum = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
     const menNum = {"休":1,"死":2,"伤":3,"杜":4,"开":6,"惊":7,"生":8,"景":9};
@@ -698,7 +702,7 @@ function buildPoolB(palaceData, lotType){
         let extend = [];
         for(let base of nums){
             let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
+            while(n <= maxNum){ extend.push(n); n += extStep; }
         }
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
@@ -706,7 +710,7 @@ function buildPoolB(palaceData, lotType){
     for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
     let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
     arr.sort((a,b)=>b.score - a.score);
-    const keep = arr.map(x=>x.num).slice(0,18);
+    const keep = arr.map(x=>x.num).slice(0,poolSize);
     let colorHtml = "";
     for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
     return {rawPool:keep, colorHtml};
@@ -715,6 +719,8 @@ function buildPoolB(palaceData, lotType){
 function buildPoolC(palaceData, lotType){
     // 方案C：星门相加+门神相加+飞行数+天地盘干
     const maxNum = lotType === "ssq" ? 33 : 35;
+    const extStep = lotType === "ssq" ? 9 : 7;
+    const poolSize = lotType === "ssq" ? 18 : 20;
     const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
     const ganNum = {"甲":1,"乙":2,"丙":3,"丁":4,"戊":5,"己":6,"庚":7,"辛":8,"壬":9,"癸":10};
     const xingNum = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
@@ -742,7 +748,7 @@ function buildPoolC(palaceData, lotType){
         let extend = [];
         for(let base of nums){
             let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
+            while(n <= maxNum){ extend.push(n); n += extStep; }
         }
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
@@ -750,7 +756,7 @@ function buildPoolC(palaceData, lotType){
     for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
     let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
     arr.sort((a,b)=>b.score - a.score);
-    const keep = arr.map(x=>x.num).slice(0,18);
+    const keep = arr.map(x=>x.num).slice(0,poolSize);
     let colorHtml = "";
     for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
     return {rawPool:keep, colorHtml};
