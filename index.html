@@ -646,12 +646,16 @@ function getColorClass(idx,total){
 }
 
 function buildPoolA(palaceData, lotType){
-    // 方案A：先天数+后天数
+    // 方案A：先天数+后天数（微调：仅追加八神数）
     const maxNum = lotType === "ssq" ? 33 : 35;
+    const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
     let allMap = {};
     for(let g=1;g<=9;g++){
         let p = palaceData[g];
         let numList = p.tianXian.concat(p.houTian);
+        // ★ 微调：仅追加八神数
+        let sn = shenNum[p.shen] || 1;
+        numList = numList.concat([sn]);
         let extend = [];
         for(let base of numList){
             let n = base;
@@ -727,6 +731,8 @@ function buildPoolC(palaceData, lotType){
         // 门神相加
         let sn = shenNum[p.shen] || 1;
         nums.push(mn + sn);
+        // ★ 微调：追加独立的八神数（与B不同，B无神）
+        nums.push(sn);
         // 飞行数（宫位洛书数）
         nums.push(g);
         // 天地盘干数
