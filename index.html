@@ -320,7 +320,7 @@ const palaceMeta = {
     9:{name:"离",tianXian:[9],houTian:[9],xing:"英",men:"景",wuXing:"火",jiXiong:"平"},
 };
 const gridOrder = [4,9,2,3,5,7,8,1,6];
-const liuYi = ["戊","己","庚","辛","壬","癸","丁","丙","乙"];
+const liuYiArr = ["戊","己","庚","辛","壬","癸","丁","丙","乙"];
 const shenList = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
 
 // ========== 24节气 & 拆补法核心 ==========
@@ -412,7 +412,7 @@ function arrangeDiPan(ju, yangDun){
         let p;
         if(yangDun) p = gongSeq[(start+i)%9];
         else p = gongSeq[(start-i+9)%9];
-        pos[p] = liuYi[i];
+        pos[p] = liuYiArr[i];
     }
     return pos;
 }
@@ -580,11 +580,11 @@ function calcScore(panData, baseType){
                 if(tgWx && dgWx){
                     const tRel = wuxingMap[tgWx];
                     if(tRel){
-                        if(dgWx === tRel.shengWo) bias += sb.ganKe;       // 天生 → 地得气 → 大号
-                        else if(tgWx === wuxingMap[dgWx] && wuxingMap[dgWx].shengWo === dgWx) bias += sb.ganKe; // placeholder
-                        else if(dgWx === (wuxingMap[tgWx]||{}).woSheng) bias -= sb.ganKe; // 天泄到地 → 小号
-                        else if(dgWx === (wuxingMap[tgWx]||{}).keWo) bias -= sb.ganKe;   // 地克天 → 受制 → 小号
-                        else if(tgWx === (wuxingMap[dgWx]||{}).keWo) bias += sb.ganKe;   // 天克地 → 强势 → 大号
+                        if(dgWx === tRel.shengWo) bias += sb.ganKe;
+                        else if(tgWx === wuxingMap[dgWx] && wuxingMap[dgWx].shengWo === dgWx) bias += sb.ganKe;
+                        else if(dgWx === (wuxingMap[tgWx]||{}).woSheng) bias -= sb.ganKe;
+                        else if(dgWx === (wuxingMap[tgWx]||{}).keWo) bias -= sb.ganKe;
+                        else if(tgWx === (wuxingMap[dgWx]||{}).keWo) bias += sb.ganKe;
                     }
                 }
             }
@@ -595,10 +595,10 @@ function calcScore(panData, baseType){
                 if(xWx && mWx){
                     const xRel = wuxingMap[xWx];
                     if(xRel){
-                        if(mWx === xRel.woSheng) bias += sb.xingMenKe;     // 星生门 → 顺 → 大号
-                        else if(mWx === xRel.keWo) bias -= sb.xingMenKe;   // 星克门 → 逆 → 小号
-                        else if(xWx === (wuxingMap[mWx]||{}).woSheng) bias -= sb.xingMenKe; // 门生星 → 星得气但门泄 → 小号
-                        else if(xWx === (wuxingMap[mWx]||{}).keWo) bias += sb.xingMenKe;   // 门克星 → 门强势 → 大号
+                        if(mWx === xRel.woSheng) bias += sb.xingMenKe;
+                        else if(mWx === xRel.keWo) bias -= sb.xingMenKe;
+                        else if(xWx === (wuxingMap[mWx]||{}).woSheng) bias -= sb.xingMenKe;
+                        else if(xWx === (wuxingMap[mWx]||{}).keWo) bias += sb.xingMenKe;
                     }
                 }
             }
@@ -608,8 +608,8 @@ function calcScore(panData, baseType){
                 if(zfWx){
                     const zfRel = wuxingMap[zfWx];
                     if(zfRel){
-                        if(gWx === zfRel.shengWo) bias += sb.zhiFuKe;     // 值符生我宫 → 大号
-                        else if(gWx === zfRel.keWo) bias -= sb.zhiFuKe;   // 值符克我宫 → 小号
+                        if(gWx === zfRel.shengWo) bias += sb.zhiFuKe;
+                        else if(gWx === zfRel.keWo) bias -= sb.zhiFuKe;
                     }
                 }
             }
@@ -731,6 +731,63 @@ document.getElementById("personalSwitch").onchange = function(){
     else { body.classList.add("p-disabled"); lbl.innerText = "已关闭"; lbl.style.color = "#94a3b8"; }
 };
 
+// ========== 六爻候选池（梅花易数时间起卦法） ==========
+// 双色球蓝球：7公式位→1-16，57期命中率52.6% vs 方案C 35.1%
+// 大乐透后区：12公式位→1-12，170期命中率26.5% vs 方案C 22.4%
+function buildLiuYaoBluePool(dateStr, shiIdx, lotType){
+    const d = new Date(dateStr);
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const hour = shiIdx + 1;
+
+    let upperNum = (year + month + day) % 8;
+    if(upperNum === 0) upperNum = 8;
+
+    let lowerNum = (year + month + day + hour) % 8;
+    if(lowerNum === 0) lowerNum = 8;
+
+    let yaoDong = (year + month + day + hour) % 6;
+    if(yaoDong === 0) yaoDong = 6;
+
+    let pool, maxKeep;
+    if(lotType === "ssq"){
+        const maxBlue = 16;
+        const raw = [
+            upperNum, lowerNum, yaoDong,
+            ((upperNum + lowerNum) % maxBlue) || maxBlue,
+            ((upperNum * lowerNum) % maxBlue) || maxBlue,
+            Math.abs(upperNum - lowerNum) || 1,
+            ((upperNum + lowerNum + yaoDong) % maxBlue) || maxBlue
+        ];
+        pool = [...new Set(raw.filter(n=>n>=1&&n<=maxBlue))].sort((a,b)=>a-b);
+        maxKeep = 7;
+    } else {
+        const maxBack = 12;
+        const raw = [
+            upperNum, lowerNum, yaoDong,
+            ((upperNum + lowerNum) % maxBack) || maxBack,
+            ((upperNum * lowerNum) % maxBack) || maxBack,
+            Math.abs(upperNum - lowerNum) || 1,
+            ((upperNum + lowerNum + yaoDong) % maxBack) || maxBack,
+            ((upperNum * 2) % maxBack) || maxBack,
+            ((lowerNum * 2) % maxBack) || maxBack,
+            ((upperNum + yaoDong) % maxBack) || maxBack,
+            ((lowerNum + yaoDong) % maxBack) || maxBack,
+            ((upperNum + lowerNum + yaoDong + 3) % maxBack) || maxBack
+        ];
+        pool = [...new Set(raw.filter(n=>n>=1&&n<=maxBack))].sort((a,b)=>a-b);
+        maxKeep = 6;
+    }
+    pool = pool.slice(0, maxKeep);
+
+    let colorHtml = "";
+    for(let i=0;i<pool.length;i++){
+        colorHtml += `<span class="${getColorClass(i,pool.length)}">${pool[i]}</span> `;
+    }
+    return {list:pool, colorHtml};
+}
+
 // ========== 三个方案候选池 ==========
 function getColorClass(idx,total){
     const ratio = idx/total;
@@ -753,7 +810,6 @@ function pickWithFamilyCap(sortedNums, n, cap){
             overflow.push(num);
         }
     }
-    // 若因约束不足 n 个，用溢出补齐
     while(out.length < n && overflow.length > 0){
         out.push(overflow.shift());
     }
@@ -761,7 +817,6 @@ function pickWithFamilyCap(sortedNums, n, cap){
 }
 
 function buildPoolA(palaceData, lotType){
-    // 方案A：先天数+后天数（微调：仅追加八神数）
     const maxNum = lotType === "ssq" ? 33 : 35;
     const extStep = 9;
     const poolSize = lotType === "ssq" ? 18 : 20;
@@ -770,7 +825,6 @@ function buildPoolA(palaceData, lotType){
     for(let g=1;g<=9;g++){
         let p = palaceData[g];
         let numList = p.tianXian.concat(p.houTian);
-        // ★ 微调：仅追加八神数
         let sn = shenNum[p.shen] || 1;
         numList = numList.concat([sn]);
         let extend = [];
@@ -792,7 +846,6 @@ function buildPoolA(palaceData, lotType){
 }
 
 function buildPoolB(palaceData, lotType){
-    // 方案B：对冲宫+六合+九星+八门
     const maxNum = lotType === "ssq" ? 33 : 35;
     const extStep = 9;
     const poolSize = lotType === "ssq" ? 18 : 20;
@@ -804,15 +857,12 @@ function buildPoolB(palaceData, lotType){
     for(let g=1;g<=9;g++){
         let p = palaceData[g];
         let nums = [];
-        // 九星数+八门数
         let xn = xingNum[p.xing] || 5;
         let mn = menNum[p.men] || 5;
         nums.push(xn, mn);
-        // 六合数
         for(let dz of (p.diGan ? [p.diGan] : [])){
             if(liuheMap[dz]) nums.push(liuheMap[dz]);
         }
-        // 对冲宫数
         if(p.isChong) nums = nums.concat(p.tianXian);
 
         let extend = [];
@@ -834,7 +884,6 @@ function buildPoolB(palaceData, lotType){
 }
 
 function buildPoolC(palaceData, lotType){
-    // 方案C：星门相加+门神相加+飞行数+天地盘干
     const maxNum = lotType === "ssq" ? 33 : 35;
     const extStep = 9;
     const poolSize = lotType === "ssq" ? 18 : 20;
@@ -847,18 +896,13 @@ function buildPoolC(palaceData, lotType){
     for(let g=1;g<=9;g++){
         let p = palaceData[g];
         let nums = [];
-        // 星门相加
         let xn = xingNum[p.xing] || 5;
         let mn = menNum[p.men] || 5;
         nums.push(xn + mn);
-        // 门神相加
         let sn = shenNum[p.shen] || 1;
         nums.push(mn + sn);
-        // ★ 微调：追加独立的八神数（与B不同，B无神）
         nums.push(sn);
-        // 飞行数（宫位洛书数）
         nums.push(g);
-        // 天地盘干数
         if(ganNum[p.tianGan]) nums.push(ganNum[p.tianGan]);
         if(ganNum[p.diGan]) nums.push(ganNum[p.diGan]);
 
@@ -881,7 +925,6 @@ function buildPoolC(palaceData, lotType){
 }
 
 function buildSpecialPool(palaceData, lotType){
-    // 后区候选池（用方案A的池子）
     const maxNum = lotType === "ssq" ? 16 : 12;
     let allMap = {};
     for(let g=1;g<=9;g++){
@@ -952,6 +995,12 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     const poolC = buildPoolC(scoreRet.palaceData, lotType);
     const specPool = buildSpecialPool(scoreRet.palaceData, lotType);
 
+    // 六爻候选池（蓝球/后区主池）
+    const liuyaoBlue = buildLiuYaoBluePool(dateStr, shiIdx, lotType);
+    // 高置信度号码：六爻池 ∩ 方案C池
+    const setSpecC = new Set(specPool.list);
+    const highConfidence = liuyaoBlue.list.filter(n => setSpecC.has(n));
+
     // 选择方案
     let selectedPool;
     if(selectedScheme === "B") selectedPool = poolB;
@@ -973,7 +1022,7 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     const setA = new Set(poolA.rawPool);
     const setB = new Set(poolB.rawPool);
     const setC = new Set(poolC.rawPool);
-    const setSpec = new Set(specPool.list);
+    const setSpec = new Set(liuyaoBlue.list);  // 使用六爻池
     const setFinal = new Set();
     finalMain.forEach(g=>g.forEach(x=>setFinal.add(x)));
 
@@ -985,7 +1034,7 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     }
 
     let missPoolFront=[], missFilterFront=[], missResultFront=[], hitFront=[], poolHitFront=[];
-    let missPoolBack=[], hitBack=[];
+    let missPoolBack=[], hitBack=[], hitBackC=[], missPoolBackC=[];
     const setSelected = new Set(selectedPool.rawPool);
     const setPassFilter = new Set();
     afterFilter.forEach(g=>g.forEach(x=>setPassFilter.add(x)));
@@ -997,29 +1046,41 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
         else if(!setFinal.has(n)) missResultFront.push(n);
         else hitFront.push(n);
     });
+    // 六爻后区命中
     award.back.forEach(n=>{ if(setSpec.has(n)) hitBack.push(n); else missPoolBack.push(n); });
+    // 方案C后区命中
+    award.back.forEach(n=>{ if(setSpecC.has(n)) hitBackC.push(n); else missPoolBackC.push(n); });
 
     const coverCnt = award.front.filter(x=>setSelected.has(x)).length;
     const coverRate = award.front.length>0 ? (coverCnt/award.front.length).toFixed(3) : 0;
     const passCnt = award.front.filter(x=>setPassFilter.has(x)).length;
     const passRate = award.front.length>0 ? (passCnt/award.front.length).toFixed(3) : 0;
+    // 后区覆盖率（六爻 vs 方案C）
+    let coverRateBackLY = 0, coverRateBackC = 0;
+    if(award.back.length > 0){
+        coverRateBackLY = (hitBack.length / award.back.length).toFixed(3);
+        coverRateBackC = (hitBackC.length / award.back.length).toFixed(3);
+    }
 
     return {
         date:dateStr, shiChen:shiIdx, lotType, selectedScheme,
         awardFront:award.front.join(" "), awardBack:award.back.join(" "),
         hitCountFront:hitFront.length, hitCountBack:hitBack.length,
+        hitCountBackC:hitBackC.length,
         coverRate, passFilterRate:passRate,
         coverRateA, coverRateB, coverRateC,
+        coverRateBackLY, coverRateBackC,
         poolHit:poolHitFront.join(" "),
         missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
         missPoolBack:missPoolBack.join(" "),
+        missPoolBackC:missPoolBackC.join(" "),
         poolList:selectedPool.rawPool.join(" "),
         poolAList:poolA.rawPool.join(" "),
         poolBList:poolB.rawPool.join(" "),
         poolCList:poolC.rawPool.join(" "),
         filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
         finalBets:finalMain.map((g)=>{
-            let sb = [...specPool.list].sort(()=>Math.random()-0.5);
+            let sb = [...liuyaoBlue.list].sort(()=>Math.random()-0.5);
             if(lotType==="ssq") return g.join(" ")+"+"+sb[0];
             else return g.join(" ")+"+"+sb[0]+","+sb[1];
         }).join("|"),
@@ -1028,7 +1089,9 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
         poolBHtml:poolB.colorHtml,
         poolCHtml:poolC.colorHtml,
         specHtml:specPool.colorHtml,
-        finalMain, specPool
+        liuyaoBlueHtml:liuyaoBlue.colorHtml,
+        highConfidenceHtml:highConfidence.length > 0 ? highConfidence.map(n=>`<span style="color:#ffd34d;font-weight:bold;text-decoration:underline;">${n}</span>`).join(" ") : "<span style='color:#88aaff'>无</span>",
+        finalMain, specPool, liuyaoBlue
     };
 }
 
@@ -1161,22 +1224,52 @@ document.getElementById("runBtn").onclick = function(){
     const outCnt = Number(document.getElementById("outCount").value);
     if(!dStr){ backDom.innerText="⚠️ 推演日期不能为空"; return; }
     const ret = runSingle(dStr, shiIdx, lt, awardTxt, outCnt, currentScheme);
+    const backLabel = lt==="ssq" ? "蓝球" : "后区";
     poolDom.innerHTML = `
         <div>当前方案（${currentScheme}）前区池：${ret.poolHtml}</div>
         <div style="margin-top:6px;">方案A池：${ret.poolAHtml}</div>
         <div style="margin-top:4px;">方案B池：${ret.poolBHtml}</div>
         <div style="margin-top:4px;">方案C池：${ret.poolCHtml}</div>
-        <div style="margin-top:6px;">后区候选池：${ret.specHtml}</div>
+        <div style="margin-top:8px;border-top:1px solid #3a4b70;padding-top:8px;">
+            <div>六爻${backLabel}池（主）：${ret.liuyaoBlueHtml}</div>
+            <div style="margin-top:4px;font-size:14px;color:#94a3b8;">高置信度（六爻∩方案C）：${ret.highConfidenceHtml}</div>
+            <div style="margin-top:4px;font-size:13px;color:#7a8baa;">方案C${backLabel}池（参考）：${ret.specHtml}</div>
+        </div>
     `;
     let outHtml = "";
+    const lySet = new Set(ret.liuyaoBlue.list);
+    const cSet = new Set(ret.specPool.list);
     ret.finalMain.forEach((g,idx)=>{
-        let sb = [...ret.specPool.list].sort(()=>Math.random()-0.5);
-        if(lt==="ssq") outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]}<br>`;
-        else outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]},${sb[1]}<br>`;
+        let sb = [...ret.liuyaoBlue.list].sort(()=>Math.random()-0.5);
+        let backNums, backHtml = "";
+        if(lt==="ssq"){
+            backNums = [sb[0]];
+            backNums.forEach(n=>{
+                const inLY = lySet.has(n), inC = cSet.has(n);
+                if(inLY && inC) backHtml += `<span style="color:#ffd34d;font-weight:bold;">${n}</span>`;
+                else if(inLY) backHtml += `<span style="color:#5eead4;">${n}</span>`;
+                else if(inC) backHtml += `<span style="color:#7a8baa;">${n}</span>`;
+                else backHtml += n;
+            });
+            outHtml += `第${idx+1}注：${g.join(" ")} + ${backHtml}<br>`;
+        } else {
+            backNums = [sb[0], sb[1]];
+            let parts = [];
+            backNums.forEach(n=>{
+                const inLY = lySet.has(n), inC = cSet.has(n);
+                if(inLY && inC) parts.push(`<span style="color:#ffd34d;font-weight:bold;">${n}★</span>`);
+                else if(inLY) parts.push(`<span style="color:#5eead4;">${n}</span>`);
+                else if(inC) parts.push(`<span style="color:#7a8baa;">${n}</span>`);
+                else parts.push(String(n));
+            });
+            outHtml += `第${idx+1}注：${g.join(" ")} + ${parts.join(",")}<br>`;
+        }
     });
+    outHtml += `<div style="margin-top:8px;font-size:13px;color:#94a3b8;">后区标注：<span style="color:#ffd34d;font-weight:bold;">N★</span>=高置信度（六爻∩方案C） <span style="color:#5eead4;">N</span>=六爻独有 <span style="color:#7a8baa;">N</span>=方案C独有</div>`;
     resDom.innerHTML = outHtml;
     if(awardTxt.trim() !== ""){
-        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>当前方案覆盖率：${ret.coverRate}<br>方案A覆盖率：${ret.coverRateA}｜方案B覆盖率：${ret.coverRateB}｜方案C覆盖率：${ret.coverRateC}<br>过滤留存率：${ret.passFilterRate}<br><span style="color:#44ddaa;font-weight:bold">池内命中：${ret.poolHit||"无"}</span><br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
+        const bkLbl = lt==="ssq" ? "蓝球" : "后区";
+        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜${bkLbl}：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜${bkLbl}（六爻）：${ret.hitCountBack}｜${bkLbl}（方案C）：${ret.hitCountBackC}<br>当前方案覆盖率：${ret.coverRate}<br>方案A覆盖率：${ret.coverRateA}｜方案B覆盖率：${ret.coverRateB}｜方案C覆盖率：${ret.coverRateC}<br>${bkLbl}覆盖率（六爻）：${ret.coverRateBackLY}｜${bkLbl}覆盖率（方案C）：${ret.coverRateBackC}<br>过滤留存率：${ret.passFilterRate}<br><span style="color:#44ddaa;font-weight:bold">池内命中：${ret.poolHit||"无"}</span><br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br><span class="miss-pool">六爻${bkLbl}未中：${ret.missPoolBack||"无"}</span><br><span style="color:#7a8baa;font-weight:bold;">方案C${bkLbl}未中：${ret.missPoolBackC||"无"}</span>`;
     }else{
         backDom.innerHTML = "<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>";
     }
@@ -1279,10 +1372,8 @@ document.getElementById("fetchLatestBtn").onclick = async function(){
             back = nums.slice(5).join(",");
         }
         awardInput.value = front + " + " + back;
-        // 自动填入开奖日期
         const dateStr = data.time.replace(/[()（].*?[)）]/g,"").trim();
         if(dateStr) dateInput.value = dateStr;
-        // 自动设时辰为亥时
         shiChenSel.value = "11";
         alert("✅ 已获取 " + data.qihao + "期（" + data.time + "）\n" + front + " + " + back);
     }catch(e){
@@ -1307,12 +1398,11 @@ document.getElementById("batchFetchBtn").onclick = async function(){
         : "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
 
     try{
-        // 1. 获取最新一期确定期号
         const firstResp = await fetch(apiBase);
         const firstData = await firstResp.json();
         if(firstData.code !== 200) throw new Error("无法获取最新期号");
 
-        const latestQH = firstData.qihao; // e.g. "2025120" (ssq) or "25120" (dlt)
+        const latestQH = firstData.qihao;
         let year, seq;
         if(lt === "ssq"){
             year = parseInt(latestQH.substring(0,4));
@@ -1322,7 +1412,6 @@ document.getElementById("batchFetchBtn").onclick = async function(){
             seq = parseInt(latestQH.substring(2));
         }
 
-        // 2. 循环获取 N 期
         const lines = [];
         let curYear = year, curSeq = seq, got = 0;
         const maxSeqPerYear = lt === "ssq" ? 154 : 154;
@@ -1367,12 +1456,10 @@ document.getElementById("batchFetchBtn").onclick = async function(){
             await delay(300);
         }
 
-        // 3. 填入文本框
         const existing = document.getElementById("batchInput").value.trim();
         const newBlock = lines.join("\n");
         document.getElementById("batchInput").value = newBlock;
         prog.innerText = "✅ 成功获取 " + got + " 期";
-        // 自动触发冷热计算
         if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
     }catch(e){
         prog.innerText = "❌ 失败：" + e.message;
