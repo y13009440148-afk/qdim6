@@ -975,10 +975,10 @@ function parseAward(str, type){
     if(!str) return {front, back};
     if(str.includes("+")){
         let sp = str.split("+");
-        front = sp[0].trim().split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-        back = sp[1].trim().split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x));
+        front = sp[0].trim().split(/[\s,]+/).map(x=>Number(x)).filter(x=>!isNaN(x));
+        back = sp[1].trim().split(/[\s,]+/).map(x=>Number(x)).filter(x=>!isNaN(x));
     }else{
-        let all = str.split(/\s+/).map(x=>Number(x)).filter(x=>!isNaN(x));
+        let all = str.split(/[\s,]+/).map(x=>Number(x)).filter(x=>!isNaN(x));
         if(type==="ssq"){ front = all.slice(0,6); back = all.slice(6,7); }
         else{ front = all.slice(0,5); back = all.slice(5,7); }
     }
@@ -1251,7 +1251,7 @@ document.getElementById("runBatchBtn").onclick = async function(){
         const dStr = sp[0].trim();
         const shiIdx = Number(sp[1].trim());
         const lt = sp[2].trim();
-        const awardTxt = sp[3].trim();
+        const awardTxt = sp.slice(3).join(",").trim(); // 保留大乐透后区逗号(02,12)
         const rec = runSingle(dStr, shiIdx, lt, awardTxt, outCnt, currentScheme);
         batchRecords.push(rec);
         await new Promise(r=>setTimeout(r,60));
