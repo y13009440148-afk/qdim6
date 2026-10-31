@@ -61,17 +61,17 @@ button:hover{background:#1d4ed8;}
 <h1>奇门统计｜动态转盘B版 优化沙盘（六爻蓝球）</h1>
 
 <div class="panel">
-    <h2>参数调参面板</h2>
+    <h2>参数调参面板（方案D专用）</h2>
     <table>
-        <tr><td>相冲加成（方案D冲宫权重）</td><td><input id="wChongBonus" value="0.3" step="0.1" type="range" min="0" max="5"><span id="wChongBonusVal">0.3</span></td></tr>
-        <tr><td>空亡加成（空亡宫惩罚/加成）</td><td><input id="wKongWangBonus" value="0" step="0.1" type="range" min="-5" max="5"><span id="wKongWangVal">0</span></td></tr>
+        <tr><td>相冲加成（方案D冲宫权重）</td><td><input id="wChongBonus" value="0.3" step="0.1" type="range" min="0" max="5" oninput="document.getElementById('wChongBonusVal').innerText=this.value"><span id="wChongBonusVal">0.3</span></td></tr>
+        <tr><td>空亡加成（空亡宫惩罚/加成）</td><td><input id="wKongWangBonus" value="0" step="0.1" type="range" min="-5" max="5" oninput="document.getElementById('wKongWangVal').innerText=this.value"><span id="wKongWangVal">0</span></td></tr>
     </table>
     <div id="paramAdvice"></div>
     <div class="optimize-info">
-        <strong>优化方案D（已内置固定系数，无需调参）：</strong><br>
+        <strong>优化方案D（已内置固定系数，自动切换彩种）：</strong><br>
         双色球：神门星×1.0 + 冲宫×0.3 → 回测覆盖率59.3%<br>
         大乐透：神门星×0.8 + 冲宫×0.3 + 三合×2 → 回测覆盖率53.3%<br>
-        方案A/B/C仍使用原有评分体系（参数已硬编码）
+        方案A/B/C仍使用原有评分体系（参数已硬编码最优值）
     </div>
 </div>
 
@@ -431,12 +431,10 @@ function calcScore(panData, baseType){
     else if(baseType === "shiGan") baseWx = ganWuxing[hourGan];
     else baseWx = palaceData[zhiFuGong].wuXing;
 
-    // 硬编码参数（供方案A/B/C使用）
+    const rel = wuxingMap[baseWx];
     const HARD_WU = {shengWo:8, woSheng:2, keWo:-5, woKe:0, biHe:4};
     const HARD_EXTRA = {chong:-4, kongWang:0, zhiFuAdd:15};
     const HARD_JI = {ji:7, ping:1, xiong:-4};
-
-    const rel = wuxingMap[baseWx];
     for(let g=1;g<=9;g++){
         const p = palaceData[g];
         let s = 0;
@@ -592,126 +590,6 @@ function buildPoolC(palaceData, lotType){
     return {rawPool:keep, colorHtml};
 }
 
-// ====== 优化方案D：神门星独立取数 + 冲宫 + 三合 ======
-const SHEN_NUM = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
-const MEN_NUM_MAP = {"休":1,"死":2,"伤":3,"杜":4,"开":6,"惊":7,"生":8,"景":9};
-const SANHE_GROUPS = [[1,6,2],[6,3,2],[8,9,6],[4,7,8]];
-
-function buildPoolOptimized(palaceData, panResult, lotType, chongBonus, kongWangBonus){
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    const poolSize = lotType === "ssq" ? 18 : 20;
-    const smxCoef = lotType === "ssq" ? 1.0 : 0.8;
-    const chongCoef = chongBonus;
-    const kongCoef = kongWangBonus;
-    const sanheCoef = lotType === "dlt" ? 2 : 0;
-    let allMap = {};
-
-    // Step1: 基线 - 先天数+后天数
-    for(let g=1;g<=9;g++){
-        if(g===5) continue;
-        let p = palaceData[g];
-        let numList = p.tianXian.concat(p.houTian);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        let baseScore = 10;
-        if(p.isKong) baseScore += kongCoef * 5;
-        for(let n of extend){
-            if(!allMap[n]) allMap[n]=0;
-            allMap[n] += baseScore;
-        }
-    }
-
-    // Step2: 八神独立取数
-    for(let g=1;g<=9;g++){
-        if(g===5) continue;
-        let p = palaceData[g];
-        if(!p.shen) continue;
-        let shenBase = SHEN_NUM[p.shen];
-        if(!shenBase) continue;
-        let extend = [];
-        let n = shenBase;
-        while(n <= maxNum){ extend.push(n); n += 9; }
-        extend = [...new Set(extend)];
-        for(let nx of extend){
-            if(!allMap[nx]) allMap[nx]=0;
-            allMap[nx] += smxCoef * 10;
-        }
-    }
-
-    // Step3: 八门独立取数
-    for(let g=1;g<=9;g++){
-        if(g===5) continue;
-        let p = palaceData[g];
-        let menBase = MEN_NUM_MAP[p.men];
-        if(!menBase) continue;
-        let extend = [];
-        let n = menBase;
-        while(n <= maxNum){ extend.push(n); n += 9; }
-        extend = [...new Set(extend)];
-        for(let nx of extend){
-            if(!allMap[nx]) allMap[nx]=0;
-            allMap[nx] += smxCoef * 10;
-        }
-    }
-
-    // Step4: 冲宫取数
-    for(let g of panResult.chongGongList){
-        if(g===5) continue;
-        let p = palaceData[g];
-        let numList = p.tianXian.concat(p.houTian);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        for(let nx of extend){
-            if(!allMap[nx]) allMap[nx]=0;
-            allMap[nx] += chongCoef * 10;
-        }
-    }
-
-    // Step5: 三合加成（DLT专用）
-    if(sanheCoef > 0){
-        for(let group of SANHE_GROUPS){
-            for(let i = 0; i < group.length; i++){
-                for(let j = 0; j < group.length; j++){
-                    if(i === j) continue;
-                    let srcG = group[i];
-                    let tgtG = group[j];
-                    if(srcG === 5 || tgtG === 5) continue;
-                    let srcP = palaceData[srcG];
-                    let numList = srcP.tianXian.concat(srcP.houTian);
-                    let extend = [];
-                    for(let base of numList){
-                        let n = base;
-                        while(n <= maxNum){ extend.push(n); n += 9; }
-                    }
-                    extend = [...new Set(extend)];
-                    for(let nx of extend){
-                        if(!allMap[nx]) allMap[nx]=0;
-                        allMap[nx] += sanheCoef * 5;
-                    }
-                }
-            }
-        }
-    }
-
-    // 排序取top
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    const keep = arr.map(x=>x.num).slice(0, poolSize);
-    keep.sort((a,b)=>a-b);
-
-    let colorHtml = "";
-    for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
-    return {rawPool:keep, colorHtml};
-}
-
 function buildSpecialPool(palaceData, lotType){
     // 后区候选池（用方案A的池子）
     const maxNum = lotType === "ssq" ? 16 : 12;
@@ -733,6 +611,104 @@ function buildSpecialPool(palaceData, lotType){
     let colorHtml = "";
     for(let i=0;i<specKeep.length;i++) colorHtml += `<span class="${getColorClass(i,specKeep.length)}">${specKeep[i]}</span> `;
     return {list:specKeep, colorHtml};
+}
+
+
+// ========== 方案D：神门星独立取数+冲宫+三合 ==========
+const SHEN_NUM = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
+const MEN_NUM_MAP = {"休":1,"死":2,"伤":3,"杜":4,"开":6,"惊":7,"生":8,"景":9};
+const SANHE_GROUPS = [[1,6,2],[6,3,2],[8,9,6],[4,7,8]];
+
+function buildPoolOptimized(palaceData, panResult, lotType, chongBonus, kongWangBonus){
+    const maxNum = lotType === "ssq" ? 33 : 35;
+    const poolSize = lotType === "ssq" ? 18 : 20;
+    const smxCoef = lotType === "ssq" ? 1.0 : 0.8;
+    const chongCoef = chongBonus;
+    const kongCoef = kongWangBonus;
+    const sanheCoef = lotType === "dlt" ? 2 : 0;
+    let allMap = {};
+
+    // Step1: baseline (先天数+后天数)
+    for(let g=1;g<=9;g++){
+        let p = palaceData[g];
+        let numList = p.tianXian.concat(p.houTian);
+        let baseScore = 10;
+        if(p.isKong && kongCoef !== 0) baseScore += kongCoef * 10;
+        let extend = [];
+        for(let base of numList){
+            let n = base;
+            while(n <= maxNum){ extend.push(n); n += 9; }
+        }
+        extend = [...new Set(extend)];
+        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += baseScore; }
+    }
+
+    // Step2: 八神独立取数
+    for(let g=1;g<=9;g++){
+        let p = palaceData[g];
+        if(!p.shen || !SHEN_NUM[p.shen]) continue;
+        let base = SHEN_NUM[p.shen];
+        let extend = [];
+        let n = base;
+        while(n <= maxNum){ extend.push(n); n += 9; }
+        extend = [...new Set(extend)];
+        for(let num of extend){ if(!allMap[num]) allMap[num]=0; allMap[num] += smxCoef * 10; }
+    }
+
+    // Step3: 八门独立取数
+    for(let g=1;g<=9;g++){
+        let p = palaceData[g];
+        if(!p.men || !MEN_NUM_MAP[p.men]) continue;
+        let base = MEN_NUM_MAP[p.men];
+        let extend = [];
+        let n = base;
+        while(n <= maxNum){ extend.push(n); n += 9; }
+        extend = [...new Set(extend)];
+        for(let num of extend){ if(!allMap[num]) allMap[num]=0; allMap[num] += smxCoef * 10; }
+    }
+
+    // Step4: 冲宫取数
+    if(panResult.chongGongList && chongCoef > 0){
+        for(let g of panResult.chongGongList){
+            let p = palaceData[g];
+            if(!p) continue;
+            let numList = p.tianXian.concat(p.houTian);
+            let extend = [];
+            for(let base of numList){
+                let n = base;
+                while(n <= maxNum){ extend.push(n); n += 9; }
+            }
+            extend = [...new Set(extend)];
+            for(let num of extend){ if(!allMap[num]) allMap[num]=0; allMap[num] += chongCoef * 10; }
+        }
+    }
+
+    // Step5: 三合加成 (DLT only)
+    if(sanheCoef > 0){
+        for(let grp of SANHE_GROUPS){
+            let grpScore = 0;
+            for(let g of grp){ if(palaceData[g]) grpScore += palaceData[g].score; }
+            for(let g of grp){
+                let p = palaceData[g];
+                if(!p) continue;
+                let numList = p.tianXian.concat(p.houTian);
+                let extend = [];
+                for(let base of numList){
+                    let n = base;
+                    while(n <= maxNum){ extend.push(n); n += 9; }
+                }
+                extend = [...new Set(extend)];
+                for(let num of extend){ if(!allMap[num]) allMap[num]=0; allMap[num] += sanheCoef * 5; }
+            }
+        }
+    }
+
+    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
+    arr.sort((a,b)=>b.score - a.score);
+    const keep = arr.map(x=>x.num).slice(0, poolSize);
+    let colorHtml = "";
+    for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
+    return {rawPool:keep, colorHtml};
 }
 
 function buildLiuYaoBluePool(dateStr, shiIdx, lotType){
@@ -826,10 +802,10 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     const poolA = buildPoolA(scoreRet.palaceData, lotType);
     const poolB = buildPoolB(scoreRet.palaceData, lotType);
     const poolC = buildPoolC(scoreRet.palaceData, lotType);
+    const specPool = buildSpecialPool(scoreRet.palaceData, lotType);
     const chongBonusVal = Number(document.getElementById("wChongBonus").value) || 0.3;
     const kongWangBonusVal = Number(document.getElementById("wKongWangBonus").value) || 0;
     const poolD = buildPoolOptimized(scoreRet.palaceData, panRaw, lotType, chongBonusVal, kongWangBonusVal);
-    const specPool = buildSpecialPool(scoreRet.palaceData, lotType);
     
     // 六爻蓝球池（替代原方案C蓝池，57期回测命中率52.6% vs 35.1%）
     const liuyaoBlue = buildLiuYaoBluePool(dateStr, shiIdx, lotType);
@@ -856,16 +832,16 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     }
     let finalMain = afterFilter.slice(0, outCnt);
 
-    // 四个方案覆盖率
+    // 三个方案覆盖率
     const setA = new Set(poolA.rawPool);
     const setB = new Set(poolB.rawPool);
     const setC = new Set(poolC.rawPool);
-    const setD = new Set(poolD.rawPool);
     const setSpec = new Set(liuyaoBlue.list);  // 使用六爻蓝球池
     const setFinal = new Set();
     finalMain.forEach(g=>g.forEach(x=>setFinal.add(x)));
 
     let coverRateA=0, coverRateB=0, coverRateC=0, coverRateD=0;
+    const setD = new Set(poolD.rawPool);
     if(award.front.length > 0){
         coverRateA = (award.front.filter(x=>setA.has(x)).length / award.front.length).toFixed(3);
         coverRateB = (award.front.filter(x=>setB.has(x)).length / award.front.length).toFixed(3);
@@ -901,10 +877,10 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
         missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
         missPoolBack:missPoolBack.join(" "),
         poolList:selectedPool.rawPool.join(" "),
+        poolDList:poolD.rawPool.join(" "),
         poolAList:poolA.rawPool.join(" "),
         poolBList:poolB.rawPool.join(" "),
         poolCList:poolC.rawPool.join(" "),
-        poolDList:poolD.rawPool.join(" "),
         filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
         finalBets:finalMain.map((g)=>{
             let sb = [...liuyaoBlue.list].sort(()=>Math.random()-0.5);
@@ -925,22 +901,15 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
 
 // ========== 参数UI ==========
 function loadParamToUI(){
-    document.getElementById("wChongBonusVal").textContent = document.getElementById("wChongBonus").value;
-    document.getElementById("wKongWangVal").textContent = document.getElementById("wKongWangBonus").value;
+    document.getElementById("wChongBonus").value = 0.3;
+    document.getElementById("wChongBonusVal").innerText = "0.3";
+    document.getElementById("wKongWangBonus").value = 0;
+    document.getElementById("wKongWangVal").innerText = "0";
 }
 function readParamFromUI(){
-    // 参数已硬编码到calcScore中，这里只更新滑块显示值
-    document.getElementById("wChongBonusVal").textContent = document.getElementById("wChongBonus").value;
-    document.getElementById("wKongWangVal").textContent = document.getElementById("wKongWangBonus").value;
+    // 方案D参数从UI读取，其他参数已硬编码
 }
 
-// 滑块实时更新
-document.getElementById("wChongBonus").oninput = function(){
-    document.getElementById("wChongBonusVal").textContent = this.value;
-};
-document.getElementById("wKongWangBonus").oninput = function(){
-    document.getElementById("wKongWangVal").textContent = this.value;
-};
 loadParamToUI();
 
 // ========== 自动日期时辰 ==========
