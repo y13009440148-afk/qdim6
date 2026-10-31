@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>奇门统计｜动态转盘B版 优化沙盘</title>
+<title>奇门统计｜动态转盘B版 优化沙盘（联网自动更新·前后区分治）</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft YaHei",system-ui,sans-serif;}
 body{background:#0c101b;color:#e8edf7;padding:12px;font-size:16px;line-height:1.5;}
@@ -201,6 +201,13 @@ input:checked + .slider:before{transform:translateX(20px);}
         <button id="batchFetchBtn" style="background:#0e7490;">📥 批量获取历史</button>
         <button id="loadPresetBtn" style="background:#7c3aed;">📊 载入170期内置</button>
         <span id="batchFetchProgress" style="color:#67e8f9;font-size:12px;"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
+        <label style="color:#94a3b8;font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;">
+            <input type="checkbox" id="autoUpdate" checked style="width:auto;"> 打开时自动联网更新
+        </label>
+        <button id="netRefreshBtn" style="background:#16a34a;">🔄 联网更新到最新</button>
+        <span id="netStatus" style="color:#fbbf24;font-size:12px;"></span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;">
         <button id="runBatchBtn">开始批量回测</button>
@@ -907,29 +914,36 @@ function buildLiuYaoBluePool(dateStr, shiIdx, lotType){
 }
 
 function buildSpecialPool(palaceData, lotType, liuyaoList, liuyaoWeight){
-    // 后区候选池（方案A评分为主，叠加六爻评分加成）
-    const maxNum = lotType === "ssq" ? 16 : 12;
+    // 后区/蓝球候选池：双色球与大乐透分治（回测最优口径）
+    //   SSQ 蓝球：纯方案A评分(仅先后天) + 六爻加成，取Top7 —— 52.94%
+    //   DLT 后区：方案A评分(先后天+八神+冷热+familyCap3)，取Top6 —— 50.6%/全中22.4%
+    const isDLT = lotType === "dlt";
+    const maxNum = isDLT ? 12 : 16;
     const w = Number(liuyaoWeight) || 0;
     const lySet = new Set(liuyaoList || []);
+    const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
     let allMap = {};
     for(let g=1;g<=9;g++){
         let p = palaceData[g];
         let numList = p.tianXian.concat(p.houTian);
+        if(isDLT) numList = numList.concat([shenNum[p.shen] || 1]); // DLT 加八神种子
         let extend = [];
         for(let base of numList){
             let n = base;
-            while(n <= maxNum){ extend.push(n); n += 9; }
+            while(n <= maxNum){ if(n >= 1) extend.push(n); n += 9; }
         }
         extend = [...new Set(extend)];
         for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
     }
-    // 六爻评分加成：出现在六爻候选池中的号码额外加权
-    for(let n of lySet){ if(!allMap[n]) allMap[n]=0; allMap[n] += w; }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
+    if(isDLT){ for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); } } // DLT 加冷热
+    else { for(let n of lySet){ if(!allMap[n]) allMap[n]=0; allMap[n] += w; } }      // SSQ 加六爻加成
+    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v})).filter(x=>x.num>=1 && x.num<=maxNum);
     arr.sort((a,b)=>b.score - a.score);
-    const specKeep = lotType==="ssq" ? arr.map(x=>x.num).slice(0,7) : arr.map(x=>x.num).slice(0,6);
-    // 高置信：方案A评分池 ∩ 六爻池
-    const highConfidence = lotType==="ssq" ? specKeep.filter(n=>lySet.has(n)) : [];
+    let specKeep;
+    if(isDLT){ specKeep = pickWithFamilyCap(arr.map(x=>x.num), 6, 3); }        // DLT: familyCap=3
+    else { specKeep = arr.map(x=>x.num).slice(0,7); }                          // SSQ: Top7
+    // 高置信：主池 ∩ 六爻池（仅SSQ有意义）
+    const highConfidence = isDLT ? [] : specKeep.filter(n=>lySet.has(n));
     let colorHtml = "";
     for(let i=0;i<specKeep.length;i++) colorHtml += `<span class="${getColorClass(i,specKeep.length)}">${specKeep[i]}</span> `;
     return {list:specKeep, colorHtml, highConfidence};
@@ -1767,9 +1781,126 @@ const PRESET_DATA = {
 document.getElementById("loadPresetBtn").onclick = function(){
     const lt = typeSel.value;
     document.getElementById("batchInput").value = PRESET_DATA[lt] || "";
-    document.getElementById("batchFetchProgress").innerText = "✅ 已载入 " + lt + " 170期";
+    document.getElementById("batchFetchProgress").innerText = "✅ 已载入 " + lt + " 170期（内置快照）";
     if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
 };
+
+// ========== 联网自动更新（合并 + localStorage 持久化） ==========
+function apiBaseFor(lt){
+    return lt === "ssq"
+        ? "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?id=88888888&key=88888888"
+        : "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
+}
+function dataToLine(data, lt){
+    const nums = data.number.split("|").map(x=>x.trim());
+    let front, back;
+    if(lt==="ssq"){ front = nums.slice(0,6).join(" "); back = nums[6]; }
+    else { front = nums.slice(0,5).join(" "); back = nums.slice(5).join(","); }
+    const dateStr = (data.time||"").replace(/[()（].*?[)）]/g,"").trim();
+    return dateStr + ",11," + lt + "," + front + " + " + back;
+}
+function dateOfLine(l){ const sp = l.split(","); return sp[0]; }
+function lineCount(t){ return (t||"").split("\n").map(x=>x.trim()).filter(x=>x).length; }
+function mergeDataset(baseText, newLines){
+    const seen = new Set(); const out = [];
+    const add = (l)=>{ if(!l) return; const d = dateOfLine(l); if(d && !seen.has(d)){ seen.add(d); out.push(l); } };
+    (newLines||[]).forEach(add);
+    (baseText||"").split("\n").map(x=>x.trim()).filter(x=>x).forEach(add);
+    out.sort((a,b)=> dateOfLine(b).localeCompare(dateOfLine(a)));
+    return out.join("\n");
+}
+function dsKey(lt){ return "qm_ds_" + lt; }
+function saveDs(lt, text){ try{ localStorage.setItem(dsKey(lt), text); localStorage.setItem(dsKey(lt)+"_ts", String(Date.now())); }catch(e){} }
+function loadDs(lt){ try{ return { text: localStorage.getItem(dsKey(lt))||"", ts: Number(localStorage.getItem(dsKey(lt)+"_ts")||0) }; }catch(e){ return {text:"", ts:0}; } }
+function setNet(msg, ok){ const el = document.getElementById("netStatus"); if(el){ el.innerText = msg; el.style.color = (ok===false) ? "#f87171" : "#67e8f9"; } }
+
+async function netUpdateLatest(){
+    const lt = typeSel.value;
+    try{
+        setNet("联网检查最新开奖…", true);
+        const resp = await fetch(apiBaseFor(lt));
+        const data = await resp.json();
+        if(data.code !== 200) throw new Error(data.msg || "接口返回错误");
+        const line = dataToLine(data, lt);
+        const base = loadDs(lt).text || (PRESET_DATA[lt] || "");
+        const merged = mergeDataset(base, [line]);
+        document.getElementById("batchInput").value = merged;
+        saveDs(lt, merged);
+        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
+        setNet("✅ 最新 " + data.qihao + "期（" + dateOfLine(line) + "）｜共" + lineCount(merged) + "期", true);
+        return true;
+    }catch(e){
+        setNet("❌ 联网失败（" + e.message + "）— 已用本地/内置数据", false);
+        return false;
+    }
+}
+
+async function netRefreshHistory(count){
+    const lt = typeSel.value;
+    const btn = document.getElementById("netRefreshBtn");
+    btn.disabled = true; setNet("拉取近 " + count + " 期…", true);
+    try{
+        const first = await (await fetch(apiBaseFor(lt))).json();
+        if(first.code !== 200) throw new Error(first.msg || "接口错误");
+        const lines = [dataToLine(first, lt)];
+        let year, seq;
+        if(lt==="ssq"){ year = parseInt(first.qihao.substring(0,4)); seq = parseInt(first.qihao.substring(4)); }
+        else { year = parseInt(first.qihao.substring(0,2)); seq = parseInt(first.qihao.substring(2)); }
+        let cy = year, cs = seq - 1, got = 1, maxSeq = 154;
+        const delay = ms => new Promise(r=>setTimeout(r, ms));
+        for(let i=0; i<count+40 && got<count; i++){
+            if(cs < 1){ cy--; cs = maxSeq; }
+            let q = (lt==="ssq")
+                ? String(cy).padStart(4,'0') + String(cs).padStart(3,'0')
+                : String(cy).padStart(2,'0') + String(cs).padStart(3,'0');
+            cs--;
+            try{
+                const d = await (await fetch(apiBaseFor(lt) + "&qh=" + q)).json();
+                if(d.code === 200 && d.number){ lines.push(dataToLine(d, lt)); got++; }
+            }catch(e){}
+            setNet("已拉 " + got + "/" + count + " 期…", true);
+            await delay(250);
+        }
+        const base = loadDs(lt).text || (PRESET_DATA[lt] || "");
+        const merged = mergeDataset(base, lines);
+        document.getElementById("batchInput").value = merged;
+        saveDs(lt, merged);
+        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
+        setNet("✅ 已更新近 " + got + " 期｜共" + lineCount(merged) + "期", true);
+    }catch(e){
+        setNet("❌ " + e.message, false);
+    }finally{ btn.disabled = false; }
+}
+
+document.getElementById("netRefreshBtn").onclick = function(){
+    const count = Math.min(200, Math.max(10, Number(document.getElementById("batchFetchCount").value) || 50));
+    netRefreshHistory(count);
+};
+
+// 切换彩种时，恢复该彩种的本地数据并按需联网更新
+typeSel.addEventListener("change", function(){
+    const lt = this.value;
+    const st = loadDs(lt);
+    if(st.text){ document.getElementById("batchInput").value = st.text; if(typeof autoCalcHotCold==='function') autoCalcHotCold(lt); }
+    if(document.getElementById("autoUpdate").checked) netUpdateLatest();
+});
+
+// 启动：本地缓存 → 内置兜底 → 勾选则拉最新一期
+(async function initAutoUpdate(){
+    const lt = typeSel.value;
+    const st = loadDs(lt);
+    if(st.text){
+        document.getElementById("batchInput").value = st.text;
+        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
+        const d = new Date(st.ts);
+        setNet("📂 已载入本地缓存（" + lineCount(st.text) + "期，" + d.toLocaleString() + "）", true);
+    }else{
+        document.getElementById("batchInput").value = PRESET_DATA[lt] || "";
+        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
+        setNet("📂 已载入内置170期快照", true);
+    }
+    if(document.getElementById("autoUpdate").checked) await netUpdateLatest();
+})();
 </script>
 </body>
 </html>
