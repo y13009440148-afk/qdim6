@@ -980,13 +980,19 @@ function buildSpecialPool(palaceData, lotType, liuyaoList, liuyaoWeight){
     return {list:specKeep, colorHtml, highConfidence};
 }
 
-function rotationMatrix(sourceNum, needCount, totalGenerate){
+// 确定性随机（按期号播种，保证同参数同期注单可复现）
+function hashSeed(str){ let h = 2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function seededShuffle(arr, rng){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function rotationMatrix(sourceNum, needCount, totalGenerate, rng){
+    const rand = rng || Math.random;   // 传入播种rng则可复现，否则随机
     let result = [];
     let src = [...sourceNum].sort((a,b)=>a-b);
     if(src.length < needCount) return result;
     let attempts = 0;
     while(result.length < totalGenerate && attempts < totalGenerate * 10){
-        let shuf = [...src].sort(()=>Math.random()-0.5);
+        let shuf = [...src].sort(()=>rand()-0.5);
         let group = shuf.slice(0, needCount).sort((a,b)=>a-b);
         let key = group.join(",");
         if(!result.some(x=>x.join(",")===key)) result.push(group);
@@ -1040,7 +1046,9 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
 
     const award = parseAward(awardText, lotType);
     let needMain = lotType==="ssq" ? 6 : 5;
-    let matrixAll = rotationMatrix(selectedPool.rawPool, needMain, 500);
+    // 按期号+时辰+方案播种，保证同期同参注单可复现
+    const periodRng = mulberry32(hashSeed(dateStr + "|" + shiIdx + "|" + lotType + "|" + selectedScheme));
+    let matrixAll = rotationMatrix(selectedPool.rawPool, needMain, 500, periodRng);
     let afterFilter = matrixAll.filter(g=>filterGroup(g, param.filter));
     if(afterFilter.length < outCnt){
         let used = new Set(afterFilter.map(g=>g.join(",")));
@@ -1084,6 +1092,12 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
     const passCnt = award.front.filter(x=>setPassFilter.has(x)).length;
     const passRate = award.front.length>0 ? (passCnt/award.front.length).toFixed(3) : 0;
 
+    // 注单（后区从评分池按播种随机取，可复现）
+    const betsArr = finalMain.map((g)=>{
+        let sb = seededShuffle(specPool.list, periodRng);
+        return {front:g, back: lotType==="ssq" ? sb.slice(0,1) : sb.slice(0,2)};
+    });
+
     return {
         date:dateStr, shiChen:shiIdx, lotType, selectedScheme,
         awardFront:award.front.join(" "), awardBack:award.back.join(" "),
@@ -1098,11 +1112,8 @@ function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
         poolBList:poolB.rawPool.join(" "),
         poolCList:poolC.rawPool.join(" "),
         filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
-        finalBets:finalMain.map((g)=>{
-            let sb = [...specPool.list].sort(()=>Math.random()-0.5);
-            if(lotType==="ssq") return g.join(" ")+"+"+sb[0];
-            else return g.join(" ")+"+"+sb[0]+","+sb[1];
-        }).join("|"),
+        bets: betsArr,
+        finalBets: betsArr.map(b=> b.front.join(" ")+"+"+b.back.join(lotType==="ssq"?"":",")).join("|"),
         poolHtml:selectedPool.colorHtml,
         poolAHtml:poolA.colorHtml,
         poolBHtml:poolB.colorHtml,
@@ -1254,10 +1265,8 @@ document.getElementById("runBtn").onclick = function(){
         <div style="margin-top:4px;color:#ffcc55;">六爻∩A 高置信：${ret.highConfidence}</div>` : ""}
     `;
     let outHtml = "";
-    ret.finalMain.forEach((g,idx)=>{
-        let sb = [...ret.specPool.list].sort(()=>Math.random()-0.5);
-        if(lt==="ssq") outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]}<br>`;
-        else outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]},${sb[1]}<br>`;
+    ret.bets.forEach((b,idx)=>{
+        outHtml += `第${idx+1}注：${b.front.join(" ")} + ${b.back.join(lt==="ssq"?"":",")}<br>`;
     });
     resDom.innerHTML = outHtml;
     if(awardTxt.trim() !== ""){
