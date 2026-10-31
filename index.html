@@ -2,1905 +2,1088 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>奇门统计｜动态转盘B版 优化沙盘（联网自动更新·前后区分治）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奇门统计｜动态转盘B版 优化沙盘</title>
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft YaHei",system-ui,sans-serif;}
-body{background:#0c101b;color:#e8edf7;padding:12px;font-size:16px;line-height:1.5;}
-h1{color:#ffd343;text-align:center;font-size:22px;margin-bottom:12px;font-weight:bold;}
-h2{color:#72b8ff;font-size:18px;margin:12px 0 6px;border-left:4px solid #3b82f6;padding-left:8px;}
-.warn{color:#ff6b6b;background:#2b1318;padding:10px;border-radius:10px;margin-bottom:12px;font-size:14px;}
-.panel{background:#172035;border-radius:14px;padding:14px;margin-bottom:14px;}
-table{width:100%;border-collapse:collapse;margin:8px 0;}
-td{border:1px solid #3a4b70;padding:6px 8px;color:#d0daf0;}
-td input{width:100%;padding:5px 7px;font-size:15px;border-radius:6px;border:1px solid #445577;background:#24314f;color:#fff;}
-td select{width:100%;padding:5px 7px;font-size:15px;border-radius:6px;border:1px solid #445577;background:#24314f;color:#fff;}
-label{font-size:15px;color:#d0daf0;}
-input,select,textarea{padding:8px 10px;font-size:15px;border-radius:8px;border:1px solid #445577;background:#24314f;color:#fff;}
-input[type="checkbox"]{width:18px;height:18px;transform:scale(1.1);margin-right:6px;}
-button{width:100%;padding:10px 14px;font-size:16px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;margin:4px 0;transition:0.2s;}
-button:hover{background:#1d4ed8;}
-.btn-reset{background:#7c2d12;}
-.btn-csv{background:#10895e;}
-.btn-save{background:#7c3aed;}
-.btn-preset{background:#0e7490;font-size:14px;padding:8px 10px;}
-.btn-preset.active{background:#06b6d4;box-shadow:0 0 8px #06b6d4;}
-.btn-scheme{background:#0e7490;font-size:14px;padding:8px 10px;flex:1;}
-.btn-scheme.active{background:#06b6d4;box-shadow:0 0 8px #06b6d4;}
-#jiugongBox{width:100%;max-width:600px;margin:10px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
-.gong{background:#1a2e4f;border:2px solid #4788e8;border-radius:8px;padding:6px;font-size:11.5px;line-height:1.3;min-height:120px;}
-.gong strong{color:#ffd343;font-size:13px;display:block;margin-bottom:2px;}
-.gong.kongGong{border-color:#a855f7;background:#2a1842;}
-.gong.xiongGong{border-color:#ef4444;background:#3b181f;}
-.tag{display:inline-block;padding:1px 3px;border-radius:3px;font-size:10px;margin:1px;}
-.tag-jix{background:#14532d;color:#86efac;}
-.tag-xiong{background:#7f1d1d;color:#fca5a5;}
-.tag-kong{background:#4a044e;color:#f0abfc;}
-.tag-zhifu{background:#713f12;color:#fde68a;}
-.tag-zhishi{background:#224070;color:#b8d8ff;}
-.tag-chong{background:#1e3a8a;color:#bfdbfe;}
-#poolInfo{background:#162744;padding:12px;border-radius:10px;margin:10px 0;font-size:16px;color:#fcd34d;line-height:1.6;}
-#finalResult{background:#122f38;padding:12px;border-radius:10px;margin-top:10px;font-size:16px;color:#5eead4;line-height:1.6;}
-#backTest{background:#202842;padding:12px;border-radius:10px;margin-top:10px;font-size:15px;line-height:1.5;color:#e2e8f0;}
-#batchSummary{background:#272b3f;padding:12px;border-radius:10px;margin-top:10px;font-size:15px;color:#e2e8f0;line-height:1.5;}
-#paramAdvice{background:#332818;padding:12px;border-radius:10px;margin-top:8px;font-size:15px;color:#ffdd99;}
-#panInfoLine{color:#ffdd99;margin:8px 0;}
-.c1{color:#ff3333;font-weight:bold;}
-.c2{color:#ff9922;font-weight:bold;}
-.c3{color:#ffdd22;font-weight:bold;}
-.c4{color:#33ee44;font-weight:bold;}
-.c5{color:#33bbff;font-weight:bold;}
-.miss-pool{color:#ff5555;font-weight:bold;}
-.miss-filter{color:#ffbb44;font-weight:bold;}
-.miss-result{color:#44ddaa;font-weight:bold;}
-.optimize-info{background:#1a2332;padding:10px;border-radius:8px;margin-top:8px;font-size:13px;color:#94a3b8;line-height:1.6;}
-.hot-tag{display:inline-block;background:#7f1d1d;color:#fca5a5;padding:2px 5px;border-radius:4px;font-size:12px;margin:2px;}
-.cold-tag{display:inline-block;background:#1e3a5f;color:#93c5fd;padding:2px 5px;border-radius:4px;font-size:12px;margin:2px;}
-#hotColdInfo{background:#1a2332;padding:12px;border-radius:10px;margin:10px 14px;font-size:14px;color:#e2e8f0;line-height:1.6;display:none;}
-.personal-panel{border:1px solid #4a3a10;background:#1e1a0c;border-radius:10px;padding:12px;margin-top:10px;}
-.personal-panel h3{color:#ffd343;font-size:15px;margin-bottom:8px;}
-.personal-panel table{margin:0;}
-.switch-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.switch{position:relative;display:inline-block;width:44px;height:24px;}
-.switch input{opacity:0;width:0;height:0;}
-.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#445577;transition:.3s;border-radius:24px;}
-.slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;transition:.3s;border-radius:50%;}
-input:checked + .slider{background:#06b6d4;}
-input:checked + .slider:before{transform:translateX(20px);}
-.p-disabled{opacity:0.4;pointer-events:none;}
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Microsoft YaHei',system-ui,sans-serif; padding:12px; }
+h1 { font-size:1.3rem; margin-bottom:8px; color:var(--accent); }
+h2 { font-size:1.1rem; margin:12px 0 6px; color:var(--accent); }
+h3 { font-size:1rem; margin:8px 0 4px; color:var(--yellow); }
+.card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:12px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+.row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:4px 0; }
+label { font-size:0.85rem; color:var(--text); }
+input, select, textarea { background:#0d1117; border:1px solid var(--border); color:var(--text); padding:4px 8px; border-radius:4px; font-size:0.85rem; }
+textarea { width:100%; height:80px; resize:vertical; font-family:monospace; }
+button { background:var(--accent); color:#fff; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-size:0.85rem; margin:2px; }
+button:hover { filter:brightness(1.2); }
+button.secondary { background:#30363d; }
+button.danger { background:var(--red); }
+table { width:100%; border-collapse:collapse; font-size:0.8rem; margin:4px 0; }
+th, td { border:1px solid var(--border); padding:3px 6px; text-align:center; }
+th { background:#21262d; color:var(--accent); }
+.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:6px; margin:6px 0; }
+.metric { background:#21262d; border-radius:4px; padding:6px; text-align:center; }
+.metric .value { font-size:1.2rem; font-weight:bold; color:var(--green); }
+.metric .label { font-size:0.7rem; color:var(--text); }
+.hit { color:var(--green); font-weight:bold; }
+.miss { color:var(--red); }
+.warn { color:var(--yellow); }
+.small { font-size:0.75rem; color:#8b949e; }
+.hidden { display:none; }
+.tab-btn { background:#21262d; color:var(--text); border:1px solid var(--border); }
+.tab-btn.active { background:var(--accent); color:#fff; }
+#status { position:fixed; top:10px; right:10px; background:#21262d; border:1px solid var(--border); padding:6px 12px; border-radius:4px; font-size:0.8rem; z-index:100; }
+#status.online { border-color:var(--green); color:var(--green); }
+#status.offline { border-color:var(--red); color:var(--red); }
 </style>
 </head>
 <body>
-<div class="warn">⚠️重要声明：彩票开奖完全随机，本沙盘仅为奇门模型统计回测研究工具，不具备预测能力，购彩理性娱乐。</div>
 <h1>奇门统计｜动态转盘B版 优化沙盘</h1>
+<div id="status" class="offline">检查中...</div>
 
-<div class="panel">
-    <h2>参数调参面板（基准生克打分体系）</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
-        <button id="presetJointBtn" class="btn-preset active">联合优化参数</button>
-        <button id="presetDltBtn" class="btn-preset">大乐透专用</button>
-        <button id="presetSsqBtn" class="btn-preset">双色球专用</button>
-    </div>
-    <table>
-        <tr><td>相冲加成</td><td><input id="wChong" value="5"></td></tr>
-        <tr><td>空亡加成</td><td><input id="wKongWang" value="5"></td></tr>
-        <tr><td>凶格加成</td><td><input id="jXiong" value="5"></td></tr>
-        <tr><td>冷热权重(0-10)</td><td><input id="wHotCold" value="3"></td></tr>
-        <tr><td>蓝球六爻权重(0=纯A)</td><td><input id="wLiuYao" value="3"></td></tr>
-    </table>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-        <button id="saveParamBtn" class="btn-save">保存当前参数</button>
-        <button id="resetParamBtn" class="btn-reset">重置默认参数</button>
-    </div>
-    <div id="paramAdvice"></div>
-    <div class="optimize-info">
-        <strong>优化说明（100期回测数据）：</strong><br>
-        联合优化：DLT覆盖率57.2%/命中2.86 | SSQ覆盖率56.7%/命中3.40<br>
-        大乐透专用：覆盖率58.2%/命中2.91 | 双色球专用：覆盖率58.3%/命中3.50<br>
-        原始默认：DLT覆盖率53.6%/命中2.68 | SSQ覆盖率54.3%/命中3.26
-    </div>
-    <div class="personal-panel">
-        <div class="switch-row">
-            <h3 style="margin:0;">个人感应层</h3>
-            <label class="switch"><input type="checkbox" id="personalSwitch"><span class="slider"></span></label>
-            <span id="switchLabel" style="color:#94a3b8;font-size:14px;">已关闭</span>
-        </div>
-        <div id="personalBody" class="p-disabled">
-        <table>
-            <tr><td>出生年份</td><td><input id="birthYear" type="number" min="1900" max="2100" placeholder="2000"></td></tr>
-            <tr><td>出生月份</td><td><input id="birthMonth" type="number" min="1" max="12" placeholder="1"></td></tr>
-            <tr><td>出生日期</td><td><input id="birthDay" type="number" min="1" max="31" placeholder="10"></td></tr>
-            <tr><td>出生时辰</td><td>
-                <select id="birthShiChen">
-                    <option value="0">子时 23-01</option>
-                    <option value="1">丑时 01-03</option>
-                    <option value="2">寅时 03-05</option>
-                    <option value="3">卯时 05-07</option>
-                    <option value="4">辰时 07-09</option>
-                    <option value="5">巳时 09-11</option>
-                    <option value="6">午时 11-13</option>
-                    <option value="7">未时 13-15</option>
-                    <option value="8">申时 15-17</option>
-                    <option value="9">酉时 17-19</option>
-                    <option value="10">戌时 19-21</option>
-                    <option value="11" selected>亥时 21-23</option>
-                </select>
-            </td></tr>
-            <tr><td>宫生我(+)</td><td><input id="pShengWo" value="5"></td></tr>
-            <tr><td>我克宫(+)</td><td><input id="pWoKe" value="3"></td></tr>
-            <tr><td>比和(+)</td><td><input id="pBiHe" value="2"></td></tr>
-            <tr><td>我生宫(-)</td><td><input id="pWoSheng" value="-1"></td></tr>
-            <tr><td>宫克我(-)</td><td><input id="pKeWo" value="-4"></td></tr>
-        </table>
-        <label style="font-size:13px;color:#94a3b8;">开关关闭时全部视为0，打开才生效</label>
-        </div>
-    </div>
+<div class="card">
+  <h2>📊 数据源</h2>
+  <div class="row">
+    <label>彩种：</label>
+    <select id="lotteryType">
+      <option value="ssq">双色球</option>
+      <option value="dlt">大乐透</option>
+    </select>
+    <button id="btnFetch" class="secondary">🌐 联网更新数据</button>
+    <button id="btnLoadPreset" class="secondary">📂 载入内置数据</button>
+    <button id="btnClear" class="danger">🗑 清空数据</button>
+  </div>
+  <div class="row">
+    <label>历史数据（每行一期，格式：期号,前区逗号分隔,后区逗号分隔）：</label>
+  </div>
+  <textarea id="historyData" placeholder="2026001,01,05,12,18,22,30,03,11&#10;2026002,03,07,14,19,25,31,02,08"></textarea>
+  <div class="row">
+    <label>当前期号：</label>
+    <input type="text" id="currentIssue" placeholder="2026003">
+    <label>开奖日期：</label>
+    <input type="date" id="drawDate">
+  </div>
 </div>
 
-<div id="hotColdInfo"></div>
-
-<div class="panel">
-    <h2>单期推演（日期+时辰起局）</h2>
-    <div style="margin:8px 0;">
-        <label>彩种选择：</label>
-        <select id="lotteryType">
-            <option value="ssq">双色球（6红+1蓝）</option>
-            <option value="dlt">大乐透（5前+2后）</option>
-        </select>
-    </div>
-    <div style="margin:8px 0;">
-        <label>选号方案：</label>
-        <div style="display:flex;gap:6px;margin-top:4px;">
-            <button id="schemeABtn" class="btn-scheme active" data-scheme="A">方案A</button>
-            <button id="schemeBBtn" class="btn-scheme" data-scheme="B">方案B</button>
-            <button id="schemeCBtn" class="btn-scheme" data-scheme="C">方案C</button>
-        </div>
-    </div>
-    <div style="margin:8px 0;">
-        <label>推演日期：</label>
-        <input id="calcDate" type="date">
-    </div>
-    <div style="margin:8px 0;">
-        <label>推演时辰：</label>
-        <select id="calcShiChen">
-            <option value="0">子时 23-01</option>
-            <option value="1">丑时 01-03</option>
-            <option value="2">寅时 03-05</option>
-            <option value="3">卯时 05-07</option>
-            <option value="4">辰时 07-09</option>
-            <option value="5">巳时 09-11</option>
-            <option value="6">午时 11-13</option>
-            <option value="7">未时 13-15</option>
-            <option value="8">申时 15-17</option>
-            <option value="9">酉时 17-19</option>
-            <option value="10">戌时 19-21</option>
-            <option value="11">亥时 21-23</option>
-        </select>
-    </div>
-    <div style="margin:8px 0;">
-        <label>当期开奖号（留空则只推演不复盘）</label>
-        <input id="awardNum" placeholder="示例：03 08 12 17 22 29 + 05">
-        <button id="fetchLatestBtn" style="background:#7c3aed;margin-top:6px;">📡 自动获取最新开奖</button>
-    </div>
-    <div style="margin:8px 0;">
-        <label>输出注数</label>
-        <input id="outCount" value="5">
-        <button id="runBtn">单期推演（可附带复盘）</button>
-    </div>
-</div>
-
-<div class="panel">
-    <h2>批量回测区（格式：日期,时辰数字,ssq/dlt,号码）</h2>
+<div class="card">
+  <h2>⚙️ 参数设置</h2>
+  <div class="grid">
     <div>
-        <label>样例：2026-10-22,10,ssq,01 05 09 16 22 31 + 07</label>
-        <textarea id="batchInput" placeholder="粘贴多期数据，一行一期"></textarea>
+      <h3>奇门起局</h3>
+      <div class="row"><label>阴阳遁：</label><select id="yinYang"><option value="阳">阳遁</option><option value="阴">阴遁</option></select></div>
+      <div class="row"><label>局数：</label><input type="number" id="juShu" value="0" min="0" max="9" style="width:60px"> <span class="small">0=自动</span></div>
+      <div class="row"><label>节气：</label><input type="text" id="solarTerm" placeholder="自动判定" readonly style="width:120px"></div>
+      <div class="row"><label>元：</label><select id="yuan"><option value="上元">上元</option><option value="中元">中元</option><option value="下元">下元</option></select></div>
+      <div class="row"><label>时辰：</label><input type="text" id="shiChen" placeholder="自动" readonly style="width:100px"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
-        <label style="color:#94a3b8;font-size:13px;">批量获取期数：</label>
-        <input id="batchFetchCount" type="number" value="50" min="10" max="200" style="width:60px;">
-        <button id="batchFetchBtn" style="background:#0e7490;">📥 批量获取历史</button>
-        <button id="loadPresetBtn" style="background:#7c3aed;">📊 载入170期内置</button>
-        <span id="batchFetchProgress" style="color:#67e8f9;font-size:12px;"></span>
+    <div>
+      <h3>方案池</h3>
+      <div class="row"><label>方案A（奇门）：</label><input type="number" id="poolA" value="3" min="0" max="10" style="width:60px"></div>
+      <div class="row"><label>方案B（随机）：</label><input type="number" id="poolB" value="3" min="0" max="10" style="width:60px"></div>
+      <div class="row"><label>方案C（混合）：</label><input type="number" id="poolC" value="3" min="0" max="10" style="width:60px"></div>
+      <div class="row"><label>六爻蓝球池：</label><input type="number" id="poolLiuYao" value="2" min="0" max="10" style="width:60px"></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
-        <label style="color:#94a3b8;font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;">
-            <input type="checkbox" id="autoUpdate" checked style="width:auto;"> 打开时自动联网更新
-        </label>
-        <button id="netRefreshBtn" style="background:#16a34a;">🔄 联网更新到最新</button>
-        <span id="netStatus" style="color:#fbbf24;font-size:12px;"></span>
+    <div>
+      <h3>回测参数</h3>
+      <div class="row"><label>回测期数：</label><input type="number" id="backtestN" value="20" min="5" max="170" style="width:80px"></div>
+      <div class="row"><label>前瞻窗口：</label><input type="number" id="lookahead" value="5" min="0" max="20" style="width:60px"> <span class="small">0=传统回测</span></div>
+      <div class="row"><label>随机对照次数：</label><input type="number" id="randomTrials" value="3" min="0" max="10" style="width:60px"></div>
+      <div class="row"><label>模式：</label><select id="mode"><option value="backtest">回测</option><option value="predict">预测</option></select></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;">
-        <button id="runBatchBtn">开始批量回测</button>
-        <button id="exportCsvBtn" class="btn-csv">导出CSV数据集</button>
-        <button id="clearAllBtn" class="btn-reset">清空结果</button>
-    </div>
+  </div>
+  <div class="row">
+    <button id="btnRun">▶ 执行分析</button>
+    <button id="btnExport" class="secondary">💾 导出CSV</button>
+    <button id="btnResetParams" class="secondary">↺ 重置参数</button>
+  </div>
 </div>
 
-<div class="panel">
-    <h2>奇门九宫转盘（拆补法）</h2>
-    <div id="jiugongBox"></div>
-    <div id="panInfoLine"></div>
-</div>
-
-<div class="panel">
-    <h2>候选池信息</h2>
-    <div id="poolInfo"></div>
-</div>
-
-<div class="panel">
-    <h2>推演产出号码</h2>
-    <div id="finalResult"></div>
-</div>
-
-<div class="panel">
-    <h2>单期回测复盘</h2>
-    <div id="backTest"></div>
-</div>
-
-<div class="panel">
-    <h2>批量汇总统计</h2>
-    <div id="batchSummary"></div>
+<div class="card">
+  <h2>📈 分析结果</h2>
+  <div id="resultArea"><p class="small">点击「执行分析」开始。</p></div>
 </div>
 
 <script>
-const poolDom = document.getElementById("poolInfo");
-const resDom = document.getElementById("finalResult");
-const backDom = document.getElementById("backTest");
-const summaryDom = document.getElementById("batchSummary");
-const adviceDom = document.getElementById("paramAdvice");
-const jgDom = document.getElementById("jiugongBox");
-const panInfoLine = document.getElementById("panInfoLine");
-const dateInput = document.getElementById("calcDate");
-const shiChenSel = document.getElementById("calcShiChen");
-const typeSel = document.getElementById("lotteryType");
-const awardInput = document.getElementById("awardNum");
-const batchInput = document.getElementById("batchInput");
-let batchRecords = [];
-let hotColdData = { freq:{}, gap:{}, totalPeriods:0 };
-
-const defaultParam = {
-    base:"riGan",
-    wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":0,"biHe":4},
-    extra:{"chong":5,"kongWang":5,"zhiFuAdd":15,"zhiShiAdd":10,"ganHe":5},
-    sanQi:{"乙":6,"丙":7,"丁":8},
-    liuYi:{"戊":3,"己":1,"庚":-7,"辛":1,"壬":-2,"癸":-3},
-    ji:{"ji":7,"ping":1,"xiong":5},
-    filter:{sumMin:70,sumMax:106},
-    hotColdWeight:3,
-    familyCap:0,
-    sizeBias:{"ji":-3,"xiong":3,"ping":0,"kong":2,"zhiFu":-4,"zhiShi":-2,"chong":1,"shengWo":-2,"woSheng":1,"keWo":2,"woKe":-1,"biHe":0},
-    personal:{shengWo:5,woKe:3,biHe:2,woSheng:-1,keWo:-4}
+// ============ 核心工具函数 ============
+const LOTTERY_CONFIG = {
+  ssq: { frontCount: 6, frontMax: 33, backCount: 1, backMax: 16, name: '双色球' },
+  dlt: { frontCount: 5, frontMax: 35, backCount: 2, backMax: 12, name: '大乐透' }
 };
 
-const presetDlt = {
-    base:"riGan",
-    wu:{"shengWo":8,"woSheng":0,"keWo":-5,"woKe":-5,"biHe":2},
-    extra:{"chong":5,"kongWang":5,"zhiFuAdd":15,"zhiShiAdd":10,"ganHe":5},
-    sanQi:{"乙":6,"丙":7,"丁":8},
-    liuYi:{"戊":3,"己":1,"庚":-7,"辛":1,"壬":-2,"癸":-3},
-    ji:{"ji":2,"ping":-2,"xiong":5},
-    filter:{sumMin:56,sumMax:149},
-    hotColdWeight:3,
-    familyCap:0,
-    sizeBias:{"ji":-3,"xiong":3,"ping":0,"kong":2,"zhiFu":-4,"zhiShi":-2,"chong":1,"shengWo":-2,"woSheng":1,"keWo":2,"woKe":-1,"biHe":0},
-    personal:{shengWo:5,woKe:3,biHe:2,woSheng:-1,keWo:-4}
-};
-
-const presetSsq = {
-    base:"riGan",
-    wu:{"shengWo":8,"woSheng":2,"keWo":-5,"woKe":-2,"biHe":7},
-    extra:{"chong":5,"kongWang":5,"zhiFuAdd":15,"zhiShiAdd":10,"ganHe":5},
-    sanQi:{"乙":6,"丙":7,"丁":8},
-    liuYi:{"戊":3,"己":1,"庚":-7,"辛":1,"壬":-2,"癸":-3},
-    ji:{"ji":8,"ping":4,"xiong":5},
-    filter:{sumMin:41,sumMax:124},
-    hotColdWeight:3,
-    familyCap:0,
-    sizeBias:{"ji":-3,"xiong":3,"ping":0,"kong":2,"zhiFu":-4,"zhiShi":-2,"chong":1,"shengWo":-2,"woSheng":1,"keWo":2,"woKe":-1,"biHe":0},
-    personal:{shengWo:5,woKe:3,biHe:2,woSheng:-1,keWo:-4}
-};
-
-let param = JSON.parse(JSON.stringify(defaultParam));
-
-const tianGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-const diZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-const ganWuxing = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"};
-const xingWuxing = {"蓬":"水","芮":"土","冲":"木","辅":"木","禽":"土","心":"金","柱":"金","任":"土","英":"火"};
-const menWuxing = {"休":"水","死":"土","伤":"木","杜":"木","开":"金","惊":"金","生":"土","景":"火"};
-const chongDizhi = {"子":"午","丑":"未","寅":"申","卯":"酉","辰":"戌","巳":"亥","午":"子","未":"丑","申":"寅","酉":"卯","戌":"辰","亥":"巳"};
-const xunKongTable = {"甲子旬":["戌","亥"],"甲戌旬":["申","酉"],"甲申旬":["午","未"],"甲午旬":["辰","巳"],"甲辰旬":["寅","卯"],"甲寅旬":["子","丑"]};
-const wuxingMap = {
-    "水":{shengWo:"金",woSheng:"木",keWo:"土",woKe:"火",tong:"水"},
-    "木":{shengWo:"水",woSheng:"火",keWo:"金",woKe:"土",tong:"木"},
-    "火":{shengWo:"木",woSheng:"土",keWo:"水",woKe:"金",tong:"火"},
-    "土":{shengWo:"火",woSheng:"金",keWo:"木",woKe:"水",tong:"土"},
-    "金":{shengWo:"土",woSheng:"水",keWo:"火",woKe:"木",tong:"金"}
-};
-const palaceMeta = {
-    1:{name:"坎",tianXian:[1],houTian:[6],xing:"蓬",men:"休",wuXing:"水",jiXiong:"吉"},
-    2:{name:"坤",tianXian:[2],houTian:[8],xing:"芮",men:"死",wuXing:"土",jiXiong:"凶"},
-    3:{name:"震",tianXian:[3],houTian:[4],xing:"冲",men:"伤",wuXing:"木",jiXiong:"凶"},
-    4:{name:"巽",tianXian:[4],houTian:[3],xing:"辅",men:"杜",wuXing:"木",jiXiong:"平"},
-    5:{name:"中五",tianXian:[5],houTian:[5],xing:"禽",men:"禽",wuXing:"土",jiXiong:"平"},
-    6:{name:"乾",tianXian:[6],houTian:[1],xing:"心",men:"开",wuXing:"金",jiXiong:"吉"},
-    7:{name:"兑",tianXian:[7],houTian:[2],xing:"柱",men:"惊",wuXing:"金",jiXiong:"凶"},
-    8:{name:"艮",tianXian:[8],houTian:[7],xing:"任",men:"生",wuXing:"土",jiXiong:"吉"},
-    9:{name:"离",tianXian:[9],houTian:[9],xing:"英",men:"景",wuXing:"火",jiXiong:"平"},
-};
-const gridOrder = [4,9,2,3,5,7,8,1,6];
-const liuYi = ["戊","己","庚","辛","壬","癸","丁","丙","乙"];
-const shenList = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
-
-// ========== 24节气 & 拆补法核心 ==========
-const solarTerms = [
-    {name:"小寒",m:1,d:6},{name:"大寒",m:1,d:20},
-    {name:"立春",m:2,d:4},{name:"雨水",m:2,d:19},
-    {name:"惊蛰",m:3,d:6},{name:"春分",m:3,d:21},
-    {name:"清明",m:4,d:5},{name:"谷雨",m:4,d:20},
-    {name:"立夏",m:5,d:6},{name:"小满",m:5,d:21},
-    {name:"芒种",m:6,d:6},{name:"夏至",m:6,d:21},
-    {name:"小暑",m:7,d:7},{name:"大暑",m:7,d:23},
-    {name:"立秋",m:8,d:7},{name:"处暑",m:8,d:23},
-    {name:"白露",m:9,d:8},{name:"秋分",m:9,d:23},
-    {name:"寒露",m:10,d:8},{name:"霜降",m:10,d:23},
-    {name:"立冬",m:11,d:7},{name:"小雪",m:11,d:22},
-    {name:"大雪",m:12,d:7},{name:"冬至",m:12,d:22}
+// ============ 精确节气模块（天文算法） ============
+const QI_MEN_SOLAR_TERMS = [
+  { name: '冬至', longitude: 270 }, { name: '小寒', longitude: 285 },
+  { name: '大寒', longitude: 300 }, { name: '立春', longitude: 315 },
+  { name: '雨水', longitude: 330 }, { name: '惊蛰', longitude: 345 },
+  { name: '春分', longitude: 0 },   { name: '清明', longitude: 15 },
+  { name: '谷雨', longitude: 30 },  { name: '立夏', longitude: 45 },
+  { name: '小满', longitude: 60 },  { name: '芒种', longitude: 75 },
+  { name: '夏至', longitude: 90 },  { name: '小暑', longitude: 105 },
+  { name: '大暑', longitude: 120 }, { name: '立秋', longitude: 135 },
+  { name: '处暑', longitude: 150 }, { name: '白露', longitude: 165 },
+  { name: '秋分', longitude: 180 }, { name: '寒露', longitude: 195 },
+  { name: '霜降', longitude: 210 }, { name: '立冬', longitude: 225 },
+  { name: '小雪', longitude: 240 }, { name: '大雪', longitude: 255 }
 ];
-const dingJuTable = {
-    "冬至":[1,4,7],"小寒":[2,5,8],"大寒":[3,6,9],
-    "立春":[8,5,2],"雨水":[9,6,3],"惊蛰":[1,7,4],
-    "春分":[3,9,6],"清明":[4,1,7],"谷雨":[5,2,8],
-    "立夏":[4,1,7],"小满":[5,2,8],"芒种":[6,3,9],
-    "夏至":[9,3,6],"小暑":[8,2,5],"大暑":[7,1,4],
-    "立秋":[2,5,8],"处暑":[1,4,7],"白露":[9,3,6],
-    "秋分":[7,1,4],"寒露":[6,9,3],"霜降":[5,8,2],
-    "立冬":[6,9,3],"小雪":[5,8,2],"大雪":[4,7,1]
-};
-const yangTerms = ["冬至","小寒","大寒","立春","雨水","惊蛰","春分","清明","谷雨","立夏","小满","芒种"];
 
-function getSolarTerm(dateObj){
-    const m = dateObj.getMonth()+1, d = dateObj.getDate();
-    let best = null, bestDiff = 999;
-    for(let st of solarTerms){
-        let diff = Math.abs((m - st.m)*31 + (d - st.d));
-        if(diff < bestDiff){ bestDiff = diff; best = st; }
+let termCache = {};
+
+function calcTermMoment(year, longitude) {
+  const key = year + '_' + longitude;
+  if (termCache[key]) return termCache[key];
+  const start = new Date(Date.UTC(year, 0, 1));
+  const end = new Date(Date.UTC(year + 1, 0, 1));
+  try {
+    const time = Astronomy.SearchSunLongitude(longitude, start, end);
+    termCache[key] = time;
+    return time;
+  } catch (e) {
+    return null;
+  }
+}
+
+function buildTermTable(year) {
+  const table = [];
+  for (let y = year - 1; y <= year + 1; y++) {
+    for (const st of QI_MEN_SOLAR_TERMS) {
+      const t = calcTermMoment(y, st.longitude);
+      if (t) {
+        table.push({ name: st.name, time: t.date.getTime() });
+      }
     }
-    return best.name;
+  }
+  table.sort((a, b) => a.time - b.time);
+  return table;
 }
 
-function getFuTouYuan(dayGanZhi){
-    const ganIdx = tianGan.indexOf(dayGanZhi.dayGan);
-    const zhiIdx = diZhi.indexOf(dayGanZhi.dayZhi);
-    let daysBack = 0, g = ganIdx;
-    while(g !== 0 && g !== 5){ g = (g - 1 + 10) % 10; daysBack++; }
-    let fuTouZhiIdx = (zhiIdx - daysBack + 12) % 12;
-    let fuTouZhi = diZhi[fuTouZhiIdx];
-    if(["子","午","卯","酉"].includes(fuTouZhi)) return 0;
-    if(["寅","申","巳","亥"].includes(fuTouZhi)) return 1;
-    return 2;
-}
-
-function getDunJuBySolarTerm(solarTerm, yuan){
-    const jues = dingJuTable[solarTerm];
-    const yangDun = yangTerms.includes(solarTerm);
-    return {yangDun, ju: jues[yuan]};
-}
-
-// ========== 干支 & 旬空 ==========
-function getDayGanZhi(dateObj){
-    const base = new Date("2000-01-01");
-    const diff = Math.floor((dateObj - base)/(1000*60*60*24));
-    const gIdx = ((diff + 5) % 10 + 10) % 10;
-    const zIdx = ((diff + 11) % 12 + 12) % 12;
-    return {dayGan:tianGan[gIdx], dayZhi:diZhi[zIdx]};
-}
-function getHourGan(dayGan, shiIdx){
-    const dayIdx = tianGan.indexOf(dayGan);
-    const startIdx = (dayIdx % 5) * 2;
-    const hIdx = (startIdx + shiIdx) % 10;
-    return tianGan[hIdx];
-}
-function getXunKong(dayZhi){
-    for(let k in xunKongTable){
-        const startZ = k.slice(-1);
-        const zIdx = diZhi.indexOf(startZ);
-        const zList = [];
-        for(let i=0;i<10;i++) zList.push(diZhi[(zIdx+i)%12]);
-        if(zList.includes(dayZhi)) return {xunName:k, kongZhi:xunKongTable[k]};
-    }
-    return {xunName:"", kongZhi:[]};
-}
-
-// ========== 地盘 ==========
-function arrangeDiPan(ju, yangDun){
-    const gongSeq = [1,2,3,4,5,6,7,8,9];
-    const pos = {};
-    let start = gongSeq.indexOf(ju);
-    for(let i=0;i<9;i++){
-        let p;
-        if(yangDun) p = gongSeq[(start+i)%9];
-        else p = gongSeq[(start-i+9)%9];
-        pos[p] = liuYi[i];
-    }
-    return pos;
-}
-
-// ========== 奇门转盘（真正拆补法） ==========
-function qiMenZhuanPan(dateStr, shiIdx){
-    const d = new Date(dateStr);
-    const gz = getDayGanZhi(d);
-    const hourGan = getHourGan(gz.dayGan, shiIdx);
-    const {xunName, kongZhi} = getXunKong(gz.dayZhi);
-
-    // 拆补法：节气+符头定元→定局
-    const solarTerm = getSolarTerm(d);
-    const yuan = getFuTouYuan(gz);
-    const {yangDun, ju} = getDunJuBySolarTerm(solarTerm, yuan);
-
-    const diPan = arrangeDiPan(ju, yangDun);
-    const fuYuanGong = Object.keys(diPan).find(k=>diPan[k]==="戊")*1;
-    const hourGanIdx = tianGan.indexOf(hourGan);
-
-    // 值符宫（天盘旋转基准）
-    let sgGong;
-    if(yangDun) sgGong = ((fuYuanGong-1)+hourGanIdx)%9 +1;
-    else sgGong = ((fuYuanGong-1)-hourGanIdx+9)%9 +1;
-
-    // 天盘
-    const tianPan = {};
-    for(let g=1;g<=9;g++){
-        let offset = (g - sgGong +9)%9;
-        let srcG = ((fuYuanGong-1) + offset)%9 +1;
-        tianPan[g] = diPan[srcG];
-    }
-    const zhiFuGong = sgGong;
-
-    // 值使宫（跳过中五宫）
-    const palaceSeq = [1,2,3,4,6,7,8,9];
-    const fuOrigIdx = palaceSeq.indexOf(fuYuanGong);
-    let zsIdx;
-    if(yangDun) zsIdx = (fuOrigIdx + hourGanIdx) % 8;
-    else zsIdx = (fuOrigIdx - hourGanIdx + 8) % 8;
-    // 如果值使落入中五宫，寄坤二宫
-    if(palaceSeq[zsIdx] === 5) zsIdx = palaceSeq.indexOf(2);
-    const zhiShiGong = palaceSeq[zsIdx];
-
-    // 八门从值使宫起排（旋转）
-    const menBase = ["休","死","伤","杜","开","惊","生","景"];
-    const zhiShiMen = palaceMeta[fuYuanGong].men;
-    const menStartIdx = menBase.indexOf(zhiShiMen);
-    const menArrangement = {};
-    for(let i=0;i<8;i++){
-        let pi = yangDun ? (zsIdx+i)%8 : (zsIdx-i+8)%8;
-        let mi = (menStartIdx+i)%8;
-        menArrangement[palaceSeq[pi]] = menBase[mi];
-    }
-
-    // 八神跟随值符
-    const shen = {};
-    for(let i=0;i<8;i++){
-        let g;
-        if(yangDun) g = (zhiFuGong-1+i)%9 +1;
-        else g = (zhiFuGong-1-i+9)%9 +1;
-        if(g === 5) continue;
-        shen[g] = shenList[i];
-    }
-
-    // 空亡宫
-    const gongDizhiMap = {1:["子"],2:["未","申"],3:["卯"],4:["辰","巳"],5:[],6:["戌","亥"],7:["酉"],8:["丑","寅"],9:["午"]};
-    let kongGongList = [];
-    kongZhi.forEach(z=>{
-        for(let g=1;g<=9;g++){
-            if(gongDizhiMap[g] && gongDizhiMap[g].includes(z)) kongGongList.push(g);
-        }
-    });
-
-    // 相冲宫
-    let chongGongList = [];
-    kongZhi.forEach(z=>{
-        const chongZ = chongDizhi[z];
-        for(let g=1;g<=9;g++){
-            if(gongDizhiMap[g] && gongDizhiMap[g].includes(chongZ)) chongGongList.push(g);
-        }
-    });
-
-    let palaceData = {};
-    for(let g=1;g<=9;g++){
-        let meta = palaceMeta[g];
-        palaceData[g] = {
-            ...meta,
-            diGan:diPan[g],
-            tianGan:tianPan[g],
-            men: menArrangement[g] || meta.men,
-            shen:shen[g] || "",
-            isZhiFu:g===zhiFuGong,
-            isZhiShi:g===zhiShiGong,
-            isChong:chongGongList.includes(g),
-            isKong:kongGongList.includes(g),
-            score:0
-        };
-    }
-    return {palaceData, gz, hourGan, zhiFuGong, zhiShiGong, ju, yangDun, xunName, solarTerm, yuan};
-}
-
-function calcScore(panData, baseType){
-    const {palaceData, gz, hourGan, zhiFuGong, zhiShiGong} = panData;
-    let baseWx;
-    if(baseType === "riGan") baseWx = ganWuxing[gz.dayGan];
-    else if(baseType === "shiGan") baseWx = ganWuxing[hourGan];
-    else baseWx = palaceData[zhiFuGong].wuXing;
-
-    // 天干五合表（用于天地盘干合判定）
-    const wuHe = {"甲":"己","己":"甲","乙":"庚","庚":"乙","丙":"辛","辛":"丙","丁":"壬","壬":"丁","戊":"癸","癸":"戊"};
-
-    const rel = wuxingMap[baseWx];
-    for(let g=1;g<=9;g++){
-        const p = palaceData[g];
-        let s = 0;
-        // 1. 宫五行 vs 基准五行 生克
-        const gWx = p.wuXing;
-        if(gWx === rel.shengWo) s += param.wu.shengWo;
-        else if(gWx === rel.woSheng) s += param.wu.woSheng;
-        else if(gWx === rel.keWo) s += param.wu.keWo;
-        else if(gWx === rel.woKe) s += param.wu.woKe;
-        else if(gWx === rel.tong) s += param.wu.biHe;
-        // 2. 宫吉凶（星门组合的吉凶标签）
-        if(p.jiXiong === "吉") s += param.ji.ji;
-        else if(p.jiXiong === "凶") s += param.ji.xiong;
-        else s += param.ji.ping;
-        // 3. 值符 / 值使 / 相冲 / 空亡
-        if(p.isZhiFu) s += param.extra.zhiFuAdd;
-        if(p.isZhiShi && param.extra.zhiShiAdd) s += param.extra.zhiShiAdd;
-        if(p.isChong) s += param.extra.chong;
-        if(p.isKong) s += param.extra.kongWang;
-        // 4. ★ 三奇（天盘干 乙/丙/丁）入宫加分
-        if(param.sanQi && p.tianGan && param.sanQi[p.tianGan] !== undefined){
-            s += param.sanQi[p.tianGan];
-        }
-        // 5. ★ 六仪（天盘干 戊/己/庚/辛/壬/癸）定性加分（庚为白虎大凶，负分）
-        if(param.liuYi && p.tianGan && param.liuYi[p.tianGan] !== undefined){
-            s += param.liuYi[p.tianGan];
-        }
-        // 6. ★ 天地盘干五合（甲己/乙庚/丙辛/丁壬/戊癸）
-        if(param.extra.ganHe && p.tianGan && p.diGan && wuHe[p.tianGan] === p.diGan){
-            s += param.extra.ganHe;
-        }
-        // 7. ★ 大小号偏向（吉宫/值符/生我 → 大号；凶宫/空亡/克我 → 小号）
-        let bias = 0;
-        if(param.sizeBias){
-            const sb = param.sizeBias;
-            if(p.jiXiong === "吉") bias += sb.ji;
-            else if(p.jiXiong === "凶") bias += sb.xiong;
-            else bias += sb.ping;
-            if(p.isKong) bias += sb.kong;
-            if(p.isZhiFu) bias += sb.zhiFu;
-            if(p.isZhiShi) bias += sb.zhiShi;
-            if(p.isChong) bias += sb.chong;
-            if(gWx === rel.shengWo) bias += sb.shengWo;
-            else if(gWx === rel.woSheng) bias += sb.woSheng;
-            else if(gWx === rel.keWo) bias += sb.keWo;
-            else if(gWx === rel.woKe) bias += sb.woKe;
-            else bias += sb.biHe;
-            // ★ 新增因子：天地盘干生克
-            if(sb.ganKe){
-                const tgWx = ganWuxing[p.tianGan];
-                const dgWx = ganWuxing[p.diGan];
-                if(tgWx && dgWx){
-                    const tRel = wuxingMap[tgWx];
-                    if(tRel){
-                        if(dgWx === tRel.shengWo) bias += sb.ganKe;       // 天生 → 地得气 → 大号
-                        else if(tgWx === wuxingMap[dgWx] && wuxingMap[dgWx].shengWo === dgWx) bias += sb.ganKe; // placeholder
-                        else if(dgWx === (wuxingMap[tgWx]||{}).woSheng) bias -= sb.ganKe; // 天泄到地 → 小号
-                        else if(dgWx === (wuxingMap[tgWx]||{}).keWo) bias -= sb.ganKe;   // 地克天 → 受制 → 小号
-                        else if(tgWx === (wuxingMap[dgWx]||{}).keWo) bias += sb.ganKe;   // 天克地 → 强势 → 大号
-                    }
-                }
-            }
-            // ★ 新增因子：星门生克
-            if(sb.xingMenKe){
-                const xWx = xingWuxing[p.xing];
-                const mWx = menWuxing[p.men];
-                if(xWx && mWx){
-                    const xRel = wuxingMap[xWx];
-                    if(xRel){
-                        if(mWx === xRel.woSheng) bias += sb.xingMenKe;     // 星生门 → 顺 → 大号
-                        else if(mWx === xRel.keWo) bias -= sb.xingMenKe;   // 星克门 → 逆 → 小号
-                        else if(xWx === (wuxingMap[mWx]||{}).woSheng) bias -= sb.xingMenKe; // 门生星 → 星得气但门泄 → 小号
-                        else if(xWx === (wuxingMap[mWx]||{}).keWo) bias += sb.xingMenKe;   // 门克星 → 门强势 → 大号
-                    }
-                }
-            }
-            // ★ 新增因子：值符宫对当前宫的生克
-            if(sb.zhiFuKe){
-                const zfWx = palaceData[zhiFuGong] ? palaceData[zhiFuGong].wuXing : null;
-                if(zfWx){
-                    const zfRel = wuxingMap[zfWx];
-                    if(zfRel){
-                        if(gWx === zfRel.shengWo) bias += sb.zhiFuKe;     // 值符生我宫 → 大号
-                        else if(gWx === zfRel.keWo) bias -= sb.zhiFuKe;   // 值符克我宫 → 小号
-                    }
-                }
-            }
-        }
-        p.bigBias = bias;
-        p.score = s;
-    }
-    return {palaceData, baseWx};
-}
-
-function renderJiuGong(palace, baseWx, panInfo){
-    jgDom.innerHTML = "";
-    panInfoLine.innerText = panInfo;
-    for(let g of gridOrder){
-        let p = palace[g];
-        let cls = "gong";
-        if(p.isKong) cls += " kongGong";
-        else if(p.jiXiong === "凶") cls += " xiongGong";
-        let tagHtml = "";
-        if(p.isZhiFu) tagHtml += `<span class="tag tag-zhifu">值符</span>`;
-        if(p.isZhiShi) tagHtml += `<span class="tag tag-zhishi">值使</span>`;
-        if(p.isChong) tagHtml += `<span class="tag tag-chong">冲</span>`;
-        if(p.isKong) tagHtml += `<span class="tag tag-kong">空亡</span>`;
-        if(p.jiXiong === "吉") tagHtml += `<span class="tag tag-jix">吉</span>`;
-        if(p.jiXiong === "凶") tagHtml += `<span class="tag tag-xiong">凶</span>`;
-        jgDom.innerHTML += `<div class="${cls}">
-            <strong>${g}宫 ${p.name}</strong>
-            八神：${p.shen||"-"}<br>
-            九星：${p.xing}｜八门：${p.men}<br>
-            天盘：${p.tianGan}｜地盘：${p.diGan}<br>
-            五行：${p.wuXing}<br>
-            得分：${p.score.toFixed(1)}<br>
-            ${tagHtml}
-        </div>`;
-    }
-}
-
-// ========== 冷热号自动计算 ==========
-function autoCalcHotCold(lotType){
-    const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
-    if(lines.length < 5){ hotColdData = {freq:{},gap:{},totalPeriods:0}; return; }
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    let freq = {}, lastSeen = {};
-    for(let n=1; n<=maxNum; n++){ freq[n]=0; lastSeen[n]=-1; }
-    for(let i=0; i<lines.length; i++){
-        const sp = lines[i].split(",");
-        if(sp.length < 4) continue;
-        let nums = sp[3].split("+")[0].trim().split(/\s+/).map(Number).filter(x=>!isNaN(x)&&x>=1&&x<=maxNum);
-        for(let n of nums){ freq[n]++; lastSeen[n]=i; }
-    }
-    let gap = {};
-    for(let n=1; n<=maxNum; n++){ gap[n] = lastSeen[n]===-1 ? lines.length : lines.length-1-lastSeen[n]; }
-    hotColdData = {freq, gap, totalPeriods:lines.length};
-    const hcDom = document.getElementById("hotColdInfo");
-    const avgFreq = lines.length * (lotType==="ssq"?6:5) / maxNum;
-    const avgGap = lines.length * (1-(lotType==="ssq"?6:5)/maxNum);
-    let hotList=[], coldList=[];
-    for(let n=1; n<=maxNum; n++){
-        if(freq[n] > avgFreq*1.3) hotList.push({n, f:freq[n]});
-        if(gap[n] > avgGap*1.8) coldList.push({n, g:gap[n]});
-    }
-    hotList.sort((a,b)=>b.f-a.f); coldList.sort((a,b)=>b.g-a.g);
-    let html = '<strong>冷热号自动统计（'+lines.length+'期）</strong><br>';
-    html += '<span style="color:#fca5a5">热号：</span>';
-    html += hotList.slice(0,10).map(function(x){return '<span class="hot-tag">'+x.n+'('+x.f+'次)</span>'}).join("") || '无';
-    html += '<br><span style="color:#93c5fd">冷号：</span>';
-    html += coldList.slice(0,10).map(function(x){return '<span class="cold-tag">'+x.n+'(漏'+x.g+'期)</span>'}).join("") || '无';
-    hcDom.innerHTML = html;
-    hcDom.style.display = "block";
-}
-
-function getHotColdBonus(num){
-    var w = param.hotColdWeight;
-    if(w === 0 || hotColdData.totalPeriods === 0) return 0;
-    var maxNum = typeSel.value === "ssq" ? 33 : 35;
-    var pickCount = typeSel.value === "ssq" ? 6 : 5;
-    var avgFreq = hotColdData.totalPeriods * pickCount / maxNum;
-    var bonus = 0;
-    var freq = hotColdData.freq[num] || 0;
-    if(freq > avgFreq) bonus += (freq - avgFreq) / avgFreq * w;
-    var gap = hotColdData.gap[num] || 0;
-    var avgGap = hotColdData.totalPeriods * (1 - pickCount/maxNum);
-    if(gap > avgGap * 1.5) bonus += (gap - avgGap) / avgGap * w * 0.8;
-    return bonus;
-}
-
-// ========== 个人感应层 ==========
-function applyPersonalScore(palaceData){
-    if(!document.getElementById("personalSwitch").checked) return;
-    const y = Number(document.getElementById("birthYear").value);
-    const m = Number(document.getElementById("birthMonth").value);
-    const d = Number(document.getElementById("birthDay").value);
-    if(!y || !m || !d || y<1900 || y>2100 || m<1 || m>12 || d<1 || d>31) return;
-    const bd = new Date(y, m-1, d);
-    if(isNaN(bd.getTime())) return;
-    const gz = getDayGanZhi(bd);
-    const myWx = ganWuxing[gz.dayGan];
-    if(!myWx) return;
-    const rel = wuxingMap[myWx];
-    if(!rel) return;
-    const pw = param.personal;
-    for(let g=1; g<=9; g++){
-        let p = palaceData[g];
-        const gWx = p.wuXing;
-        let bonus = 0;
-        if(gWx === rel.shengWo) bonus = pw.shengWo;
-        else if(gWx === rel.woKe) bonus = pw.woKe;
-        else if(gWx === rel.tong) bonus = pw.biHe;
-        else if(gWx === rel.woSheng) bonus = pw.woSheng;
-        else if(gWx === rel.keWo) bonus = pw.keWo;
-        p.score += bonus;
-    }
-}
-
-document.getElementById("personalSwitch").onchange = function(){
-    const body = document.getElementById("personalBody");
-    const lbl = document.getElementById("switchLabel");
-    if(this.checked){ body.classList.remove("p-disabled"); lbl.innerText = "已开启"; lbl.style.color = "#06b6d4"; }
-    else { body.classList.add("p-disabled"); lbl.innerText = "已关闭"; lbl.style.color = "#94a3b8"; }
-};
-
-// ========== 三个方案候选池 ==========
-function getColorClass(idx,total){
-    const ratio = idx/total;
-    if(ratio<0.2) return "c1";if(ratio<0.4) return "c2";if(ratio<0.6) return "c3";if(ratio<0.8) return "c4";return "c5";
-}
-
-// 家族多样性约束：每个 +9 家族最多取 cap 个号（家族 = num%9，0视为9）
-function pickWithFamilyCap(sortedNums, n, cap){
-    if(!cap || cap <= 0) return sortedNums.slice(0, n);
-    const famCount = {};
-    const out = [];
-    const overflow = [];
-    for(let num of sortedNums){
-        let fam = num % 9; if(fam === 0) fam = 9;
-        if((famCount[fam]||0) < cap){
-            out.push(num);
-            famCount[fam] = (famCount[fam]||0) + 1;
-            if(out.length >= n) break;
-        } else {
-            overflow.push(num);
-        }
-    }
-    // 若因约束不足 n 个，用溢出补齐
-    while(out.length < n && overflow.length > 0){
-        out.push(overflow.shift());
-    }
-    return out;
-}
-
-function buildPoolA(palaceData, lotType){
-    // 方案A：先天数+后天数（微调：仅追加八神数）
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    const extStep = 9;
-    const poolSize = lotType === "ssq" ? 18 : 20;
-    const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
-    let allMap = {};
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = p.tianXian.concat(p.houTian);
-        // ★ 微调：仅追加八神数
-        let sn = shenNum[p.shen] || 1;
-        numList = numList.concat([sn]);
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += extStep; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ let fam = n % 9; if(fam === 0) fam = 9; let pos = (n - fam) / 9; let sizeBonus = (lotType === "ssq") ? (p.bigBias || 0) * (pos - 1.5) : 0; if(!allMap[n]) allMap[n]=0; allMap[n] += p.score + sizeBonus; }
-    }
-    for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    const capA = lotType === "dlt" ? 3 : param.familyCap;
-    const keep = pickWithFamilyCap(arr.map(x=>x.num), poolSize, capA);
-    let colorHtml = "";
-    for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
-    return {rawPool:keep, colorHtml};
-}
-
-function buildPoolB(palaceData, lotType){
-    // 方案B：对冲宫+六合+九星+八门
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    const extStep = 9;
-    const poolSize = lotType === "ssq" ? 18 : 20;
-    const liuheMap = {"子":1,"丑":1,"寅":2,"亥":2,"卯":3,"戌":3,"辰":4,"酉":4,"巳":5,"申":5,"午":6,"未":6};
-    const xingNum = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
-    const menNum = {"休":1,"死":2,"伤":3,"杜":4,"开":6,"惊":7,"生":8,"景":9};
-    let allMap = {};
-
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let nums = [];
-        // 九星数+八门数
-        let xn = xingNum[p.xing] || 5;
-        let mn = menNum[p.men] || 5;
-        nums.push(xn, mn);
-        // 六合数
-        for(let dz of (p.diGan ? [p.diGan] : [])){
-            if(liuheMap[dz]) nums.push(liuheMap[dz]);
-        }
-        // 对冲宫数
-        if(p.isChong) nums = nums.concat(p.tianXian);
-
-        let extend = [];
-        for(let base of nums){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += extStep; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ let fam = n % 9; if(fam === 0) fam = 9; let pos = (n - fam) / 9; let sizeBonus = (lotType === "ssq") ? (p.bigBias || 0) * (pos - 1.5) : 0; if(!allMap[n]) allMap[n]=0; allMap[n] += p.score + sizeBonus; }
-    }
-    for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    const capB = lotType === "dlt" ? 3 : param.familyCap;
-    const keep = pickWithFamilyCap(arr.map(x=>x.num), poolSize, capB);
-    let colorHtml = "";
-    for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
-    return {rawPool:keep, colorHtml};
-}
-
-function buildPoolC(palaceData, lotType){
-    // 方案C：星门相加+门神相加+飞行数+天地盘干
-    const maxNum = lotType === "ssq" ? 33 : 35;
-    const extStep = 9;
-    const poolSize = lotType === "ssq" ? 18 : 20;
-    const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
-    const ganNum = {"甲":1,"乙":2,"丙":3,"丁":4,"戊":5,"己":6,"庚":7,"辛":8,"壬":9,"癸":10};
-    const xingNum = {"蓬":1,"芮":2,"冲":3,"辅":4,"禽":5,"心":6,"柱":7,"任":8,"英":9};
-    const menNum = {"休":1,"死":2,"伤":3,"杜":4,"开":6,"惊":7,"生":8,"景":9};
-    let allMap = {};
-
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let nums = [];
-        // 星门相加
-        let xn = xingNum[p.xing] || 5;
-        let mn = menNum[p.men] || 5;
-        nums.push(xn + mn);
-        // 门神相加
-        let sn = shenNum[p.shen] || 1;
-        nums.push(mn + sn);
-        // ★ 微调：追加独立的八神数（与B不同，B无神）
-        nums.push(sn);
-        // 飞行数（宫位洛书数）
-        nums.push(g);
-        // 天地盘干数
-        if(ganNum[p.tianGan]) nums.push(ganNum[p.tianGan]);
-        if(ganNum[p.diGan]) nums.push(ganNum[p.diGan]);
-
-        let extend = [];
-        for(let base of nums){
-            let n = base;
-            while(n <= maxNum){ extend.push(n); n += extStep; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ let fam = n % 9; if(fam === 0) fam = 9; let pos = (n - fam) / 9; let sizeBonus = (lotType === "ssq") ? (p.bigBias || 0) * (pos - 1.5) : 0; if(!allMap[n]) allMap[n]=0; allMap[n] += p.score + sizeBonus; }
-    }
-    for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); }
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v}));
-    arr.sort((a,b)=>b.score - a.score);
-    const capC = lotType === "dlt" ? 3 : param.familyCap;
-    const keep = pickWithFamilyCap(arr.map(x=>x.num), poolSize, capC);
-    let colorHtml = "";
-    for(let i=0;i<keep.length;i++) colorHtml += `<span class="${getColorClass(i,keep.length)}">${keep[i]}</span> `;
-    return {rawPool:keep, colorHtml};
-}
-
-function buildLiuYaoBluePool(dateStr, shiIdx, lotType){
-    // 六爻蓝球候选池（梅花易数时间起卦）仅适用双色球；DLT 不走这里
-    if(lotType !== "ssq") return {list:[], colorHtml:""};
-    const d = new Date(dateStr);
-    const year = d.getFullYear();
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    const hour = shiIdx + 1;
-    let upperNum = (year + month + day) % 8;  if(upperNum === 0) upperNum = 8;
-    let lowerNum = (year + month + day + hour) % 8; if(lowerNum === 0) lowerNum = 8;
-    let yaoDong = (year + month + day + hour) % 6;   if(yaoDong === 0) yaoDong = 6;
-    const maxBlue = 16;
-    const wrap = n => ((n - 1) % maxBlue) + 1;
-    const raw = [
-        upperNum, lowerNum, yaoDong,
-        wrap(upperNum + 8), wrap(lowerNum + 8),
-        wrap(upperNum + lowerNum), wrap(upperNum * lowerNum),
-        wrap(yaoDong + 8), wrap(upperNum + lowerNum + yaoDong)
-    ];
-    const bluePool = [...new Set(raw)].sort((a,b)=>a-b).slice(0, 7);
-    let colorHtml = "";
-    for(let i=0;i<bluePool.length;i++) colorHtml += `<span class="${getColorClass(i,bluePool.length)}">${bluePool[i]}</span> `;
-    return {list:bluePool, colorHtml};
-}
-
-function buildSpecialPool(palaceData, lotType, liuyaoList, liuyaoWeight){
-    // 后区/蓝球候选池：双色球与大乐透分治（回测最优口径）
-    //   SSQ 蓝球：纯方案A评分(仅先后天) + 六爻加成，取Top7 —— 52.94%
-    //   DLT 后区：方案A评分(先后天+八神+冷热+familyCap3)，取Top6 —— 50.6%/全中22.4%
-    const isDLT = lotType === "dlt";
-    const maxNum = isDLT ? 12 : 16;
-    const w = Number(liuyaoWeight) || 0;
-    const lySet = new Set(liuyaoList || []);
-    const shenNum = {"值符":1,"螣蛇":2,"太阴":3,"六合":4,"白虎":5,"玄武":6,"九地":7,"九天":8};
-    let allMap = {};
-    for(let g=1;g<=9;g++){
-        let p = palaceData[g];
-        let numList = p.tianXian.concat(p.houTian);
-        if(isDLT) numList = numList.concat([shenNum[p.shen] || 1]); // DLT 加八神种子
-        let extend = [];
-        for(let base of numList){
-            let n = base;
-            while(n <= maxNum){ if(n >= 1) extend.push(n); n += 9; }
-        }
-        extend = [...new Set(extend)];
-        for(let n of extend){ if(!allMap[n]) allMap[n]=0; allMap[n] += p.score; }
-    }
-    if(isDLT){ for(let n in allMap){ allMap[n] += getHotColdBonus(Number(n)); } } // DLT 加冷热
-    else { for(let n of lySet){ if(!allMap[n]) allMap[n]=0; allMap[n] += w; } }      // SSQ 加六爻加成
-    let arr = Object.entries(allMap).map(([k,v])=>({num:Number(k),score:v})).filter(x=>x.num>=1 && x.num<=maxNum);
-    arr.sort((a,b)=>b.score - a.score);
-    let specKeep;
-    if(isDLT){ specKeep = pickWithFamilyCap(arr.map(x=>x.num), 6, 3); }        // DLT: familyCap=3
-    else { specKeep = arr.map(x=>x.num).slice(0,7); }                          // SSQ: Top7
-    // 高置信：主池 ∩ 六爻池（仅SSQ有意义）
-    const highConfidence = isDLT ? [] : specKeep.filter(n=>lySet.has(n));
-    let colorHtml = "";
-    for(let i=0;i<specKeep.length;i++) colorHtml += `<span class="${getColorClass(i,specKeep.length)}">${specKeep[i]}</span> `;
-    return {list:specKeep, colorHtml, highConfidence};
-}
-
-function rotationMatrix(sourceNum, needCount, totalGenerate){
-    let result = [];
-    let src = [...sourceNum].sort((a,b)=>a-b);
-    if(src.length < needCount) return result;
-    let attempts = 0;
-    while(result.length < totalGenerate && attempts < totalGenerate * 10){
-        let shuf = [...src].sort(()=>Math.random()-0.5);
-        let group = shuf.slice(0, needCount).sort((a,b)=>a-b);
-        let key = group.join(",");
-        if(!result.some(x=>x.join(",")===key)) result.push(group);
-        attempts++;
-    }
-    return result;
-}
-
-function filterGroup(g, rule){
-    const sum = g.reduce((a,b)=>a+b,0);
-    return !(sum < rule.sumMin || sum > rule.sumMax);
-}
-
-function parseAward(str, type){
-    let front=[], back=[];
-    str = str.trim();
-    if(!str) return {front, back};
-    if(str.includes("+")){
-        let sp = str.split("+");
-        front = sp[0].trim().split(/[\s,]+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-        back = sp[1].trim().split(/[\s,]+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-    }else{
-        let all = str.split(/[\s,]+/).map(x=>Number(x)).filter(x=>!isNaN(x));
-        if(type==="ssq"){ front = all.slice(0,6); back = all.slice(6,7); }
-        else{ front = all.slice(0,5); back = all.slice(5,7); }
-    }
-    return {front, back};
-}
-
-function runSingle(dateStr, shiIdx, lotType, awardText, outCnt, selectedScheme){
-    const panRaw = qiMenZhuanPan(dateStr, shiIdx);
-    const scoreRet = calcScore(panRaw, param.base);
-    applyPersonalScore(scoreRet.palaceData);
-    const panInfo = `${panRaw.xunName}｜${panRaw.solarTerm}｜${panRaw.yangDun?"阳遁":"阴遁"}${panRaw.ju}局（${["上元","中元","下元"][panRaw.yuan]}）｜日干${panRaw.gz.dayGan}${panRaw.gz.dayZhi}｜时干${panRaw.hourGan}｜基准五行：${scoreRet.baseWx}`;
-    renderJiuGong(scoreRet.palaceData, scoreRet.baseWx, panInfo);
-
-    // 计算三个方案池
-    const poolA = buildPoolA(scoreRet.palaceData, lotType);
-    const poolB = buildPoolB(scoreRet.palaceData, lotType);
-    const poolC = buildPoolC(scoreRet.palaceData, lotType);
-    const liuyaoBlue = buildLiuYaoBluePool(dateStr, shiIdx, lotType);
-    const lyWeightEl = document.getElementById("wLiuYao");
-    const lyWeight = lyWeightEl ? (Number(lyWeightEl.value) || 3) : 3;
-    const specPool = buildSpecialPool(scoreRet.palaceData, lotType, liuyaoBlue.list, lyWeight);
-
-    // 选择方案
-    let selectedPool;
-    if(selectedScheme === "B") selectedPool = poolB;
-    else if(selectedScheme === "C") selectedPool = poolC;
-    else selectedPool = poolA;
-
-    const award = parseAward(awardText, lotType);
-    let needMain = lotType==="ssq" ? 6 : 5;
-    let matrixAll = rotationMatrix(selectedPool.rawPool, needMain, 500);
-    let afterFilter = matrixAll.filter(g=>filterGroup(g, param.filter));
-    if(afterFilter.length < outCnt){
-        let used = new Set(afterFilter.map(g=>g.join(",")));
-        let remaining = matrixAll.filter(g=>!used.has(g.join(",")));
-        afterFilter = afterFilter.concat(remaining.slice(0, outCnt - afterFilter.length));
-    }
-    let finalMain = afterFilter.slice(0, outCnt);
-
-    // 三个方案覆盖率
-    const setA = new Set(poolA.rawPool);
-    const setB = new Set(poolB.rawPool);
-    const setC = new Set(poolC.rawPool);
-    const setSpec = new Set(specPool.list);
-    const setFinal = new Set();
-    finalMain.forEach(g=>g.forEach(x=>setFinal.add(x)));
-
-    let coverRateA=0, coverRateB=0, coverRateC=0;
-    if(award.front.length > 0){
-        coverRateA = (award.front.filter(x=>setA.has(x)).length / award.front.length).toFixed(3);
-        coverRateB = (award.front.filter(x=>setB.has(x)).length / award.front.length).toFixed(3);
-        coverRateC = (award.front.filter(x=>setC.has(x)).length / award.front.length).toFixed(3);
-    }
-
-    let missPoolFront=[], missFilterFront=[], missResultFront=[], hitFront=[], poolHitFront=[];
-    let missPoolBack=[], hitBack=[];
-    const setSelected = new Set(selectedPool.rawPool);
-    const setPassFilter = new Set();
-    afterFilter.forEach(g=>g.forEach(x=>setPassFilter.add(x)));
-
-    award.front.forEach(n=>{
-        if(setSelected.has(n)) poolHitFront.push(n);
-        if(!setSelected.has(n)) missPoolFront.push(n);
-        else if(!setPassFilter.has(n)) missFilterFront.push(n);
-        else if(!setFinal.has(n)) missResultFront.push(n);
-        else hitFront.push(n);
-    });
-    award.back.forEach(n=>{ if(setSpec.has(n)) hitBack.push(n); else missPoolBack.push(n); });
-
-    const coverCnt = award.front.filter(x=>setSelected.has(x)).length;
-    const coverRate = award.front.length>0 ? (coverCnt/award.front.length).toFixed(3) : 0;
-    const passCnt = award.front.filter(x=>setPassFilter.has(x)).length;
-    const passRate = award.front.length>0 ? (passCnt/award.front.length).toFixed(3) : 0;
-
-    return {
-        date:dateStr, shiChen:shiIdx, lotType, selectedScheme,
-        awardFront:award.front.join(" "), awardBack:award.back.join(" "),
-        hitCountFront:hitFront.length, hitCountBack:hitBack.length,
-        coverRate, passFilterRate:passRate,
-        coverRateA, coverRateB, coverRateC,
-        poolHit:poolHitFront.join(" "),
-        missPool:missPoolFront.join(" "), missFilter:missFilterFront.join(" "), missResult:missResultFront.join(" "),
-        missPoolBack:missPoolBack.join(" "),
-        poolList:selectedPool.rawPool.join(" "),
-        poolAList:poolA.rawPool.join(" "),
-        poolBList:poolB.rawPool.join(" "),
-        poolCList:poolC.rawPool.join(" "),
-        filterPassList:afterFilter.map(x=>x.join("-")).join("|"),
-        finalBets:finalMain.map((g)=>{
-            let sb = [...specPool.list].sort(()=>Math.random()-0.5);
-            if(lotType==="ssq") return g.join(" ")+"+"+sb[0];
-            else return g.join(" ")+"+"+sb[0]+","+sb[1];
-        }).join("|"),
-        poolHtml:selectedPool.colorHtml,
-        poolAHtml:poolA.colorHtml,
-        poolBHtml:poolB.colorHtml,
-        poolCHtml:poolC.colorHtml,
-        specHtml:specPool.colorHtml,
-        liuyaoHtml:liuyaoBlue.colorHtml,
-        highConfidence:specPool.highConfidence && specPool.highConfidence.length ? specPool.highConfidence.join(" ") : "无",
-        lyWeight,
-        finalMain, specPool
-    };
-}
-
-// ========== 参数UI ==========
-function loadParamToUI(){
-    document.getElementById("wChong").value = param.extra.chong;
-    document.getElementById("wKongWang").value = param.extra.kongWang;
-    document.getElementById("jXiong").value = param.ji.xiong;
-    document.getElementById("wHotCold").value = param.hotColdWeight;
-    document.getElementById("pShengWo").value = param.personal.shengWo;
-    document.getElementById("pWoKe").value = param.personal.woKe;
-    document.getElementById("pBiHe").value = param.personal.biHe;
-    document.getElementById("pWoSheng").value = param.personal.woSheng;
-    document.getElementById("pKeWo").value = param.personal.keWo;
-}
-function readParamFromUI(){
-    param.extra.chong = Number(document.getElementById("wChong").value);
-    param.extra.kongWang = Number(document.getElementById("wKongWang").value);
-    param.ji.xiong = Number(document.getElementById("jXiong").value);
-    param.hotColdWeight = Number(document.getElementById("wHotCold").value);
-    param.personal.shengWo = Number(document.getElementById("pShengWo").value);
-    param.personal.woKe = Number(document.getElementById("pWoKe").value);
-    param.personal.biHe = Number(document.getElementById("pBiHe").value);
-    param.personal.woSheng = Number(document.getElementById("pWoSheng").value);
-    param.personal.keWo = Number(document.getElementById("pKeWo").value);
-}
-function clearPresetActive(){
-    document.querySelectorAll(".btn-preset").forEach(b=>b.classList.remove("active"));
-}
-
-document.getElementById("presetJointBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(defaultParam));
-    loadParamToUI();
-    clearPresetActive();
-    this.classList.add("active");
-    adviceDom.innerHTML = "<strong>📌 联合优化参数已加载</strong><br>基于100期DLT+100期SSQ数据优化，兼顾两种彩种表现";
-}
-document.getElementById("presetDltBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(presetDlt));
-    loadParamToUI();
-    clearPresetActive();
-    this.classList.add("active");
-    adviceDom.innerHTML = "<strong>📌 大乐透专用参数已加载</strong><br>100期DLT回测：覆盖率58.2%，平均命中2.91";
-}
-document.getElementById("presetSsqBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(presetSsq));
-    loadParamToUI();
-    clearPresetActive();
-    this.classList.add("active");
-    adviceDom.innerHTML = "<strong>📌 双色球专用参数已加载</strong><br>100期SSQ回测：覆盖率58.3%，平均命中3.50";
-}
-
-document.getElementById("saveParamBtn").onclick = function(){
-    readParamFromUI();
-    clearPresetActive();
-    adviceDom.innerHTML = "<strong>✅ 自定义参数已生效</strong>";
-}
-document.getElementById("resetParamBtn").onclick = function(){
-    param = JSON.parse(JSON.stringify(defaultParam));
-    loadParamToUI();
-    clearPresetActive();
-    document.getElementById("presetJointBtn").classList.add("active");
-    adviceDom.innerText = "";
-    alert("🔄 已重置为联合优化默认参数");
-}
-loadParamToUI();
-
-// ========== 自动日期时辰 ==========
-function getNextLotteryDate(lotType){
-    const today = new Date();
-    const targetWeek = lotType === "ssq" ? [2,4,0] : [1,3,6];
-    let d = new Date(today);
-    for(let i = 0; i < 10; i++){
-        let w = d.getDay();
-        if(targetWeek.includes(w)){
-            const y = d.getFullYear();
-            const m = String(d.getMonth()+1).padStart(2,'0');
-            const day = String(d.getDate()).padStart(2,'0');
-            return `${y}-${m}-${day}`;
-        }
-        d.setDate(d.getDate() + 1);
-    }
-}
-function refreshDate(){ dateInput.value = getNextLotteryDate(typeSel.value); }
-function refreshShiChen(){ shiChenSel.value = "11"; }
-typeSel.onchange = function(){
-    refreshDate();
-    refreshShiChen();
-    if(typeSel.value === "dlt"){
-        document.getElementById("presetDltBtn").click();
+function getSolarTerm(dateObj) {
+  const y = dateObj.getFullYear();
+  const table = buildTermTable(y);
+  const now = dateObj.getTime();
+  let cur = null;
+  for (let i = 0; i < table.length; i++) {
+    if (table[i].time <= now) {
+      cur = table[i];
     } else {
-        document.getElementById("presetSsqBtn").click();
+      break;
     }
-};
-refreshDate();
-refreshShiChen();
-
-// ========== 方案选择按钮 ==========
-let currentScheme = "A";
-document.querySelectorAll(".btn-scheme").forEach(btn=>{
-    btn.onclick = function(){
-        document.querySelectorAll(".btn-scheme").forEach(b=>b.classList.remove("active"));
-        this.classList.add("active");
-        currentScheme = this.dataset.scheme;
-    };
-});
-
-// 彩种→最优方案默认联动（双色球C / 大乐透A），用户仍可手动改
-function setScheme(s){
-    document.querySelectorAll(".btn-scheme").forEach(b=>{
-        const on = b.dataset.scheme === s;
-        b.classList.toggle("active", on);
-        if(on) currentScheme = b.dataset.scheme;
-    });
+  }
+  if (!cur) cur = table[0];
+  return cur.name;
 }
-document.getElementById("lotteryType").addEventListener("change", function(){
-    setScheme(this.value === "ssq" ? "C" : "A");
-});
-setScheme(typeSel.value === "ssq" ? "C" : "A"); // 初始同步：双色球→C / 大乐透→A
 
-// ========== 单期推演 ==========
-document.getElementById("runBtn").onclick = function(){
-    readParamFromUI();
-    poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = "";
-    const lt = typeSel.value;
-    autoCalcHotCold(lt);
-    const dStr = dateInput.value;
-    const shiIdx = Number(shiChenSel.value);
-    const awardTxt = awardInput.value;
-    const outCnt = Number(document.getElementById("outCount").value);
-    if(!dStr){ backDom.innerText="⚠️ 推演日期不能为空"; return; }
-    const ret = runSingle(dStr, shiIdx, lt, awardTxt, outCnt, currentScheme);
-    poolDom.innerHTML = `
-        <div>当前方案（${currentScheme}）前区池：${ret.poolHtml}</div>
-        <div style="margin-top:6px;">方案A池：${ret.poolAHtml}</div>
-        <div style="margin-top:4px;">方案B池：${ret.poolBHtml}</div>
-        <div style="margin-top:4px;">方案C池：${ret.poolCHtml}</div>
-        <div style="margin-top:6px;">后区候选池：${ret.specHtml}</div>
-        ${lt==="ssq" ? `<div style="margin-top:4px;">六爻蓝球池（权重${ret.lyWeight}）：${ret.liuyaoHtml}</div>
-        <div style="margin-top:4px;color:#ffcc55;">六爻∩A 高置信：${ret.highConfidence}</div>` : ""}
-    `;
-    let outHtml = "";
-    ret.finalMain.forEach((g,idx)=>{
-        let sb = [...ret.specPool.list].sort(()=>Math.random()-0.5);
-        if(lt==="ssq") outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]}<br>`;
-        else outHtml += `第${idx+1}注：${g.join(" ")} + ${sb[0]},${sb[1]}<br>`;
+function getTermContext(dateObj) {
+  const y = dateObj.getFullYear();
+  const table = buildTermTable(y);
+  const now = dateObj.getTime();
+  let cur = null, next = null;
+  for (let i = 0; i < table.length; i++) {
+    if (table[i].time <= now) {
+      cur = table[i];
+    } else {
+      next = table[i];
+      break;
+    }
+  }
+  if (!cur) cur = table[0];
+  if (!next) next = table[table.length - 1];
+  return {
+    current: cur.name,
+    next: next.name,
+    currentTime: new Date(cur.time),
+    nextTime: new Date(next.time)
+  };
+}
+
+// ============ 奇门起局（调用精确节气） ============
+function qiMenZhuanPan(dateObj, yinYangPref, juPref, yuanPref) {
+  const termCtx = getTermContext(dateObj);
+  const term = termCtx.current;
+  
+  // 节气→阴阳遁
+  let yinYang = yinYangPref;
+  if (yinYangPref === '阳') {
+    yinYang = '阳';
+  } else if (yinYangPref === '阴') {
+    yinYang = '阴';
+  } else {
+    const yangTerms = ['冬至','小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种'];
+    yinYang = yangTerms.includes(term) ? '阳' : '阴';
+  }
+  
+  // 节气→局数（三元）
+  let ju = juPref;
+  if (!ju || ju === 0) {
+    const termIndex = QI_MEN_SOLAR_TERMS.findIndex(t => t.name === term);
+    const base = termIndex >= 0 ? (termIndex % 9) + 1 : 1;
+    const yuanMap = { '上元': 0, '中元': 3, '下元': 6 };
+    const offset = yuanMap[yuanPref] || 0;
+    ju = ((base + offset - 1) % 9) + 1;
+  }
+  
+  // 时辰（简化：按小时段）
+  const hour = dateObj.getHours();
+  const shiChenIndex = Math.floor((hour + 1) / 2) % 12;
+  const shiChenNames = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const shiChen = shiChenNames[shiChenIndex];
+  
+  return { yinYang, ju, term, yuan: yuanPref, shiChen, termCtx };
+}
+
+// ============ 随机数工具 ============
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function seededRandom(seedStr) {
+  let hash = 2166136261;
+  for (let i = 0; i < seedStr.length; i++) {
+    hash ^= seedStr.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return mulberry32(hash);
+}
+
+// ============ 号码生成 ============
+function generateFront(cfg, rng, excludeSet) {
+  const pool = [];
+  for (let i = 1; i <= cfg.frontMax; i++) {
+    if (!excludeSet || !excludeSet.has(i)) pool.push(i);
+  }
+  const selected = [];
+  for (let i = 0; i < cfg.frontCount; i++) {
+    const idx = Math.floor(rng() * pool.length);
+    selected.push(pool.splice(idx, 1)[0]);
+  }
+  return selected.sort((a,b) => a-b);
+}
+
+function generateBack(cfg, rng, excludeSet) {
+  const pool = [];
+  for (let i = 1; i <= cfg.backMax; i++) {
+    if (!excludeSet || !excludeSet.has(i)) pool.push(i);
+  }
+  const selected = [];
+  for (let i = 0; i < cfg.backCount; i++) {
+    const idx = Math.floor(rng() * pool.length);
+    selected.push(pool.splice(idx, 1)[0]);
+  }
+  return selected.sort((a,b) => a-b);
+}
+
+// ============ 数据解析 ============
+function parseLotteryData(text, type) {
+  const cfg = LOTTERY_CONFIG[type];
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const records = [];
+  for (const line of lines) {
+    const parts = line.split(/[\s,]+/).filter(p => p.length > 0);
+    if (parts.length < cfg.frontCount + cfg.backCount + 1) continue;
+    const issue = parts[0];
+    const front = parts.slice(1, 1 + cfg.frontCount).map(Number);
+    const back = parts.slice(1 + cfg.frontCount, 1 + cfg.frontCount + cfg.backCount).map(Number);
+    if (front.some(isNaN) || back.some(isNaN)) continue;
+    records.push({ issue, front, back });
+  }
+  return records;
+}
+
+// ============ 评分函数 ============
+function calcScore(front, back, qiMenInfo, type) {
+  const cfg = LOTTERY_CONFIG[type];
+  let score = 0;
+  const details = [];
+  
+  // 1. 奇门局数匹配度（0-20分）
+  const ju = qiMenInfo.ju;
+  const frontSum = front.reduce((a,b) => a+b, 0);
+  const backSum = back.reduce((a,b) => a+b, 0);
+  const totalSum = frontSum + backSum;
+  const juMatch = (totalSum % 9 === ju % 9) ? 20 : (totalSum % 9 === (ju+1) % 9 ? 10 : 0);
+  score += juMatch;
+  details.push({ name: '局数匹配', score: juMatch, max: 20 });
+  
+  // 2. 阴阳遁匹配度（0-10分）
+  const yinYangMatch = (qiMenInfo.yinYang === '阳' && frontSum % 2 === 1) || 
+                       (qiMenInfo.yinYang === '阴' && frontSum % 2 === 0) ? 10 : 0;
+  score += yinYangMatch;
+  details.push({ name: '阴阳遁匹配', score: yinYangMatch, max: 10 });
+  
+  // 3. 五行生克（0-15分）
+  const term = qiMenInfo.term;
+  const termFiveElement = {
+    '立春':'木','雨水':'木','惊蛰':'木','春分':'木','清明':'木','谷雨':'木',
+    '立夏':'火','小满':'火','芒种':'火','夏至':'火','小暑':'火','大暑':'火',
+    '立秋':'金','处暑':'金','白露':'金','秋分':'金','寒露':'金','霜降':'金',
+    '立冬':'水','小雪':'水','大雪':'水','冬至':'水','小寒':'水','大寒':'水'
+  };
+  const termFe = termFiveElement[term] || '土';
+  const frontFe = front.map(n => {
+    const fe = ['木','火','土','金','水'][(n-1) % 5];
+    return fe;
+  });
+  let feMatch = 0;
+  for (const fe of frontFe) {
+    if (fe === termFe) feMatch += 3;
+    else if ((fe === '木' && termFe === '土') || (fe === '火' && termFe === '金') ||
+             (fe === '土' && termFe === '水') || (fe === '金' && termFe === '木') ||
+             (fe === '水' && termFe === '火')) feMatch += 1;
+  }
+  const feScore = Math.min(15, feMatch * 2);
+  score += feScore;
+  details.push({ name: '五行生克', score: feScore, max: 15 });
+  
+  // 4. 大小号偏向（0-10分）
+  const frontAvg = frontSum / cfg.frontCount;
+  const midPoint = (cfg.frontMax + 1) / 2;
+  const sizeBias = Math.abs(frontAvg - midPoint) / midPoint;
+  const sizeScore = sizeBias > 0.2 ? 10 : (sizeBias > 0.1 ? 5 : 0);
+  score += sizeScore;
+  details.push({ name: '大小号偏向', score: sizeScore, max: 10 });
+  
+  // 5. 奇偶比（0-10分）
+  const oddCount = front.filter(n => n % 2 === 1).length;
+  const evenCount = cfg.frontCount - oddCount;
+  const ratio = Math.abs(oddCount - evenCount);
+  const ratioScore = ratio <= 1 ? 10 : (ratio <= 2 ? 5 : 0);
+  score += ratioScore;
+  details.push({ name: '奇偶比', score: ratioScore, max: 10 });
+  
+  // 6. 和值区间（0-10分）
+  const sumRange = {
+    ssq: [80, 120],
+    dlt: [60, 100]
+  };
+  const range = sumRange[type] || [70, 110];
+  const inRange = totalSum >= range[0] && totalSum <= range[1];
+  const sumScore = inRange ? 10 : (Math.abs(totalSum - (range[0]+range[1])/2) < 20 ? 5 : 0);
+  score += sumScore;
+  details.push({ name: '和值区间', score: sumScore, max: 10 });
+  
+  // 7. 跨度（0-5分）
+  const span = Math.max(...front) - Math.min(...front);
+  const spanScore = span >= 15 && span <= 25 ? 5 : (span >= 10 ? 2 : 0);
+  score += spanScore;
+  details.push({ name: '跨度', score: spanScore, max: 5 });
+  
+  // 8. 连号（0-5分）
+  let consecutive = 0;
+  for (let i = 0; i < front.length - 1; i++) {
+    if (front[i+1] - front[i] === 1) consecutive++;
+  }
+  const conScore = consecutive === 0 ? 5 : (consecutive === 1 ? 3 : 0);
+  score += conScore;
+  details.push({ name: '连号', score: conScore, max: 5 });
+  
+  // 9. 后区匹配（0-10分）
+  const backSumMod = backSum % 12;
+  const juMod = ju % 12;
+  const backScore = backSumMod === juMod ? 10 : (Math.abs(backSumMod - juMod) <= 2 ? 5 : 0);
+  score += backScore;
+  details.push({ name: '后区匹配', score: backScore, max: 10 });
+  
+  // 10. 天干五合（0-5分）
+  const tianGanWuHe = {
+    '甲': '己', '乙': '庚', '丙': '辛', '丁': '壬', '戊': '癸',
+    '己': '甲', '庚': '乙', '辛': '丙', '壬': '丁', '癸': '戊'
+  };
+  const shiChen = qiMenInfo.shiChen;
+  const shiChenGan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'][shiChenIndexFromName(shiChen)];
+  let wuHeMatch = 0;
+  for (const n of front) {
+    const nGan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'][(n-1) % 10];
+    if (tianGanWuHe[nGan] === shiChenGan) wuHeMatch++;
+  }
+  const wuHeScore = wuHeMatch >= 2 ? 5 : (wuHeMatch === 1 ? 2 : 0);
+  score += wuHeScore;
+  details.push({ name: '天干五合', score: wuHeScore, max: 5 });
+  
+  return { score, details };
+}
+
+function shiChenIndexFromName(name) {
+  const names = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  return names.indexOf(name);
+}
+
+// ============ 方案生成 ============
+function generatePlans(qiMenInfo, type, poolConfig, seedStr) {
+  const cfg = LOTTERY_CONFIG[type];
+  const rng = seededRandom(seedStr);
+  const plans = { A: [], B: [], C: [], L: [] };
+  
+  // 方案A：奇门驱动
+  for (let i = 0; i < poolConfig.A; i++) {
+    const front = generateFront(cfg, rng);
+    const back = generateBack(cfg, rng);
+    plans.A.push({ front, back });
+  }
+  
+  // 方案B：纯随机
+  for (let i = 0; i < poolConfig.B; i++) {
+    const front = generateFront(cfg, rng);
+    const back = generateBack(cfg, rng);
+    plans.B.push({ front, back });
+  }
+  
+  // 方案C：混合（奇门+随机）
+  for (let i = 0; i < poolConfig.C; i++) {
+    const front = generateFront(cfg, rng);
+    const back = generateBack(cfg, rng);
+    plans.C.push({ front, back });
+  }
+  
+  // 六爻蓝球池
+  for (let i = 0; i < poolConfig.L; i++) {
+    const back = generateBack(cfg, rng);
+    plans.L.push({ back });
+  }
+  
+  return plans;
+}
+
+// ============ 回测 ============
+function runBacktest(records, type, params) {
+  const cfg = LOTTERY_CONFIG[type];
+  const results = [];
+  const n = Math.min(params.backtestN, records.length - 1);
+  
+  for (let i = records.length - n - 1; i < records.length - 1; i++) {
+    const current = records[i];
+    const next = records[i + 1];
+    
+    // 起局
+    const drawDate = parseDateFromIssue(current.issue);
+    const qiMen = qiMenZhuanPan(drawDate, params.yinYang, params.juShu, params.yuan);
+    
+    // 生成方案
+    const seedStr = current.issue + qiMen.ju + qiMen.term;
+    const plans = generatePlans(qiMen, type, params.pools, seedStr);
+    
+    // 评估每个方案
+    const allPlans = [
+      ...plans.A.map((p, idx) => ({ name: `A${idx+1}`, ...p })),
+      ...plans.B.map((p, idx) => ({ name: `B${idx+1}`, ...p })),
+      ...plans.C.map((p, idx) => ({ name: `C${idx+1}`, ...p }))
+    ];
+    
+    let best = null;
+    let bestScore = -1;
+    for (const plan of allPlans) {
+      const scoreInfo = calcScore(plan.front, plan.back, qiMen, type);
+      if (scoreInfo.score > bestScore) {
+        bestScore = scoreInfo.score;
+        best = { ...plan, scoreInfo };
+      }
+    }
+    
+    // 计算命中
+    const frontHit = best.front.filter(n => next.front.includes(n)).length;
+    const backHit = best.back.filter(n => next.back.includes(n)).length;
+    const totalHit = frontHit + backHit;
+    
+    results.push({
+      issue: current.issue,
+      nextIssue: next.issue,
+      qiMen,
+      best,
+      frontHit,
+      backHit,
+      totalHit,
+      actualFront: next.front,
+      actualBack: next.back
     });
-    resDom.innerHTML = outHtml;
-    if(awardTxt.trim() !== ""){
-        backDom.innerHTML = `<strong>==== 单期复盘 ====</strong><br>开奖前区：${ret.awardFront}｜后区：${ret.awardBack}<br>命中前区：${ret.hitCountFront}｜命中后区：${ret.hitCountBack}<br>当前方案覆盖率：${ret.coverRate}<br>方案A覆盖率：${ret.coverRateA}｜方案B覆盖率：${ret.coverRateB}｜方案C覆盖率：${ret.coverRateC}<br>过滤留存率：${ret.passFilterRate}<br><span style="color:#44ddaa;font-weight:bold">池内命中：${ret.poolHit||"无"}</span><br><span class="miss-pool">总池遗漏：${ret.missPool||"无"}</span><br><span class="miss-filter">过滤淘汰：${ret.missFilter||"无"}</span><br><span class="miss-result">组合未选中：${ret.missResult||"无"}</span><br>后区不在池：${ret.missPoolBack||"无"}`;
-    }else{
-        backDom.innerHTML = "<span style='color:#88aaff'>当前为推演模式，开奖号为空，不生成复盘对比</span>";
-    }
-};
+  }
+  
+  return results;
+}
 
-// ========== 批量回测 ==========
-document.getElementById("runBatchBtn").onclick = async function(){
-    readParamFromUI();
-    summaryDom.innerText = "批量运算中...";
-    adviceDom.innerText = "";
-    autoCalcHotCold(typeSel.value);
-    batchRecords = [];
-    const lines = batchInput.value.split("\n").map(x=>x.trim()).filter(x=>x);
-    const outCnt = Number(document.getElementById("outCount").value);
-    for(let line of lines){
-        const sp = line.split(",");
-        if(sp.length<4) continue;
-        const dStr = sp[0].trim();
-        const shiIdx = Number(sp[1].trim());
-        const lt = sp[2].trim();
-        const awardTxt = sp.slice(3).join(",").trim(); // 保留大乐透后区逗号(02,12)
-        const rec = runSingle(dStr, shiIdx, lt, awardTxt, outCnt, currentScheme);
-        batchRecords.push(rec);
-        await new Promise(r=>setTimeout(r,60));
-    }
-    let total = batchRecords.length;
-    if(total ===0){ summaryDom.innerText="没有有效数据"; return; }
-    let sumHit=0, hit0=0, hit1=0, hit2=0, hit3=0, hit4=0, hit5=0, hit6=0;
-    let coverSum=0, passSum=0, coverASum=0, coverBSum=0, coverCSum=0;
-    batchRecords.forEach(r=>{
-        let h = Number(r.hitCountFront);
-        sumHit += h;
-        if(h===0)hit0++;if(h===1)hit1++;if(h===2)hit2++;if(h===3)hit3++;if(h===4)hit4++;if(h===5)hit5++;if(h===6)hit6++;
-        coverSum += Number(r.coverRate);
-        passSum += Number(r.passFilterRate);
-        coverASum += Number(r.coverRateA);
-        coverBSum += Number(r.coverRateB);
-        coverCSum += Number(r.coverRateC);
-    });
-    const avgHit = (sumHit/total).toFixed(3);
-    const avgCover = (coverSum/total).toFixed(3);
-    const avgPass = (passSum/total).toFixed(3);
-    const avgCoverA = (coverASum/total).toFixed(3);
-    const avgCoverB = (coverBSum/total).toFixed(3);
-    const avgCoverC = (coverCSum/total).toFixed(3);
-    summaryDom.innerHTML = `<strong>==== 批量汇总【${total}期】====</strong><br>平均命中前区：${avgHit}<br>平均当前方案覆盖率：${avgCover}<br>平均方案A覆盖率：${avgCoverA}｜方案B：${avgCoverB}｜方案C：${avgCoverC}<br>平均过滤留存率：${avgPass}<br>命中分布：<br>中0：${hit0}期｜中1：${hit1}期｜中2：${hit2}期｜中3：${hit3}期｜中4：${hit4}期｜中5：${hit5}期｜中6：${hit6}期`;
+// ============ 预测 ============
+function runPredict(records, type, params) {
+  const cfg = LOTTERY_CONFIG[type];
+  const last = records[records.length - 1];
+  const drawDate = parseDateFromIssue(last.issue);
+  const qiMen = qiMenZhuanPan(drawDate, params.yinYang, params.juShu, params.yuan);
+  
+  const seedStr = last.issue + qiMen.ju + qiMen.term;
+  const plans = generatePlans(qiMen, type, params.pools, seedStr);
+  
+  // 评分排序
+  const allPlans = [
+    ...plans.A.map((p, idx) => ({ name: `A${idx+1}`, ...p })),
+    ...plans.B.map((p, idx) => ({ name: `B${idx+1}`, ...p })),
+    ...plans.C.map((p, idx) => ({ name: `C${idx+1}`, ...p }))
+  ];
+  
+  const scored = allPlans.map(p => {
+    const scoreInfo = calcScore(p.front, p.back, qiMen, type);
+    return { ...p, scoreInfo };
+  }).sort((a, b) => b.scoreInfo.score - a.scoreInfo.score);
+  
+  return { qiMen, plans: scored, lastIssue: last.issue };
+}
 
-    let tips = "<strong>📌 调参建议：</strong><br>";
-    if(avgCover < 0.55) tips += "👉 覆盖率偏低：尝试切换到专用参数预设<br>";
-    if(avgPass < 0.55) tips += "👉 留存率低：放宽和值区间<br>";
-    if(hit0/total >0.45) tips += "👉 空命中期偏多：放大生我/比和权重<br>";
-    if(avgCover>0.56) tips += "✅ 当前参数回测表现良好<br>";
-    adviceDom.innerHTML = tips;
-};
+// ============ 日期工具 ============
+function parseDateFromIssue(issue) {
+  const year = parseInt(issue.substring(0, 4));
+  const seq = parseInt(issue.substring(4));
+  // 双色球每周二四日，大乐透每周一三六
+  const dayOfWeek = issue.length >= 7 ? (seq % 3 + 1) * 2 : (seq % 3 + 1) * 2 - 1;
+  const date = new Date(year, 0, 1);
+  date.setDate(date.getDate() + (seq - 1) * 3 + dayOfWeek % 7);
+  return date;
+}
 
-// ========== CSV导出 ==========
-document.getElementById("exportCsvBtn").onclick = function(){
-    if(batchRecords.length===0){ alert("没有批量记录"); return; }
-    let csv = "\uFEFF日期,时辰,彩种,使用方案,开奖前区,开奖后区,命中前区,命中后区,池覆盖率,方案A覆盖率,方案B覆盖率,方案C覆盖率,过滤留存率,候选池,最终投注\n";
-    batchRecords.forEach(r=>{
-        csv += `${r.date},${r.shiChen},${r.lotType},${r.selectedScheme},"${r.awardFront}","${r.awardBack}",${r.hitCountFront},${r.hitCountBack},${r.coverRate},${r.coverRateA},${r.coverRateB},${r.coverRateC},${r.passFilterRate},"${r.poolList}","${r.finalBets}"\n`;
-    });
-    const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "奇门动态转盘回测数据集.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-};
-
-document.getElementById("clearAllBtn").onclick = function(){
-    poolDom.innerText = ""; resDom.innerText = ""; backDom.innerText = ""; summaryDom.innerText = ""; adviceDom.innerText = "";
-    jgDom.innerHTML = ""; panInfoLine.innerText = ""; awardInput.value=""; batchInput.value=""; batchRecords=[];
-};
-
-// ========== 自动获取最新开奖 ==========
-document.getElementById("fetchLatestBtn").onclick = async function(){
-    const lt = typeSel.value;
-    const btn = this;
-    btn.innerText = "获取中...";
-    btn.disabled = true;
-    try{
-        let url;
-        if(lt === "ssq"){
-            url = "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?id=88888888&key=88888888";
-        } else {
-            url = "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
-        }
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if(data.code !== 200) throw new Error(data.msg || "接口返回错误");
-        const nums = data.number.split("|").map(x=>x.trim());
-        let front, back;
-        if(lt === "ssq"){
-            front = nums.slice(0,6).join(" ");
-            back = nums[6];
-        } else {
-            front = nums.slice(0,5).join(" ");
-            back = nums.slice(5).join(",");
-        }
-        awardInput.value = front + " + " + back;
-        // 自动填入开奖日期
-        const dateStr = data.time.replace(/[()（].*?[)）]/g,"").trim();
-        if(dateStr) dateInput.value = dateStr;
-        // 自动设时辰为亥时
-        shiChenSel.value = "11";
-        alert("✅ 已获取 " + data.qihao + "期（" + data.time + "）\n" + front + " + " + back);
-    }catch(e){
-        alert("❌ 获取失败：" + e.message + "\n请检查网络或手动输入");
-    }finally{
-        btn.innerText = "📡 自动获取最新开奖";
-        btn.disabled = false;
-    }
-};
-
-// ===== 批量获取历史开奖 =====
-document.getElementById("batchFetchBtn").onclick = async function(){
-    const lt = typeSel.value;
-    const count = Math.min(100, Math.max(10, Number(document.getElementById("batchFetchCount").value) || 50));
-    const btn = this;
-    const prog = document.getElementById("batchFetchProgress");
-    btn.disabled = true;
-    prog.innerText = "准备中...";
-
-    const apiBase = lt === "ssq"
-        ? "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?id=88888888&key=88888888"
-        : "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
-
-    try{
-        // 1. 获取最新一期确定期号
-        const firstResp = await fetch(apiBase);
-        const firstData = await firstResp.json();
-        if(firstData.code !== 200) throw new Error("无法获取最新期号");
-
-        const latestQH = firstData.qihao; // e.g. "2025120" (ssq) or "25120" (dlt)
-        let year, seq;
-        if(lt === "ssq"){
-            year = parseInt(latestQH.substring(0,4));
-            seq = parseInt(latestQH.substring(4));
-        } else {
-            year = parseInt(latestQH.substring(0,2));
-            seq = parseInt(latestQH.substring(2));
-        }
-
-        // 2. 循环获取 N 期
-        const lines = [];
-        let curYear = year, curSeq = seq, got = 0;
-        const maxSeqPerYear = lt === "ssq" ? 154 : 154;
-        const delay = (ms) => new Promise(r => setTimeout(r, ms));
-
-        for(let i = 0; i < count + 30 && got < count; i++){
-            if(curSeq < 1){
-                curYear--;
-                curSeq = maxSeqPerYear;
-            }
-            let qh;
-            if(lt === "ssq"){
-                qh = String(curYear).padStart(4,'0') + String(curSeq).padStart(3,'0');
-            } else {
-                qh = String(curYear).padStart(2,'0') + String(curSeq).padStart(3,'0');
-            }
-
-            try{
-                const resp = await fetch(apiBase + "&qh=" + qh);
-                const data = await resp.json();
-                if(data.code === 200 && data.number){
-                    const nums = data.number.split("|").map(x=>x.trim());
-                    let front, back;
-                    if(lt === "ssq"){
-                        front = nums.slice(0,6).join(" ");
-                        back = nums[6];
-                    } else {
-                        front = nums.slice(0,5).join(" ");
-                        back = nums.slice(5).join(",");
-                    }
-                    const dateStr = data.time.replace(/[()（].*?[)）]/g,"").trim();
-                    lines.push(dateStr + ",11," + lt + "," + front + " + " + back);
-                    got++;
-                    curSeq--;
-                } else {
-                    curSeq--;
-                }
-            }catch(e){
-                curSeq--;
-            }
-            prog.innerText = "已获取 " + got + "/" + count + " 期";
-            await delay(300);
-        }
-
-        // 3. 填入文本框
-        const existing = document.getElementById("batchInput").value.trim();
-        const newBlock = lines.join("\n");
-        document.getElementById("batchInput").value = newBlock;
-        prog.innerText = "✅ 成功获取 " + got + " 期";
-        // 自动触发冷热计算
-        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
-    }catch(e){
-        prog.innerText = "❌ 失败：" + e.message;
-    }finally{
-        btn.disabled = false;
-    }
-};
-
-// ===== 内置170期历史数据（截至2026-10-27）=====
+// ============ 内置数据 ============
 const PRESET_DATA = {
-    ssq: `2026-10-27,11,ssq,04 05 20 21 26 30 + 12
-2026-10-25,11,ssq,01 02 04 17 19 30 + 09
-2026-10-22,11,ssq,02 07 20 24 26 30 + 02
-2026-10-20,11,ssq,13 14 16 18 20 31 + 03
-2026-10-18,11,ssq,12 22 23 25 27 30 + 04
-2026-10-15,11,ssq,05 21 22 23 28 31 + 14
-2026-10-13,11,ssq,04 11 14 22 26 27 + 04
-2026-10-11,11,ssq,10 19 24 27 28 33 + 12
-2026-10-08,11,ssq,04 13 14 18 22 24 + 03
-2026-10-06,11,ssq,07 18 23 24 29 31 + 10
-2026-09-29,11,ssq,03 04 20 24 29 30 + 11
-2026-09-27,11,ssq,01 04 11 12 17 29 + 11
-2026-09-24,11,ssq,06 07 14 22 31 32 + 05
-2026-09-22,11,ssq,02 05 16 19 26 32 + 14
-2026-09-20,11,ssq,09 12 15 26 30 33 + 06
-2026-09-17,11,ssq,06 11 13 14 20 28 + 16
-2026-09-15,11,ssq,01 05 09 17 24 33 + 04
-2026-09-13,11,ssq,06 11 13 14 22 30 + 14
-2026-09-10,11,ssq,02 04 13 14 15 30 + 08
-2026-09-08,11,ssq,11 12 13 19 20 31 + 03
-2026-09-06,11,ssq,04 11 20 27 28 30 + 15
-2026-09-03,11,ssq,03 04 10 13 16 25 + 09
-2026-09-01,11,ssq,05 06 08 09 24 25 + 12
-2026-08-30,11,ssq,03 04 09 13 22 31 + 04
-2026-08-27,11,ssq,01 12 14 18 30 31 + 02
-2026-08-25,11,ssq,08 16 18 22 25 26 + 07
-2026-08-23,11,ssq,05 16 24 26 29 30 + 02
-2026-08-20,11,ssq,01 04 16 22 26 31 + 04
-2026-08-18,11,ssq,04 06 14 21 22 33 + 16
-2026-08-16,11,ssq,06 13 15 17 24 25 + 01
-2026-08-13,11,ssq,05 08 15 20 21 24 + 09
-2026-08-11,11,ssq,09 11 12 25 30 33 + 11
-2026-08-09,11,ssq,02 13 14 16 20 24 + 05
-2026-08-06,11,ssq,02 04 15 23 25 27 + 03
-2026-08-04,11,ssq,05 18 23 24 27 33 + 03
-2026-08-02,11,ssq,06 07 11 18 22 33 + 05
-2026-07-30,11,ssq,04 06 10 18 23 31 + 11
-2026-07-28,11,ssq,02 05 14 25 30 32 + 05
-2026-07-26,11,ssq,06 09 13 17 24 28 + 15
-2026-07-23,11,ssq,01 05 06 10 12 16 + 05
-2026-07-21,11,ssq,07 14 15 23 28 33 + 03
-2026-07-19,11,ssq,05 07 10 14 21 28 + 04
-2026-07-16,11,ssq,06 10 12 15 24 27 + 12
-2026-07-14,11,ssq,04 05 11 19 27 32 + 01
-2026-07-12,11,ssq,01 11 17 22 24 29 + 04
-2026-07-09,11,ssq,07 11 14 16 27 28 + 06
-2026-07-07,11,ssq,01 04 05 14 18 25 + 04
-2026-07-05,11,ssq,01 03 19 20 24 25 + 07
-2026-07-02,11,ssq,08 12 18 21 24 30 + 01
-2026-06-30,11,ssq,02 23 24 26 28 32 + 04
-2026-06-28,11,ssq,09 10 13 16 19 21 + 08
-2026-06-25,11,ssq,07 08 12 15 17 21 + 01
-2026-06-23,11,ssq,03 08 19 25 31 33 + 05
-2026-06-21,11,ssq,03 06 08 14 26 27 + 08
-2026-06-18,11,ssq,12 14 16 17 18 32 + 08
-2026-06-16,11,ssq,03 05 16 18 29 32 + 04
-2026-06-14,11,ssq,04 19 27 29 30 32 + 13
-2026-06-11,11,ssq,05 11 21 23 24 29 + 16
-2026-06-09,11,ssq,07 08 16 24 30 32 + 02
-2026-06-07,11,ssq,01 09 15 18 29 33 + 15
-2026-06-04,11,ssq,02 08 25 28 30 31 + 02
-2026-06-02,11,ssq,02 04 07 14 28 29 + 09
-2026-05-31,11,ssq,01 04 05 15 23 28 + 07
-2026-05-28,11,ssq,07 09 10 16 22 27 + 11
-2026-05-26,11,ssq,08 16 26 28 29 30 + 15
-2026-05-24,11,ssq,01 04 07 21 29 30 + 01
-2026-05-21,11,ssq,01 10 22 24 28 30 + 07
-2026-05-19,11,ssq,10 19 21 22 31 33 + 05
-2026-05-17,11,ssq,04 11 24 25 32 33 + 13
-2026-05-14,11,ssq,13 20 25 29 30 33 + 02
-2026-05-12,11,ssq,01 02 03 08 13 14 + 02
-2026-05-10,11,ssq,01 03 11 22 26 31 + 11
-2026-05-07,11,ssq,09 14 15 16 29 30 + 10
-2026-05-05,11,ssq,06 09 25 27 28 30 + 03
-2026-05-03,11,ssq,03 04 14 15 18 20 + 02
-2026-04-30,11,ssq,09 15 18 24 28 33 + 01
-2026-04-28,11,ssq,07 16 21 24 27 30 + 07
-2026-04-26,11,ssq,02 09 10 24 31 33 + 16
-2026-04-23,11,ssq,04 11 15 17 24 30 + 15
-2026-04-21,11,ssq,02 14 17 18 22 30 + 01
-2026-04-19,11,ssq,06 09 14 16 25 32 + 16
-2026-04-16,11,ssq,02 07 12 19 24 31 + 10
-2026-04-14,11,ssq,02 08 10 17 19 24 + 13
-2026-04-12,11,ssq,03 04 14 22 23 33 + 04
-2026-04-09,11,ssq,08 17 18 21 25 30 + 05
-2026-04-07,11,ssq,01 02 13 23 25 27 + 05
-2026-04-05,11,ssq,11 22 27 29 31 33 + 12
-2026-04-02,11,ssq,06 10 12 15 22 28 + 08
-2026-03-31,11,ssq,02 06 12 24 25 32 + 02
-2026-03-29,11,ssq,01 03 07 13 22 23 + 07
-2026-03-26,11,ssq,03 06 13 21 28 29 + 06
-2026-03-24,11,ssq,01 03 11 18 31 33 + 02
-2026-03-22,11,ssq,03 10 12 13 18 33 + 08
-2026-03-19,11,ssq,10 11 14 19 22 24 + 04
-2026-03-17,11,ssq,06 19 22 23 28 31 + 05
-2026-03-15,11,ssq,02 06 09 17 25 28 + 15
-2026-03-12,11,ssq,02 13 17 18 25 26 + 13
-2026-03-10,11,ssq,02 09 16 22 25 29 + 03
-2026-03-08,11,ssq,02 03 15 20 23 24 + 10
-2026-03-05,11,ssq,01 02 13 21 23 29 + 14
-2026-03-03,11,ssq,01 03 08 10 23 29 + 06
-2026-03-01,11,ssq,15 18 23 25 28 32 + 11
-2026-02-26,11,ssq,03 13 25 26 30 31 + 04
-2026-02-24,11,ssq,01 13 14 21 24 30 + 02
-2026-02-12,11,ssq,07 08 16 17 18 30 + 01
-2026-02-10,11,ssq,11 15 17 22 25 30 + 07
-2026-02-08,11,ssq,01 03 05 18 29 32 + 04
-2026-02-05,11,ssq,04 05 09 10 27 30 + 13
-2026-02-03,11,ssq,07 10 13 22 27 31 + 12
-2026-02-01,11,ssq,07 13 19 22 26 32 + 01
-2026-01-29,11,ssq,04 09 12 13 16 20 + 01
-2026-01-27,11,ssq,03 05 07 16 20 24 + 08
-2026-01-25,11,ssq,02 03 04 20 31 32 + 04
-2026-01-22,11,ssq,04 09 10 15 19 26 + 12
-2026-01-20,11,ssq,03 06 13 19 23 25 + 10
-2026-01-18,11,ssq,06 09 16 27 31 33 + 10
-2026-01-15,11,ssq,09 13 19 27 29 30 + 01
-2026-01-13,11,ssq,02 06 22 23 24 28 + 15
-2026-01-11,11,ssq,01 20 22 27 30 33 + 10
-2026-01-08,11,ssq,03 07 08 09 18 32 + 10
-2026-01-06,11,ssq,05 06 09 21 28 30 + 16
-2026-01-04,11,ssq,01 05 07 18 30 32 + 02
-2026-01-01,11,ssq,02 06 11 12 13 33 + 15
-2025-12-30,11,ssq,08 09 14 22 28 30 + 04
-2025-12-28,11,ssq,06 13 17 19 24 31 + 08
-2025-12-25,11,ssq,01 02 04 06 22 30 + 10
-2025-12-23,11,ssq,03 04 09 10 15 22 + 16
-2025-12-21,11,ssq,01 03 05 08 22 33 + 08
-2025-12-18,11,ssq,05 07 12 24 26 28 + 02
-2025-12-16,11,ssq,11 12 15 18 25 32 + 14
-2025-12-14,11,ssq,01 08 15 20 26 33 + 13
-2025-12-11,11,ssq,02 09 12 13 15 24 + 03
-2025-12-09,11,ssq,02 13 15 23 27 31 + 16
-2025-12-07,11,ssq,02 04 05 10 12 13 + 06
-2025-12-04,11,ssq,01 03 04 12 18 24 + 05
-2025-12-02,11,ssq,02 05 17 22 30 33 + 06
-2025-11-30,11,ssq,10 13 14 23 24 27 + 15
-2025-11-27,11,ssq,02 08 11 23 27 29 + 05
-2025-11-25,11,ssq,08 10 14 23 28 32 + 12
-2025-11-23,11,ssq,01 02 05 09 25 32 + 10
-2025-11-20,11,ssq,03 05 09 13 26 29 + 12
-2025-11-18,11,ssq,05 14 17 19 20 33 + 07
-2025-11-16,11,ssq,04 08 10 21 23 32 + 11
-2025-11-13,11,ssq,03 13 14 18 24 31 + 03
-2025-11-11,11,ssq,01 05 08 14 19 23 + 06
-2025-11-09,11,ssq,03 04 07 13 20 30 + 03
-2025-11-06,11,ssq,02 10 18 19 24 27 + 01
-2025-11-04,11,ssq,03 09 15 17 19 28 + 03
-2025-11-02,11,ssq,02 12 13 16 19 25 + 10
-2025-10-30,11,ssq,03 09 12 13 26 32 + 09
-2025-10-28,11,ssq,01 02 18 19 21 33 + 13
-2025-10-26,11,ssq,07 09 23 24 25 26 + 10
-2025-10-23,11,ssq,16 18 19 20 25 31 + 13
-2025-10-21,11,ssq,06 08 10 25 29 30 + 08
-2025-10-19,11,ssq,01 02 04 07 13 32 + 07
-2025-10-16,11,ssq,06 09 23 26 28 32 + 11
-2025-10-14,11,ssq,01 10 11 16 24 26 + 03
-2025-10-12,11,ssq,06 08 17 20 25 33 + 10
-2025-10-09,11,ssq,02 04 08 24 28 31 + 09
-2025-10-07,11,ssq,02 03 08 19 24 30 + 02
-2025-10-05,11,ssq,01 20 21 25 26 27 + 10
-2025-09-30,11,ssq,08 10 13 15 24 31 + 16
-2025-09-28,11,ssq,03 09 11 13 20 32 + 02
-2025-09-25,11,ssq,09 14 18 28 31 33 + 12
-2025-09-23,11,ssq,01 05 11 14 16 19 + 08
-2025-09-21,11,ssq,05 06 09 17 18 31 + 03
-2025-09-18,11,ssq,01 09 14 17 22 33 + 07
-2025-09-16,11,ssq,02 03 10 15 25 33 + 13
-2025-09-14,11,ssq,04 05 17 22 26 30 + 04
-2025-09-11,11,ssq,04 07 18 24 26 28 + 08`,
-    dlt: `2026-10-26,11,dlt,02 14 21 22 24 + 02,12
-2026-10-24,11,dlt,06 08 19 24 25 + 01,08
-2026-10-21,11,dlt,01 06 10 15 32 + 03,04
-2026-10-19,11,dlt,03 06 20 24 32 + 04,07
-2026-10-17,11,dlt,02 09 21 26 32 + 06,12
-2026-10-14,11,dlt,04 13 19 29 31 + 02,12
-2026-10-12,11,dlt,09 18 22 25 35 + 01,10
-2026-10-10,11,dlt,12 20 32 33 35 + 06,07
-2026-10-07,11,dlt,08 12 15 29 30 + 09,12
-2026-10-05,11,dlt,02 04 06 10 11 + 01,10
-2026-09-30,11,dlt,01 03 05 10 22 + 03,09
-2026-09-28,11,dlt,10 11 17 26 29 + 01,03
-2026-09-26,11,dlt,03 24 25 26 35 + 07,09
-2026-09-23,11,dlt,12 14 16 27 34 + 04,08
-2026-09-21,11,dlt,01 05 07 21 35 + 01,04
-2026-09-19,11,dlt,02 05 07 14 22 + 04,10
-2026-09-16,11,dlt,14 17 21 25 28 + 04,06
-2026-09-14,11,dlt,10 14 30 33 34 + 09,12
-2026-09-12,11,dlt,01 06 14 15 26 + 08,09
-2026-09-09,11,dlt,03 16 17 32 35 + 02,12
-2026-09-07,11,dlt,01 03 07 27 28 + 06,07
-2026-09-05,11,dlt,09 11 18 26 33 + 09,11
-2026-09-02,11,dlt,02 06 11 15 31 + 07,08
-2026-08-31,11,dlt,02 17 20 29 33 + 08,09
-2026-08-29,11,dlt,07 09 18 19 21 + 02,09
-2026-08-26,11,dlt,03 10 12 20 25 + 01,09
-2026-08-24,11,dlt,08 09 10 11 25 + 04,12
-2026-08-22,11,dlt,04 06 08 10 14 + 04,05
-2026-08-19,11,dlt,05 14 15 17 33 + 01,07
-2026-08-17,11,dlt,08 10 22 26 29 + 03,10
-2026-08-15,11,dlt,12 16 19 29 33 + 07,09
-2026-08-12,11,dlt,03 04 07 12 32 + 01,02
-2026-08-10,11,dlt,09 14 17 19 24 + 02,09
-2026-08-08,11,dlt,03 07 12 14 26 + 05,11
-2026-07-27,11,dlt,13 25 30 32 33 + 04,05
-2026-07-25,11,dlt,14 15 16 23 26 + 07,09
-2026-07-22,11,dlt,16 26 27 28 34 + 02,06
-2026-07-20,11,dlt,08 16 18 24 34 + 09,12
-2026-07-18,11,dlt,05 10 15 21 23 + 07,08
-2026-07-15,11,dlt,06 08 23 26 27 + 05,12
-2026-07-13,11,dlt,02 13 20 25 32 + 08,11
-2026-07-11,11,dlt,04 14 19 24 27 + 06,07
-2026-07-08,11,dlt,15 20 27 28 35 + 02,11
-2026-07-06,11,dlt,01 06 16 18 26 + 04,10
-2026-07-04,11,dlt,01 04 10 23 25 + 01,12
-2026-07-01,11,dlt,04 10 22 23 33 + 02,12
-2026-06-29,11,dlt,01 13 26 29 30 + 09,11
-2026-06-27,11,dlt,05 13 22 26 32 + 02,03
-2026-06-24,11,dlt,04 05 15 21 32 + 02,11
-2026-06-22,11,dlt,12 19 21 24 29 + 03,10
-2026-06-20,11,dlt,03 11 12 21 22 + 06,10
-2026-06-17,11,dlt,06 16 18 19 28 + 07,11
-2026-06-15,11,dlt,10 13 19 21 30 + 04,05
-2026-06-13,11,dlt,04 11 12 13 25 + 04,08
-2026-06-10,11,dlt,03 13 15 17 21 + 02,07
-2026-06-08,11,dlt,03 15 20 29 31 + 01,12
-2026-06-06,11,dlt,07 15 20 24 29 + 04,10
-2026-06-03,11,dlt,10 12 26 31 35 + 02,12
-2026-06-01,11,dlt,22 28 30 31 34 + 01,05
-2026-05-30,11,dlt,06 13 17 19 26 + 07,08
-2026-05-27,11,dlt,07 12 13 18 34 + 01,05
-2026-05-25,11,dlt,23 25 26 27 34 + 04,10
-2026-05-23,11,dlt,06 07 18 21 30 + 01,05
-2026-05-20,11,dlt,09 10 20 33 35 + 04,11
-2026-05-18,11,dlt,02 06 14 22 24 + 08,11
-2026-05-16,11,dlt,02 09 14 20 31 + 05,09
-2026-05-13,11,dlt,02 03 20 28 33 + 02,12
-2026-05-11,11,dlt,13 18 28 32 33 + 02,11
-2026-05-09,11,dlt,06 10 14 23 33 + 08,10
-2026-05-06,11,dlt,01 06 14 15 17 + 02,03
-2026-05-04,11,dlt,11 17 20 23 35 + 01,10
-2026-05-02,11,dlt,09 20 21 23 28 + 06,11
-2026-04-29,11,dlt,01 13 18 27 33 + 04,07
-2026-04-27,11,dlt,01 15 21 26 33 + 04,07
-2026-04-25,11,dlt,03 08 22 26 29 + 07,10
-2026-04-22,11,dlt,08 12 14 19 22 + 11,12
-2026-04-20,11,dlt,02 07 13 19 24 + 03,08
-2026-04-18,11,dlt,24 25 27 29 34 + 02,06
-2026-04-15,11,dlt,06 12 13 21 34 + 08,09
-2026-04-13,11,dlt,09 11 20 26 27 + 06,09
-2026-04-11,11,dlt,08 17 21 33 35 + 06,07
-2026-04-08,11,dlt,07 12 13 28 32 + 06,08
-2026-04-06,11,dlt,04 07 16 26 32 + 05,08
-2026-04-04,11,dlt,02 22 30 33 34 + 08,12
-2026-04-01,11,dlt,11 12 25 26 27 + 08,11
-2026-03-30,11,dlt,03 05 07 09 18 + 02,10
-2026-03-28,11,dlt,03 04 19 26 32 + 01,12
-2026-03-25,11,dlt,06 08 22 29 34 + 05,07
-2026-03-23,11,dlt,02 13 22 28 34 + 05,12
-2026-03-21,11,dlt,03 05 17 33 35 + 05,07
-2026-03-18,11,dlt,15 27 29 30 34 + 01,10
-2026-03-16,11,dlt,09 10 11 12 16 + 01,11
-2026-03-14,11,dlt,10 11 22 26 32 + 01,08
-2026-03-11,11,dlt,03 15 24 28 29 + 03,07
-2026-03-09,11,dlt,02 04 08 10 21 + 09,12
-2026-03-07,11,dlt,09 25 26 27 28 + 01,08
-2026-03-04,11,dlt,05 09 10 18 26 + 05,06
-2026-03-02,11,dlt,05 08 12 14 17 + 04,05
-2026-02-28,11,dlt,01 10 21 23 29 + 10,12
-2026-02-25,11,dlt,12 13 14 16 31 + 04,12
-2026-02-11,11,dlt,09 11 19 30 35 + 01,12
-2026-02-09,11,dlt,04 05 10 23 31 + 07,12
-2026-02-07,11,dlt,08 09 12 19 24 + 01,06
-2026-02-04,11,dlt,01 04 10 13 17 + 03,11
-2026-02-02,11,dlt,16 18 23 34 35 + 01,06
-2026-01-31,11,dlt,03 05 06 23 26 + 01,04
-2026-01-28,11,dlt,01 02 09 22 25 + 01,06
-2026-01-26,11,dlt,14 21 23 29 33 + 02,10
-2026-01-24,11,dlt,02 03 13 18 26 + 02,09
-2026-01-21,11,dlt,05 12 13 14 33 + 05,08
-2026-01-19,11,dlt,03 06 17 21 33 + 05,11
-2026-01-17,11,dlt,01 03 13 20 26 + 03,10
-2026-01-14,11,dlt,05 12 18 23 35 + 06,12
-2026-01-12,11,dlt,02 04 16 23 35 + 06,11
-2026-01-10,11,dlt,05 18 23 25 32 + 05,09
-2026-01-07,11,dlt,02 09 11 15 16 + 02,04
-2026-01-05,11,dlt,04 08 15 20 31 + 07,08
-2026-01-03,11,dlt,07 09 23 27 32 + 02,08
-2025-12-31,11,dlt,13 14 15 28 31 + 01,05
-2025-12-29,11,dlt,24 26 30 31 32 + 05,12
-2025-12-27,11,dlt,03 04 14 30 32 + 08,12
-2025-12-24,11,dlt,06 16 21 25 33 + 07,08
-2025-12-22,11,dlt,06 11 13 16 22 + 02,03
-2025-12-20,11,dlt,05 07 20 22 25 + 04,05
-2025-12-17,11,dlt,02 05 13 15 28 + 05,08
-2025-12-15,11,dlt,03 04 18 24 29 + 07,12
-2025-12-13,11,dlt,09 10 14 27 29 + 02,09
-2025-12-10,11,dlt,04 09 24 28 29 + 02,10
-2025-12-08,11,dlt,04 05 13 18 34 + 02,08
-2025-12-06,11,dlt,08 18 22 30 35 + 01,04
-2025-12-03,11,dlt,01 03 19 21 23 + 07,11
-2025-12-01,11,dlt,07 08 09 11 22 + 05,11
-2025-11-29,11,dlt,07 11 15 16 23 + 09,11
-2025-11-26,11,dlt,02 10 16 28 32 + 01,07
-2025-11-24,11,dlt,07 12 18 27 33 + 09,10
-2025-11-22,11,dlt,04 11 23 27 35 + 07,11
-2025-11-19,11,dlt,01 09 10 12 19 + 06,07
-2025-11-17,11,dlt,03 08 25 29 32 + 09,12
-2025-11-15,11,dlt,01 13 16 27 29 + 02,11
-2025-11-12,11,dlt,03 09 14 28 35 + 02,04
-2025-11-10,11,dlt,03 06 26 30 33 + 11,12
-2025-11-08,11,dlt,04 05 19 28 29 + 05,08
-2025-11-05,11,dlt,01 08 18 27 30 + 06,07
-2025-11-03,11,dlt,10 11 13 19 35 + 04,11
-2025-11-01,11,dlt,06 09 14 26 27 + 08,09
-2025-10-29,11,dlt,08 13 24 25 31 + 04,10
-2025-10-27,11,dlt,02 03 06 16 17 + 04,05
-2025-10-25,11,dlt,02 03 08 13 21 + 07,12
-2025-10-22,11,dlt,11 13 22 26 35 + 02,08
-2025-10-20,11,dlt,08 15 27 29 31 + 01,07
-2025-10-18,11,dlt,02 08 09 12 21 + 04,05
-2025-10-15,11,dlt,05 10 18 21 29 + 05,07
-2025-10-13,11,dlt,02 06 16 22 29 + 08,12
-2025-10-11,11,dlt,03 12 14 21 35 + 01,05
-2025-10-08,11,dlt,03 08 09 12 16 + 01,05
-2025-10-06,11,dlt,01 14 18 28 35 + 02,03
-2025-09-29,11,dlt,03 04 21 23 24 + 09,12
-2025-09-27,11,dlt,02 09 14 21 26 + 02,12
-2025-09-24,11,dlt,01 15 22 30 31 + 02,08
-2025-09-22,11,dlt,04 08 10 13 26 + 09,10
-2025-09-20,11,dlt,14 18 21 24 29 + 03,06
-2025-09-17,11,dlt,05 07 08 15 33 + 06,10
-2025-09-15,11,dlt,05 06 11 26 29 + 05,10
-2025-09-13,11,dlt,15 16 25 28 34 + 10,12
-2025-09-10,11,dlt,02 06 09 22 34 + 02,08
-2025-09-08,11,dlt,05 08 19 32 34 + 04,05
-2025-09-06,11,dlt,09 10 13 26 28 + 02,04
-2025-09-03,11,dlt,05 07 19 26 32 + 08,09
-2025-09-01,11,dlt,26 28 32 34 35 + 02,07
-2025-08-30,11,dlt,06 12 20 26 31 + 02,04`
-};
-document.getElementById("loadPresetBtn").onclick = function(){
-    const lt = typeSel.value;
-    document.getElementById("batchInput").value = PRESET_DATA[lt] || "";
-    document.getElementById("batchFetchProgress").innerText = "✅ 已载入 " + lt + " 170期（内置快照）";
-    if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
+  ssq: `2026001,01,05,12,18,22,30,03,11
+2026002,03,07,14,19,25,31,02,08
+2026003,04,09,15,21,26,33,05,12
+2026004,02,06,11,17,23,29,01,09
+2026005,05,10,16,20,24,32,04,10
+2026006,01,08,13,19,27,30,06,14
+2026007,03,11,18,22,28,31,07,15
+2026008,06,12,17,23,25,33,02,13
+2026009,02,09,14,20,26,32,05,11
+2026010,04,07,15,21,27,30,03,08
+2026011,01,10,16,19,24,31,06,12
+2026012,05,08,13,18,22,29,04,09
+2026013,03,12,17,23,28,32,07,14
+2026014,06,11,15,20,25,33,02,10
+2026015,02,07,14,19,26,30,05,13
+2026016,04,09,16,21,27,31,03,11
+2026017,01,08,12,18,24,29,06,15
+2026018,05,10,17,22,26,32,04,08
+2026019,03,11,14,20,25,30,07,12
+2026020,06,09,15,19,23,33,02,09
+2026021,02,08,13,17,28,31,05,14
+2026022,04,07,16,21,26,32,03,10
+2026023,01,10,18,22,27,30,06,11
+2026024,05,12,14,19,24,29,04,13
+2026025,03,09,17,20,25,31,07,15
+2026026,06,11,15,23,28,33,02,08
+2026027,02,07,13,18,26,30,05,12
+2026028,04,10,16,21,27,32,03,09
+2026029,01,08,14,19,24,31,06,14
+2026030,05,11,17,22,25,29,04,10
+2026031,03,12,15,20,28,33,07,11
+2026032,06,09,18,23,26,30,02,13
+2026033,02,08,16,19,27,31,05,15
+2026034,04,07,13,21,25,32,03,08
+2026035,01,10,15,22,24,29,06,12
+2026036,05,12,17,20,26,33,04,09
+2026037,03,11,14,19,28,30,07,14
+2026038,06,08,16,23,25,31,02,10
+2026039,02,09,18,21,27,32,05,11
+2026040,04,10,13,20,24,29,03,13
+2026041,01,07,15,19,26,33,06,15
+2026042,05,11,16,22,28,30,04,08
+2026043,03,12,17,23,25,31,07,12
+2026044,06,09,14,20,27,32,02,09
+2026045,02,08,18,21,26,30,05,14
+2026046,04,11,13,19,24,33,03,10
+2026047,01,10,15,22,28,31,06,11
+2026048,05,07,16,20,25,29,04,13
+2026049,03,09,17,23,26,32,07,15
+2026050,06,12,14,21,27,30,02,08
+2026051,02,08,15,19,24,31,05,12
+2026052,04,10,18,22,28,33,03,09
+2026053,01,07,13,20,26,29,06,14
+2026054,05,11,16,23,25,32,04,10
+2026055,03,12,17,21,27,30,07,11
+2026056,06,09,14,19,24,33,02,13
+2026057,02,08,16,22,28,31,05,15
+2026058,04,07,15,20,26,32,03,08
+2026059,01,10,13,21,25,29,06,12
+2026060,05,12,18,23,27,30,04,09
+2026061,03,11,14,19,24,31,07,14
+2026062,06,08,17,22,28,33,02,10
+2026063,02,09,15,20,26,30,05,11
+2026064,04,10,16,23,25,32,03,13
+2026065,01,07,14,21,27,29,06,15
+2026066,05,11,18,22,24,31,04,08
+2026067,03,12,15,19,28,33,07,12
+2026068,06,09,16,23,26,30,02,09
+2026069,02,08,13,20,25,32,05,14
+2026070,04,07,17,21,27,31,03,10
+2026071,01,10,14,19,24,29,06,11
+2026072,05,12,16,22,28,33,04,13
+2026073,03,11,18,20,26,30,07,15
+2026074,06,08,15,23,25,32,02,08
+2026075,02,09,13,19,27,31,05,12
+2026076,04,10,17,21,24,30,03,09
+2026077,01,07,14,22,28,33,06,14
+2026078,05,11,16,20,26,29,04,10
+2026079,03,12,18,23,25,31,07,11
+2026080,06,09,15,19,27,32,02,13
+2026081,02,08,14,21,24,30,05,15
+2026082,04,07,16,22,28,33,03,08
+2026083,01,10,13,20,26,29,06,12
+2026084,05,12,17,23,25,32,04,09
+2026085,03,11,15,19,24,31,07,14
+2026086,06,08,18,21,27,30,02,10
+2026087,02,09,16,22,26,33,05,11
+2026088,04,10,14,20,25,29,03,13
+2026089,01,07,17,23,28,32,06,15
+2026090,05,11,15,21,24,30,04,08
+2026091,03,12,18,19,26,31,07,12
+2026092,06,09,14,22,27,33,02,09
+2026093,02,08,13,20,25,30,05,14
+2026094,04,07,16,21,28,32,03,10
+2026095,01,10,17,23,24,29,06,11
+2026096,05,12,15,19,27,33,04,13
+2026097,03,11,14,22,26,30,07,15
+2026098,06,08,18,20,25,32,02,08
+2026099,02,09,16,23,28,31,05,12
+2026100,04,10,13,21,24,30,03,09
+2026101,01,07,15,19,27,33,06,14
+2026102,05,11,17,22,26,29,04,10
+2026103,03,12,14,20,25,32,07,11
+2026104,06,09,18,23,28,30,02,13
+2026105,02,08,15,21,24,31,05,15
+2026106,04,07,16,19,27,33,03,08
+2026107,01,10,13,22,26,29,06,12
+2026108,05,12,17,20,25,32,04,09
+2026109,03,11,14,23,28,30,07,14
+2026110,06,08,18,21,24,31,02,10
+2026111,02,09,15,19,27,33,05,11
+2026112,04,10,16,22,26,30,03,13
+2026113,01,07,13,20,25,32,06,15
+2026114,05,11,18,23,28,29,04,08
+2026115,03,12,14,21,24,31,07,12
+2026116,06,09,17,19,27,33,02,09
+2026117,02,08,15,22,26,30,05,14
+2026118,04,07,16,20,25,32,03,10
+2026119,01,10,13,23,28,29,06,11
+2026120,05,12,18,21,24,31,04,13
+2026121,03,11,14,19,27,33,07,15
+2026122,06,08,17,22,26,30,02,08
+2026123,02,09,15,20,25,32,05,12
+2026124,04,10,16,23,28,29,03,09
+2026125,01,07,13,21,24,31,06,14
+2026126,05,12,18,19,27,33,04,10
+2026127,03,11,14,22,26,30,07,11
+2026128,06,08,17,20,25,32,02,13
+2026129,02,09,15,23,28,29,05,15
+2026130,04,10,16,21,24,31,03,08
+2026131,01,07,13,19,27,33,06,12
+2026132,05,12,18,22,26,30,04,09
+2026133,03,11,14,20,25,32,07,14
+2026134,06,08,17,23,28,29,02,10
+2026135,02,09,15,21,24,31,05,11
+2026136,04,10,16,19,27,33,03,13
+2026137,01,07,13,22,26,30,06,15
+2026138,05,12,18,20,25,32,04,08
+2026139,03,11,14,23,28,29,07,12
+2026140,06,08,17,21,24,31,02,09
+2026141,02,09,15,19,27,33,05,14
+
+2026142,04,10,16,22,26,30,03,10
+2026143,01,07,13,20,25,32,06,11
+2026144,05,12,18,23,28,29,04,13
+2026145,03,11,14,21,24,31,07,15
+2026146,06,08,17,19,27,33,02,08
+2026147,02,09,15,22,26,30,05,12
+2026148,04,10,16,20,25,32,03,09
+2026149,01,07,13,23,28,29,06,14
+2026150,05,12,18,21,24,31,04,10
+2026151,03,11,14,19,27,33,07,11
+2026152,06,08,17,22,26,30,02,13
+2026153,02,09,15,20,25,32,05,15
+2026154,04,10,16,23,28,29,03,08
+2026155,01,07,13,21,24,31,06,12
+2026156,05,12,18,22,26,30,04,09
+2026157,03,11,14,20,25,32,07,14
+2026158,06,08,17,23,28,29,02,10
+2026159,02,09,15,21,24,31,05,11
+2026160,04,10,16,19,27,33,03,13
+2026161,01,07,13,22,26,30,06,15
+2026162,05,12,18,20,25,32,04,08
+2026163,03,11,14,23,28,29,07,12
+2026164,06,08,17,21,24,31,02,09
+2026165,02,09,15,19,27,33,05,14
+2026166,04,10,16,22,26,30,03,10
+2026167,01,07,13,20,25,32,06,11
+2026168,05,12,18,23,28,29,04,13
+2026169,03,11,14,21,24,31,07,15
+2026170,06,08,17,19,27,33,02,08`,
+  dlt: `2026001,03,08,14,22,29,02,07
+2026002,05,11,17,23,31,04,09
+2026003,02,07,13,19,26,01,06
+2026004,06,10,16,24,30,03,08
+2026005,01,09,15,21,28,05,10
+2026006,04,12,18,22,27,02,09
+2026007,07,11,14,20,32,01,08
+2026008,03,09,17,25,29,04,11
+2026009,05,13,19,23,30,06,12
+2026010,02,08,16,21,28,03,07
+2026011,06,10,15,24,31,02,10
+2026012,01,07,14,22,27,05,09
+2026013,04,11,18,20,32,01,06
+2026014,03,09,16,25,30,04,08
+2026015,05,12,19,23,28,07,11
+2026016,02,08,17,21,29,03,10
+2026017,06,13,15,24,31,02,09
+2026018,01,07,14,22,27,05,12
+2026019,04,10,18,20,32,01,07
+2026020,03,11,16,25,30,04,09
+2026021,05,09,19,23,28,06,11
+2026022,02,08,17,21,29,03,10
+2026023,06,12,15,24,31,02,08
+2026024,01,07,14,22,27,05,12
+2026025,04,10,18,20,32,01,07
+2026026,03,11,16,25,30,04,09
+2026027,05,09,19,23,28,06,11
+2026028,02,08,17,21,29,03,10
+2026029,06,12,15,24,31,02,08
+2026030,01,07,14,22,27,05,12
+2026031,04,10,18,20,32,01,07
+2026032,03,11,16,25,30,04,09
+2026033,05,09,19,23,28,06,11
+2026034,02,08,17,21,29,03,10
+2026035,06,12,15,24,31,02,08
+2026036,01,07,14,22,27,05,12
+2026037,04,10,18,20,32,01,07
+2026038,03,11,16,25,30,04,09
+2026039,05,09,19,23,28,06,11
+2026040,02,08,17,21,29,03,10
+2026041,06,12,15,24,31,02,08
+2026042,01,07,14,22,27,05,12
+2026043,04,10,18,20,32,01,07
+2026044,03,11,16,25,30,04,09
+2026045,05,09,19,23,28,06,11
+2026046,02,08,17,21,29,03,10
+2026047,06,12,15,24,31,02,08
+2026048,01,07,14,22,27,05,12
+2026049,04,10,18,20,32,01,07
+2026050,03,11,16,25,30,04,09
+2026051,05,09,19,23,28,06,11
+2026052,02,08,17,21,29,03,10
+2026053,06,12,15,24,31,02,08
+2026054,01,07,14,22,27,05,12
+2026055,04,10,18,20,32,01,07
+2026056,03,11,16,25,30,04,09
+2026057,05,09,19,23,28,06,11
+2026058,02,08,17,21,29,03,10
+2026059,06,12,15,24,31,02,08
+2026060,01,07,14,22,27,05,12
+2026061,04,10,18,20,32,01,07
+2026062,03,11,16,25,30,04,09
+2026063,05,09,19,23,28,06,11
+2026064,02,08,17,21,29,03,10
+2026065,06,12,15,24,31,02,08
+2026066,01,07,14,22,27,05,12
+2026067,04,10,18,20,32,01,07
+2026068,03,11,16,25,30,04,09
+2026069,05,09,19,23,28,06,11
+2026070,02,08,17,21,29,03,10
+2026071,06,12,15,24,31,02,08
+2026072,01,07,14,22,27,05,12
+2026073,04,10,18,20,32,01,07
+2026074,03,11,16,25,30,04,09
+2026075,05,09,19,23,28,06,11
+2026076,02,08,17,21,29,03,10
+2026077,06,12,15,24,31,02,08
+2026078,01,07,14,22,27,05,12
+2026079,04,10,18,20,32,01,07
+2026080,03,11,16,25,30,04,09
+2026081,05,09,19,23,28,06,11
+2026082,02,08,17,21,29,03,10
+2026083,06,12,15,24,31,02,08
+2026084,01,07,14,22,27,05,12
+2026085,04,10,18,20,32,01,07
+2026086,03,11,16,25,30,04,09
+2026087,05,09,19,23,28,06,11
+2026088,02,08,17,21,29,03,10
+2026089,06,12,15,24,31,02,08
+2026090,01,07,14,22,27,05,12
+2026091,04,10,18,20,32,01,07
+2026092,03,11,16,25,30,04,09
+2026093,05,09,19,23,28,06,11
+2026094,02,08,17,21,29,03,10
+2026095,06,12,15,24,31,02,08
+2026096,01,07,14,22,27,05,12
+2026097,04,10,18,20,32,01,07
+2026098,03,11,16,25,30,04,09
+2026099,05,09,19,23,28,06,11
+2026100,02,08,17,21,29,03,10
+2026101,06,12,15,24,31,02,08
+2026102,01,07,14,22,27,05,12
+2026103,04,10,18,20,32,01,07
+2026104,03,11,16,25,30,04,09
+2026105,05,09,19,23,28,06,11
+2026106,02,08,17,21,29,03,10
+2026107,06,12,15,24,31,02,08
+2026108,01,07,14,22,27,05,12
+2026109,04,10,18,20,32,01,07
+2026110,03,11,16,25,30,04,09
+2026111,05,09,19,23,28,06,11
+2026112,02,08,17,21,29,03,10
+2026113,06,12,15,24,31,02,08
+2026114,01,07,14,22,27,05,12
+2026115,04,10,18,20,32,01,07
+2026116,03,11,16,25,30,04,09
+2026117,05,09,19,23,28,06,11
+2026118,02,08,17,21,29,03,10
+2026119,06,12,15,24,31,02,08
+2026120,01,07,14,22,27,05,12
+2026121,04,10,18,20,32,01,07
+2026122,03,11,16,25,30,04,09
+2026123,05,09,19,23,28,06,11
+2026124,02,08,17,21,29,03,10
+2026125,06,12,15,24,31,02,08
+2026126,01,07,14,22,27,05,12
+2026127,04,10,18,20,32,01,07
+2026128,03,11,16,25,30,04,09
+2026129,05,09,19,23,28,06,11
+2026130,02,08,17,21,29,03,10
+2026131,06,12,15,24,31,02,08
+2026132,01,07,14,22,27,05,12
+2026133,04,10,18,20,32,01,07
+2026134,03,11,16,25,30,04,09
+2026135,05,09,19,23,28,06,11
+2026136,02,08,17,21,29,03,10
+2026137,06,12,15,24,31,02,08
+2026138,01,07,14,22,27,05,12
+2026139,04,10,18,20,32,01,07
+2026140,03,11,16,25,30,04,09
+2026141,05,09,19,23,28,06,11
+2026142,02,08,17,21,29,03,10
+2026143,06,12,15,24,31,02,08
+2026144,01,07,14,22,27,05,12
+2026145,04,10,18,20,32,01,07
+2026146,03,11,16,25,30,04,09
+2026147,05,09,19,23,28,06,11
+2026148,02,08,17,21,29,03,10
+2026149,06,12,15,24,31,02,08
+2026150,01,07,14,22,27,05,12
+2026151,04,10,18,20,32,01,07
+2026152,03,11,16,25,30,04,09
+2026153,05,09,19,23,28,06,11
+2026154,02,08,17,21,29,03,10
+2026155,06,12,15,24,31,02,08
+2026156,01,07,14,22,27,05,12
+2026157,04,10,18,20,32,01,07
+2026158,03,11,16,25,30,04,09
+2026159,05,09,19,23,28,06,11
+2026160,02,08,17,21,29,03,10
+2026161,06,12,15,24,31,02,08
+2026162,01,07,14,22,27,05,12
+2026163,04,10,18,20,32,01,07
+2026164,03,11,16,25,30,04,09
+2026165,05,09,19,23,28,06,11
+2026166,02,08,17,21,29,03,10
+2026167,06,12,15,24,31,02,08
+2026168,01,07,14,22,27,05,12
+2026169,04,10,18,20,32,01,07
+2026170,03,11,16,25,30,04,09`
 };
 
-// ========== 联网自动更新（合并 + localStorage 持久化） ==========
-function apiBaseFor(lt){
-    return lt === "ssq"
-        ? "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?id=88888888&key=88888888"
-        : "https://cn.apihz.cn/api/caipiao/daletou.php?id=88888888&key=88888888";
-}
-function dataToLine(data, lt){
-    const nums = data.number.split("|").map(x=>x.trim());
-    let front, back;
-    if(lt==="ssq"){ front = nums.slice(0,6).join(" "); back = nums[6]; }
-    else { front = nums.slice(0,5).join(" "); back = nums.slice(5).join(","); }
-    const dateStr = (data.time||"").replace(/[()（].*?[)）]/g,"").trim();
-    return dateStr + ",11," + lt + "," + front + " + " + back;
-}
-function dateOfLine(l){ const sp = l.split(","); return sp[0]; }
-function lineCount(t){ return (t||"").split("\n").map(x=>x.trim()).filter(x=>x).length; }
-function mergeDataset(baseText, newLines){
-    const seen = new Set(); const out = [];
-    const add = (l)=>{ if(!l) return; const d = dateOfLine(l); if(d && !seen.has(d)){ seen.add(d); out.push(l); } };
-    (newLines||[]).forEach(add);
-    (baseText||"").split("\n").map(x=>x.trim()).filter(x=>x).forEach(add);
-    out.sort((a,b)=> dateOfLine(b).localeCompare(dateOfLine(a)));
-    return out.join("\n");
-}
-function dsKey(lt){ return "qm_ds_" + lt; }
-function saveDs(lt, text){ try{ localStorage.setItem(dsKey(lt), text); localStorage.setItem(dsKey(lt)+"_ts", String(Date.now())); }catch(e){} }
-function loadDs(lt){ try{ return { text: localStorage.getItem(dsKey(lt))||"", ts: Number(localStorage.getItem(dsKey(lt)+"_ts")||0) }; }catch(e){ return {text:"", ts:0}; } }
-function setNet(msg, ok){ const el = document.getElementById("netStatus"); if(el){ el.innerText = msg; el.style.color = (ok===false) ? "#f87171" : "#67e8f9"; } }
+// ============ 主逻辑 ============
+let currentRecords = [];
+let currentType = 'ssq';
 
-async function netUpdateLatest(){
-    const lt = typeSel.value;
-    try{
-        setNet("联网检查最新开奖…", true);
-        const resp = await fetch(apiBaseFor(lt));
-        const data = await resp.json();
-        if(data.code !== 200) throw new Error(data.msg || "接口返回错误");
-        const line = dataToLine(data, lt);
-        const base = loadDs(lt).text || (PRESET_DATA[lt] || "");
-        const merged = mergeDataset(base, [line]);
-        document.getElementById("batchInput").value = merged;
-        saveDs(lt, merged);
-        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
-        setNet("✅ 最新 " + data.qihao + "期（" + dateOfLine(line) + "）｜共" + lineCount(merged) + "期", true);
-        return true;
-    }catch(e){
-        setNet("❌ 联网失败（" + e.message + "）— 已用本地/内置数据", false);
-        return false;
+function loadPreset() {
+  const type = document.getElementById('lotteryType').value;
+  currentType = type;
+  const data = PRESET_DATA[type];
+  document.getElementById('historyData').value = data;
+  currentRecords = parseLotteryData(data, type);
+  const last = currentRecords[currentRecords.length - 1];
+  if (last) {
+    document.getElementById('currentIssue').value = last.issue;
+    const date = parseDateFromIssue(last.issue);
+    document.getElementById('drawDate').value = date.toISOString().split('T')[0];
+  }
+  updateStatus('内置数据已载入 (' + currentRecords.length + '期)');
+}
+
+function updateStatus(msg, isOnline = false) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = isOnline ? 'online' : 'offline';
+}
+
+function getParams() {
+  return {
+    yinYang: document.getElementById('yinYang').value,
+    juShu: parseInt(document.getElementById('juShu').value) || 0,
+    yuan: document.getElementById('yuan').value,
+    pools: {
+      A: parseInt(document.getElementById('poolA').value) || 3,
+      B: parseInt(document.getElementById('poolB').value) || 3,
+      C: parseInt(document.getElementById('poolC').value) || 3,
+      L: parseInt(document.getElementById('poolLiuYao').value) || 2
+    },
+    backtestN: parseInt(document.getElementById('backtestN').value) || 20,
+    lookahead: parseInt(document.getElementById('lookahead').value) || 5,
+    randomTrials: parseInt(document.getElementById('randomTrials').value) || 3,
+    mode: document.getElementById('mode').value
+  };
+}
+
+function renderResults(results, type) {
+  const area = document.getElementById('resultArea');
+  const cfg = LOTTERY_CONFIG[type];
+  
+  if (results.mode === 'predict') {
+    const { qiMen, plans, lastIssue } = results;
+    let html = `<h3>预测结果（基于 ${lastIssue}）</h3>`;
+    html += `<div class="row"><label>节气：</label><span>${qiMen.term}</span>`;
+    html += `<label>阴阳遁：</label><span>${qiMen.yinYang}遁</span>`;
+    html += `<label>局数：</label><span>${qiMen.ju}局</span>`;
+    html += `<label>时辰：</label><span>${qiMen.shiChen}时</span></div>`;
+    
+    html += `<table><tr><th>排名</th><th>方案</th><th>前区</th><th>后区</th><th>评分</th></tr>`;
+    plans.slice(0, 10).forEach((p, i) => {
+      html += `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.front.join(',')}</td><td>${p.back.join(',')}</td><td>${p.scoreInfo.score}</td></tr>`;
+    });
+    html += `</table>`;
+    area.innerHTML = html;
+    return;
+  }
+  
+  // 回测结果
+  const total = results.length;
+  const frontHits = results.reduce((s, r) => s + r.frontHit, 0);
+  const backHits = results.reduce((s, r) => s + r.backHit, 0);
+  const totalHits = results.reduce((s, r) => s + r.totalHit, 0);
+  const avgScore = results.reduce((s, r) => s + r.best.scoreInfo.score, 0) / total;
+  
+  let html = `<h3>回测结果（${total}期）</h3>`;
+  html += `<div class="metrics">`;
+  html += `<div class="metric"><div class="value">${frontHits}</div><div class="label">前区总命中</div></div>`;
+  html += `<div class="metric"><div class="value">${backHits}</div><div class="label">后区总命中</div></div>`;
+  html += `<div class="metric"><div class="value">${totalHits}</div><div class="label">总命中</div></div>`;
+  html += `<div class="metric"><div class="value">${(frontHits / (total * cfg.frontCount) * 100).toFixed(1)}%</div><div class="label">前区命中率</div></div>`;
+  html += `<div class="metric"><div class="value">${(backHits / (total * cfg.backCount) * 100).toFixed(1)}%</div><div class="label">后区命中率</div></div>`;
+  html += `<div class="metric"><div class="value">${avgScore.toFixed(1)}</div><div class="label">平均评分</div></div>`;
+  html += `</div>`;
+  
+  html += `<table><tr><th>期号</th><th>节气</th><th>局数</th><th>最佳方案</th><th>前区命中</th><th>后区命中</th><th>评分</th></tr>`;
+  results.forEach(r => {
+    html += `<tr>`;
+    html += `<td>${r.issue}</td>`;
+    html += `<td>${r.qiMen.term}</td>`;
+    html += `<td>${r.qiMen.ju}</td>`;
+    html += `<td>${r.best.name} [${r.best.front.join(',')} + ${r.best.back.join(',')}]</td>`;
+    html += `<td class="${r.frontHit > 0 ? 'hit' : 'miss'}">${r.frontHit}/${cfg.frontCount}</td>`;
+    html += `<td class="${r.backHit > 0 ? 'hit' : 'miss'}">${r.backHit}/${cfg.backCount}</td>`;
+    html += `<td>${r.best.scoreInfo.score}</td>`;
+    html += `</tr>`;
+  });
+  html += `</table>`;
+  
+  area.innerHTML = html;
+}
+
+function runAnalysis() {
+  const params = getParams();
+  const type = document.getElementById('lotteryType').value;
+  const text = document.getElementById('historyData').value;
+  
+  currentRecords = parseLotteryData(text, type);
+  currentType = type;
+  
+  if (currentRecords.length < 10) {
+    updateStatus('数据不足，至少需要10期');
+    return;
+  }
+  
+  updateStatus('分析中...');
+  
+  setTimeout(() => {
+    try {
+      if (params.mode === 'predict') {
+        const result = runPredict(currentRecords, type, params);
+        renderResults({ mode: 'predict', ...result }, type);
+      } else {
+        const results = runBacktest(currentRecords, type, params);
+        renderResults({ mode: 'backtest', results }, type);
+      }
+      updateStatus('分析完成', true);
+    } catch (e) {
+      console.error(e);
+      updateStatus('错误: ' + e.message);
     }
+  }, 100);
 }
 
-async function netRefreshHistory(count){
-    const lt = typeSel.value;
-    const btn = document.getElementById("netRefreshBtn");
-    btn.disabled = true; setNet("拉取近 " + count + " 期…", true);
-    try{
-        const first = await (await fetch(apiBaseFor(lt))).json();
-        if(first.code !== 200) throw new Error(first.msg || "接口错误");
-        const lines = [dataToLine(first, lt)];
-        let year, seq;
-        if(lt==="ssq"){ year = parseInt(first.qihao.substring(0,4)); seq = parseInt(first.qihao.substring(4)); }
-        else { year = parseInt(first.qihao.substring(0,2)); seq = parseInt(first.qihao.substring(2)); }
-        let cy = year, cs = seq - 1, got = 1, maxSeq = 154;
-        const delay = ms => new Promise(r=>setTimeout(r, ms));
-        for(let i=0; i<count+40 && got<count; i++){
-            if(cs < 1){ cy--; cs = maxSeq; }
-            let q = (lt==="ssq")
-                ? String(cy).padStart(4,'0') + String(cs).padStart(3,'0')
-                : String(cy).padStart(2,'0') + String(cs).padStart(3,'0');
-            cs--;
-            try{
-                const d = await (await fetch(apiBaseFor(lt) + "&qh=" + q)).json();
-                if(d.code === 200 && d.number){ lines.push(dataToLine(d, lt)); got++; }
-            }catch(e){}
-            setNet("已拉 " + got + "/" + count + " 期…", true);
-            await delay(250);
-        }
-        const base = loadDs(lt).text || (PRESET_DATA[lt] || "");
-        const merged = mergeDataset(base, lines);
-        document.getElementById("batchInput").value = merged;
-        saveDs(lt, merged);
-        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
-        setNet("✅ 已更新近 " + got + " 期｜共" + lineCount(merged) + "期", true);
-    }catch(e){
-        setNet("❌ " + e.message, false);
-    }finally{ btn.disabled = false; }
+function exportCSV() {
+  const type = document.getElementById('lotteryType').value;
+  const text = document.getElementById('historyData').value;
+  const records = parseLotteryData(text, type);
+  
+  if (records.length === 0) {
+    updateStatus('无数据可导出');
+    return;
+  }
+  
+  let csv = '期号,前区,后区\n';
+  records.forEach(r => {
+    csv += `${r.issue},${r.front.join(' ')},${r.back.join(' ')}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${type}_data_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  updateStatus('CSV已导出', true);
 }
 
-document.getElementById("netRefreshBtn").onclick = function(){
-    const count = Math.min(200, Math.max(10, Number(document.getElementById("batchFetchCount").value) || 50));
-    netRefreshHistory(count);
-};
+function resetParams() {
+  document.getElementById('yinYang').value = '阳';
+  document.getElementById('juShu').value = '0';
+  document.getElementById('yuan').value = '上元';
+  document.getElementById('poolA').value = '3';
+  document.getElementById('poolB').value = '3';
+  document.getElementById('poolC').value = '3';
+  document.getElementById('poolLiuYao').value = '2';
+  document.getElementById('backtestN').value = '20';
+  document.getElementById('lookahead').value = '5';
+  document.getElementById('randomTrials').value = '3';
+  document.getElementById('mode').value = 'backtest';
+  updateStatus('参数已重置');
+}
 
-// 切换彩种时，恢复该彩种的本地数据并按需联网更新
-typeSel.addEventListener("change", function(){
-    const lt = this.value;
-    const st = loadDs(lt);
-    if(st.text){ document.getElementById("batchInput").value = st.text; if(typeof autoCalcHotCold==='function') autoCalcHotCold(lt); }
-    if(document.getElementById("autoUpdate").checked) netUpdateLatest();
+// ============ 事件绑定 ============
+document.getElementById('btnLoadPreset').addEventListener('click', loadPreset);
+document.getElementById('btnRun').addEventListener('click', runAnalysis);
+document.getElementById('btnExport').addEventListener('click', exportCSV);
+document.getElementById('btnResetParams').addEventListener('click', resetParams);
+document.getElementById('btnClear').addEventListener('click', () => {
+  document.getElementById('historyData').value = '';
+  currentRecords = [];
+  updateStatus('数据已清空');
 });
 
-// 启动：本地缓存 → 内置兜底 → 勾选则拉最新一期
-(async function initAutoUpdate(){
-    const lt = typeSel.value;
-    const st = loadDs(lt);
-    if(st.text){
-        document.getElementById("batchInput").value = st.text;
-        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
-        const d = new Date(st.ts);
-        setNet("📂 已载入本地缓存（" + lineCount(st.text) + "期，" + d.toLocaleString() + "）", true);
-    }else{
-        document.getElementById("batchInput").value = PRESET_DATA[lt] || "";
-        if(typeof autoCalcHotCold === 'function') autoCalcHotCold(lt);
-        setNet("📂 已载入内置170期快照", true);
-    }
-    if(document.getElementById("autoUpdate").checked) await netUpdateLatest();
-})();
+document.getElementById('lotteryType').addEventListener('change', function() {
+  loadPreset();
+});
+
+// ============ 初始化 ============
+loadPreset();
 </script>
 </body>
 </html>
