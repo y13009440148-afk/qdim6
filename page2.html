@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘 真太阳时+自动开奖填充</title>
+<title>奇门统计 拆补真盘 修复undefined版</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
@@ -234,24 +234,28 @@ function calcDiPan(y,m,d){
     return {diPan, dayGan, xunShou};
 }
 
+// ==========【修复重点：重写旋转函数，按宫号一一对应，不再undefined】==========
 function rotatePlate(diPan, fuYuanGong, si){
     let tianPan = {};
     let jiuXingMap = {};
     let baMenMap  = {};
     let baShenMap = {};
-    let step = si;
-    const gongList = [1,8,3,4,5,6,7,2,9];
-    for(let g of gongList){
-        let fromIdx = gongList.indexOf(g);
-        let srcGong = gongList[(fromIdx - step +9)%9];
-        tianPan[g] = diPan[srcGong];
-    }
+    // 标准九宫顺序：坎1、坤2、震3、巽4、中5、乾6、兑7、艮8、离9
+    const stdGong = [1,2,3,4,5,6,7,8,9];
+    // 原点排盘基础序列
+    let baseGan = [diPan[1],diPan[2],diPan[3],diPan[4],diPan[5],diPan[6],diPan[7],diPan[8],diPan[9]];
+    let baseXing = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
+    let baseMen  = ["休","死","伤","杜","中","开","惊","生","景"];
+    let baseShen = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天","值符"];
+
+    let shift = si;
     for(let i=0;i<9;i++){
-        let g = gongList[i];
-        let srcIdx = (i - step +9)%9;
-        jiuXingMap[g] = jiuXing[srcIdx];
-        baMenMap[g]  = baMen[srcIdx];
-        baShenMap[g] = zhiFuShen[srcIdx];
+        let srcIdx = (i - shift +9) %9;
+        let g = stdGong[i];
+        tianPan[g] = baseGan[srcIdx];
+        jiuXingMap[g] = baseXing[srcIdx];
+        baMenMap[g]  = baseMen[srcIdx];
+        baShenMap[g] = baseShen[srcIdx];
     }
     return {tianPan,jiuXingMap,baMenMap,baShenMap};
 }
@@ -362,6 +366,7 @@ function renderBalls(arr, isRed, hitSet){
 function renderPlate(plateData){
     const box = document.getElementById("plateBox");
     box.innerHTML = "";
+    // 页面九宫排版顺序：巽4、离9、坤2｜震3、中5、兑7｜艮8、坎1、乾6
     const order = [4,9,2,3,5,7,8,1,6];
     for(let g of order){
         let item = plateData[g];
