@@ -11,11 +11,18 @@ h1{color:#ffd343;text-align:center;font-size:22px;margin-bottom:12px;font-weight
 h2{color:#72b8ff;font-size:18px;margin:12px 0 6px;border-left:4px solid #3b82f6;padding-left:8px;}
 .warn{color:#ff6b6b;background:#2b1318;padding:10px;border-radius:10px;margin-bottom:12px;font-size:14px;}
 .panel{background:#172035;border-radius:14px;padding:14px;margin-bottom:14px;}
+table{width:100%;border-collapse:collapse;margin:8px 0;}
+td{border:1px solid #3a4b70;padding:6px 8px;color:#d0daf0;}
+td input{width:100%;padding:5px 7px;font-size:15px;border-radius:6px;border:1px solid #445577;background:#24314f;color:#fff;}
+td select{width:100%;padding:5px 7px;font-size:15px;border-radius:6px;border:1px solid #445577;background:#24314f;color:#fff;}
 label{font-size:15px;color:#d0daf0;}
 input,select{padding:8px 10px;font-size:15px;border-radius:8px;border:1px solid #445577;background:#24314f;color:#fff;}
 input[type="checkbox"]{width:18px;height:18px;transform:scale(1.1);margin-right:6px;}
 button{padding:10px 14px;font-size:16px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;margin:4px 0;transition:0.2s;}
 button:hover{background:#1d4ed8;}
+.game-tabs{display:flex;gap:8px;margin-bottom:12px;}
+.game-tab{flex:1;padding:10px;text-align:center;background:#24314f;border-radius:8px;cursor:pointer;font-weight:bold;transition:0.2s;}
+.game-tab.active{background:#2563eb;color:#fff;}
 #jiugongBox{width:100%;max-width:600px;margin:10px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
 .gong{background:#1a2e4f;border:2px solid #4788e8;border-radius:8px;padding:6px;font-size:11.5px;line-height:1.3;min-height:130px;}
 .gong strong{color:#ffd343;font-size:13px;display:block;margin-bottom:2px;}
@@ -32,11 +39,17 @@ button:hover{background:#1d4ed8;}
 .sr{background:#1a2332;padding:12px;border-radius:10px;margin-top:10px;font-size:15px;color:#e2e8f0;line-height:1.6;}
 .hit{color:#4ade80;font-weight:bold;}.miss{color:#f87171;}
 .loading{text-align:center;padding:40px;color:#72b8ff;font-size:18px;}
+#fetchStatus{color:#72b8ff;font-size:14px;margin:8px 0;}
 </style>
 </head>
 <body>
 <div class="warn">⚠️重要声明：彩票开奖完全随机，本工具仅为奇门模型统计回测研究工具，不具备预测能力，购彩理性娱乐。</div>
 <h1>独立测试版｜生子救母+九星准则 100期回测</h1>
+
+<div class="game-tabs">
+<div class="game-tab active" data-game="ssq">双色球</div>
+<div class="game-tab" data-game="dlt">大乐透</div>
+</div>
 
 <div class="panel">
 <h2>单期推演</h2>
@@ -49,6 +62,7 @@ button:hover{background:#1d4ed8;}
 </select></div>
 </div>
 <div style="margin:8px 0;"><label>开奖号（可选）：</label><input id="awardNum" placeholder="04 06 10 15 26 27+11" style="width:100%;"></div>
+<div id="fetchStatus"></div>
 <div style="margin:8px 0;"><label><input type="checkbox" id="useXianTian" checked> 先天数加入池</label></div>
 <button id="runSingleBtn" style="width:100%;">单期推演</button>
 <div id="singleResult" class="sr" style="display:none;"></div>
@@ -72,6 +86,18 @@ button:hover{background:#1d4ed8;}
 </div>
 
 <script>
+
+// ========== 游戏配置 ==========
+let currentGame="ssq";
+const GAME_CFG={
+ssq:{name:"双色球",frontMax:33,backMax:16,frontPick:6,backPick:1,maxFront:16,maxBack:6,drawDays:[0,2,4]},
+dlt:{name:"大乐透",frontMax:35,backMax:12,frontPick:5,backPick:2,maxFront:16,maxBack:6,drawDays:[1,3,6]}
+};
+
+// ========== 硬编码权重（生子救母体系） ==========
+const W={shengWo:12,woSheng:-6,keWo:-10,woKe:-4,biHe:3,kongWang:-8,chong:-7,liuHe:5,xingShengGong:9,xingKeGong:-9,fuYin:10,wangJia:8};
+const BASE_TYPE="riGan";
+
 // ========== 常量 ==========
 const tianGan=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const diZhi=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
@@ -79,6 +105,7 @@ const ganWuxing={"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","�
 const chongDizhi={"子":"午","丑":"未","寅":"申","卯":"酉","辰":"戌","巳":"亥","午":"子","未":"丑","申":"寅","酉":"卯","戌":"辰","亥":"巳"};
 const xunKongTable={"甲子旬":["戌","亥"],"甲戌旬":["申","酉"],"甲申旬":["午","未"],"甲午旬":["辰","巳"],"甲辰旬":["寅","卯"],"甲寅旬":["子","丑"]};
 const wuxingSheng={"水":"金","金":"土","土":"火","火":"木","木":"水"};
+const wuxingKe={"水":"火","火":"金","金":"木","木":"土","土":"水"};
 const wuxingMap={
 "水":{shengWo:"金",woSheng:"木",keWo:"土",woKe:"火",tong:"水"},
 "木":{shengWo:"水",woSheng:"火",keWo:"金",woKe:"土",tong:"木"},
@@ -107,7 +134,6 @@ const LIUHE_MAP={"子":"丑","丑":"子","寅":"亥","亥":"寅","卯":"戌","�
 const gridOrder=[4,9,2,3,5,7,8,1,6];
 const liuYi=["戊","己","庚","辛","壬","癸","丁","丙","乙"];
 
-// 节气
 const solarTerms=[
 {name:"小寒",m:1,d:6},{name:"大寒",m:1,d:20},{name:"立春",m:2,d:4},{name:"雨水",m:2,d:19},
 {name:"惊蛰",m:3,d:6},{name:"春分",m:3,d:21},{name:"清明",m:4,d:5},{name:"谷雨",m:4,d:20},
@@ -124,19 +150,6 @@ const dingJuTable={
 };
 const yangTerms=["冬至","小寒","大寒","立春","雨水","惊蛰","春分","清明","谷雨","立夏","小满","芒种"];
 
-// ========== 硬编码权重（生子救母体系） ==========
-const W={shengWo:12,woSheng:-6,keWo:-10,woKe:-4,biHe:3,kongWang:-8,chong:-7,liuHe:5,xingShengGong:9,xingKeGong:-9,fuYin:10,wangJia:8};
-const BASE_TYPE="riGan"; // 基准主体固定日干五行
-// 九星31字准则辅助表
-const WSS={"水":"金","金":"土","土":"火","火":"木","木":"水"}; // 五行生：A生B
-const WXM={
-"水":{shengWo:"金",woSheng:"木",keWo:"土",woKe:"火",tong:"水"},
-"木":{shengWo:"水",woSheng:"火",keWo:"金",woKe:"土",tong:"木"},
-"火":{shengWo:"木",woSheng:"土",keWo:"水",woKe:"金",tong:"火"},
-"土":{shengWo:"火",woSheng:"金",keWo:"木",woKe:"水",tong:"土"},
-"金":{shengWo:"土",woSheng:"水",keWo:"火",woKe:"木",tong:"金"}
-};
-
 function getSolarTerm(d){const m=d.getMonth()+1,dd=d.getDate();let b=null,bd=999;for(let s of solarTerms){let df=Math.abs((m-s.m)*31+(dd-s.d));if(df<bd){bd=df;b=s;}}return b.name;}
 function getSeasonWuxing(st){if(["立春","雨水","惊蛰","清明","谷雨"].includes(st))return"木";if(["立夏","小满","芒种","小暑","大暑"].includes(st))return"火";if(["立秋","处暑","白露","秋分","寒露"].includes(st))return"金";if(["立冬","小雪","大雪","冬至","小寒"].includes(st))return"水";return"土";}
 function getFuTouYuan(gz){const gi=tianGan.indexOf(gz.dayGan),zi=diZhi.indexOf(gz.dayZhi);let db=0,g=gi;while(g!==0&&g!==5){g=(g-1+10)%10;db++;}let fz=(zi-db+12)%12;let f=diZhi[fz];if(["子","午","卯","酉"].includes(f))return 0;if(["寅","申","巳","亥"].includes(f))return 1;return 2;}
@@ -144,6 +157,12 @@ function getDayGanZhi(d){const base=new Date("2000-01-01");const diff=Math.floor
 function getHourGan(dayGan,si){const di=tianGan.indexOf(dayGan);return tianGan[((di%5)*2+si)%10];}
 function getXunKong(dz){for(let k in xunKongTable){const sz=k.slice(-1);const zi=diZhi.indexOf(sz);const zl=[];for(let i=0;i<10;i++)zl.push(diZhi[(zi+i)%12]);if(zl.includes(dz))return{xunName:k,kongZhi:xunKongTable[k]};}return{xunName:"",kongZhi:[]};}
 function arrangeDiPan(ju,yd){const gs=[1,2,3,4,5,6,7,8,9];const pos={};let st=gs.indexOf(ju);for(let i=0;i<9;i++){let p=yd?gs[(st+i)%9]:gs[(st-i+9)%9];pos[p]=liuYi[i];}return pos;}
+function getDunJuBySolarTerm(st,yuan){const jues=dingJuTable[st];const yd=yangTerms.includes(st);return{yangDun:yd,ju:jues[yuan]};}
+function getLiuHePartnerGongs(dayZhi){
+const partner=LIUHE_MAP[dayZhi];if(!partner)return[];
+const gdm={1:["子"],2:["未","申"],3:["卯"],4:["辰","巳"],5:[],6:["戌","亥"],7:["酉"],8:["丑","寅"],9:["午"]};
+let r=[];for(let g=1;g<=9;g++){if(gdm[g]&&gdm[g].includes(partner))r.push(g);}return r;
+}
 
 // ========== 排盘（拆补法+九星旋转） ==========
 function qiMenZhuanPan(dateStr,shiIdx){
@@ -158,24 +177,20 @@ const diPan=arrangeDiPan(ju,yangDun);
 const fuYuanGong=Object.keys(diPan).find(k=>diPan[k]==="戊")*1;
 const hourGanIdx=tianGan.indexOf(hourGan);
 
-// 值符宫
 let sgGong;
 if(yangDun)sgGong=((fuYuanGong-1)+hourGanIdx)%9+1;
 else sgGong=((fuYuanGong-1)-hourGanIdx+9)%9+1;
 
-// 天盘
 const tianPan={};
 for(let g=1;g<=9;g++){let off=(g-sgGong+9)%9;let src=((fuYuanGong-1)+off)%9+1;tianPan[g]=diPan[src];}
 const zhiFuGong=sgGong;
 
-// 值使宫
 const palaceSeq=[1,2,3,4,6,7,8,9];
 const fuOrigIdx=palaceSeq.indexOf(fuYuanGong);
 let zsIdx;if(yangDun)zsIdx=(fuOrigIdx+hourGanIdx)%8;else zsIdx=(fuOrigIdx-hourGanIdx+8)%8;
 if(palaceSeq[zsIdx]===5)zsIdx=palaceSeq.indexOf(2);
 const zhiShiGong=palaceSeq[zsIdx];
 
-// 九星旋转：值符宫=天蓬，然后按洛书序阳顺阴逆
 const xingSeq=["蓬","芮","冲","辅","禽","心","柱","任","英"];
 const zfPosIdx=GONG_ORDER.indexOf(zhiFuGong);
 const rotatedXing={};
@@ -186,27 +201,22 @@ for(let i=0;i<8;i++){
     rotatedXing[GONG_ORDER[posIdx]]=xingSeq[i];
 }
 
-// 八门
 const menBase=["休","死","伤","杜","开","惊","生","景"];
 const zhiShiMen=palaceMeta[fuYuanGong].origMen;
 const menStartIdx=menBase.indexOf(zhiShiMen);
 const menArr={};
 for(let i=0;i<8;i++){let pi=yangDun?(zsIdx+i)%8:(zsIdx-i+8)%8;let mi=(menStartIdx+i)%8;menArr[palaceSeq[pi]]=menBase[mi];}
 
-// 八神
 const shen={};
 for(let i=0;i<8;i++){let g;if(yangDun)g=(zhiFuGong-1+i)%9+1;else g=(zhiFuGong-1-i+9)%9+1;if(g===5)continue;shen[g]=SHEN_LIST[i];}
 
-// 空亡宫、相冲宫
 const gongDizhiMap={1:["子"],2:["未","申"],3:["卯"],4:["辰","巳"],5:[],6:["戌","亥"],7:["酉"],8:["丑","寅"],9:["午"]};
 let kongGongList=[],chongGongList=[];
 kongZhi.forEach(z=>{for(let g=1;g<=9;g++){if(gongDizhiMap[g]&&gongDizhiMap[g].includes(z))kongGongList.push(g);}});
 kongZhi.forEach(z=>{const cz=chongDizhi[z];for(let g=1;g<=9;g++){if(gongDizhiMap[g]&&gongDizhiMap[g].includes(cz))chongGongList.push(g);}});
 
-// 六合宫
 const liuheGongs=getLiuHePartnerGongs(gz.dayZhi);
 
-// 组装宫位数据
 let palaceData={};
 const seasonWX=getSeasonWuxing(solarTerm);
 for(let g=1;g<=9;g++){
@@ -239,23 +249,9 @@ for(let g=1;g<=9;g++){
 return{palaceData,gz,hourGan,zhiFuGong,zhiShiGong,ju,yangDun,xunName,solarTerm,yuan,kongGongList,chongGongList};
 }
 
-function getDunJuBySolarTerm(st,yuan){const jues=dingJuTable[st];const yd=yangTerms.includes(st);return{yangDun:yd,ju:jues[yuan]};}
-
-function getLiuHePartnerGongs(dayZhi){
-const partner=LIUHE_MAP[dayZhi];
-if(!partner)return[];
-const gongDizhiMapTemp={1:["子"],2:["未","申"],3:["卯"],4:["辰","巳"],5:[],6:["戌","亥"],7:["酉"],8:["丑","寅"],9:["午"]};
-let result=[];
-for(let g=1;g<=9;g++){if(gongDizhiMapTemp[g]&&gongDizhiMapTemp[g].includes(partner))result.push(g);}
-return result;
-}
-
 // ========== 生子救母评分 ==========
 function calcShengZiScore(palaceData,gz,hourGan,zhiFuGong){
-let baseWx;
-if(BASE_TYPE==="riGan")baseWx=ganWuxing[gz.dayGan];
-else if(BASE_TYPE==="shiGan")baseWx=ganWuxing[hourGan];
-else baseWx=palaceData[zhiFuGong].wuXing;
+let baseWx=ganWuxing[gz.dayGan];
 
 for(let g=1;g<=9;g++){
     if(g===5)continue;
@@ -265,20 +261,16 @@ for(let g=1;g<=9;g++){
     const xwx=p.xingWuxing;
     const rel=wuxingMap[baseWx];
 
-    // 宫五行 vs 参考五行（生克关系）
     if(gwx===rel.shengWo)s+=W.shengWo;
     else if(gwx===rel.woSheng)s+=W.woSheng;
     else if(gwx===rel.keWo)s+=W.keWo;
     else if(gwx===rel.woKe)s+=W.woKe;
     else if(gwx===rel.tong)s+=W.biHe;
 
-    // 九星31字准则
-    if(WSS[xwx]===gwx)s+=W.xingShengGong;       // 星生宫→宫增力
-    else if(WSS[gwx]===xwx){}                    // 宫生星→无作用
-    else if(WXM[xwx].keWo===gwx){}               // 宫克星→不加分
-    else if(WXM[xwx].woKe===gwx)s+=W.xingKeGong; // 星克宫→宫减力
+    if(wuxingSheng[xwx]===gwx)s+=W.xingShengGong;
+    const xKe=wuxingKe[xwx];
+    if(xKe && xKe===gwx) s+=W.xingKeGong;
 
-    // 特殊条件
     if(p.isKong)s+=W.kongWang;
     if(p.isChong)s+=W.chong;
     if(p.isLiuHe)s+=W.liuHe;
@@ -289,31 +281,44 @@ for(let g=1;g<=9;g++){
 }
 }
 
-// ========== 号码收集（按宫得分筛选，上限16个） ==========
-function collectNumbers(palaceData,useXianTian,kongGongList){
-const MAX_POOL=16;
-let numScoreMap={};
+// ========== 号码收集（前后区分池+评分排序） ==========
+function collectNumbers(palaceData,useXianTian,kongGongList,cfg){
+const frontMax=cfg.frontMax,backMax=cfg.backMax;
+let frontScoreMap={},backScoreMap={};
+
 const kongSet=new Set(kongGongList);
+// 对冲宫强制纳入
 for(let g=1;g<=9;g++){
     if(g===5)continue;
     if(kongSet.has(g)){
         const dc=DUI_CHONG[g];
         if(dc){
             const dp=palaceData[dc];
-            dp.houTian.forEach(h=>{let n=h;while(n<=33){numScoreMap[n]=Math.max(numScoreMap[n]||-999,dp.score);n+=10;}});
-            if(useXianTian)dp.tianXian.forEach(t=>{let n=t;while(n<=33){numScoreMap[n]=Math.max(numScoreMap[n]||-999,dp.score);n+=10;}});
+            dp.houTian.forEach(h=>{let n=h;while(n<=frontMax){if(!frontScoreMap[n])frontScoreMap[n]=0;frontScoreMap[n]+=Math.abs(dp.score)+10;n+=10;}});
+            if(useXianTian)dp.tianXian.forEach(t=>{let n=t;while(n<=frontMax){if(!frontScoreMap[n])frontScoreMap[n]=0;frontScoreMap[n]+=Math.abs(dp.score)+10;n+=10;}});
+            // back pool
+            dp.houTian.forEach(h=>{let n=h;while(n<=backMax){if(!backScoreMap[n])backScoreMap[n]=0;backScoreMap[n]+=Math.abs(dp.score)+10;n+=10;}});
+            if(useXianTian)dp.tianXian.forEach(t=>{let n=t;while(n<=backMax){if(!backScoreMap[n])backScoreMap[n]=0;backScoreMap[n]+=Math.abs(dp.score)+10;n+=10;}});
         }
     }
 }
+// 所有宫
 for(let g=1;g<=9;g++){
     if(g===5)continue;
     const p=palaceData[g];
-    p.houTian.forEach(h=>{let n=h;while(n<=33){numScoreMap[n]=Math.max(numScoreMap[n]||-999,p.score);n+=10;}});
-    if(useXianTian)p.tianXian.forEach(t=>{let n=t;while(n<=33){numScoreMap[n]=Math.max(numScoreMap[n]||-999,p.score);n+=10;}});
+    const sc=p.score;
+    p.houTian.forEach(h=>{let n=h;while(n<=frontMax){if(!frontScoreMap[n])frontScoreMap[n]=0;frontScoreMap[n]+=sc;n+=10;}});
+    if(useXianTian)p.tianXian.forEach(t=>{let n=t;while(n<=frontMax){if(!frontScoreMap[n])frontScoreMap[n]=0;frontScoreMap[n]+=sc;n+=10;}});
+    p.houTian.forEach(h=>{let n=h;while(n<=backMax){if(!backScoreMap[n])backScoreMap[n]=0;backScoreMap[n]+=sc;n+=10;}});
+    if(useXianTian)p.tianXian.forEach(t=>{let n=t;while(n<=backMax){if(!backScoreMap[n])backScoreMap[n]=0;backScoreMap[n]+=sc;n+=10;}});
 }
-let sorted=Object.entries(numScoreMap).sort((a,b)=>b[1]-a[1]);
-let pool=sorted.slice(0,MAX_POOL).map(e=>Number(e[0])).sort((a,b)=>a-b);
-return pool;
+
+let fSorted=Object.entries(frontScoreMap).sort((a,b)=>b[1]-a[1]);
+let frontPool=fSorted.slice(0,cfg.maxFront).map(e=>Number(e[0])).sort((a,b)=>a-b);
+let bSorted=Object.entries(backScoreMap).sort((a,b)=>b[1]-a[1]);
+let backPool=bSorted.slice(0,cfg.maxBack).map(e=>Number(e[0])).sort((a,b)=>a-b);
+
+return{front:frontPool,back:backPool};
 }
 
 // ========== 渲染九宫 ==========
@@ -346,7 +351,81 @@ for(let g of gridOrder){
 }
 }
 
-// ========== 100期SSQ数据 ==========
+// ========== 联网获取最近一期开奖号 ==========
+async function fetchAndFillLatest(){
+const statusEl=document.getElementById("fetchStatus");
+const cfg=GAME_CFG[currentGame];
+statusEl.textContent="正在获取最近一期...";
+try{
+    if(currentGame==="dlt"){
+        const resp=await fetch("https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=85&provinceId=0&pageSize=1&isVerify=1");
+        const data=await resp.json();
+        const list=data.value.list;
+        if(list&&list.length>0){
+            const item=list[0];
+            const frontNums=item.lotteryDrawResult.split(" ").map(Number).sort((a,b)=>a-b);
+            const backNums=item.lotteryDrawBackResult?item.lotteryDrawBackResult.split(" ").map(Number).sort((a,b)=>a-b):[];
+            const ds=item.lotteryDrawDate;
+            const formatted=ds.slice(0,4)+"-"+ds.slice(4,6)+"-"+ds.slice(6,8);
+            let numStr=frontNums.map(n=>String(n).padStart(2,"0")).join(" ");
+            if(backNums.length)numStr+=" + "+backNums.map(n=>String(n).padStart(2,"0")).join(" ");
+            document.getElementById("calcDate").value=formatted;
+            document.getElementById("awardNum").value=numStr;
+            statusEl.textContent="已填入最近一期("+formatted+")";
+            return;
+        }
+    } else {
+        // SSQ - try proxies
+        const proxies=[
+            "https://corsproxy.io/?"+encodeURIComponent("https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1"),
+            "https://api.allorigins.win/raw?url="+encodeURIComponent("https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1")
+        ];
+        for(let proxy of proxies){
+            try{
+                const ctrl=new AbortController();
+                const timer=setTimeout(()=>ctrl.abort(),8000);
+                const resp=await fetch(proxy,{signal:ctrl.signal});
+                clearTimeout(timer);
+                if(resp.ok){
+                    const data=await resp.json();
+                    if(data.result&&data.result.length>0){
+                        const item=data.result[0];
+                        const reds=item.red.split(",").map(Number).sort((a,b)=>a-b);
+                        const blue=parseInt(item.blue);
+                        document.getElementById("calcDate").value=item.date;
+                        document.getElementById("awardNum").value=reds.map(n=>String(n).padStart(2,"0")).join(" ")+" + "+String(blue).padStart(2,"0");
+                        statusEl.textContent="已填入最近一期("+item.date+")";
+                        return;
+                    }
+                }
+            }catch(e){continue;}
+        }
+        // fallback to embedded data
+        if(ssqData.length>0){
+            const latest=ssqData[0];
+            document.getElementById("calcDate").value=latest.date;
+            document.getElementById("awardNum").value=latest.nums.map(n=>String(n).padStart(2,"0")).join(" ")+" + "+String(latest.blue).padStart(2,"0");
+            statusEl.textContent="代理不可用，已填入嵌入数据最新期("+latest.date+")";
+            return;
+        }
+    }
+    statusEl.textContent="获取失败，请手动输入";
+}catch(e){statusEl.textContent="联网失败："+e.message;}
+}
+
+// ========== 自动定位到下一个开奖日 ==========
+function getNextDrawDate(){
+const cfg=GAME_CFG[currentGame];
+const today=new Date();today.setHours(0,0,0,0);
+let d=new Date(today);
+for(let i=0;i<7;i++){
+    d.setDate(d.getDate()+1);
+    if(cfg.drawDays.includes(d.getDay())){
+        return d.toISOString().slice(0,10);
+    }
+}
+return today.toISOString().slice(0,10);
+}
 const ssqData=[
 {date:"2026-11-01",shi:11,nums:[4,6,10,15,26,27],blue:11},
 {date:"2026-10-29",shi:11,nums:[3,11,17,22,23,29],blue:9},
@@ -455,6 +534,7 @@ function runBacktest(){
 const resultDom=document.getElementById("backTestResult");
 resultDom.innerHTML='<div class="loading">100期回测运算中，请稍候...</div>';
 setTimeout(function(){
+const cfg=GAME_CFG[currentGame];
 const useXT=document.getElementById("useXianTian").checked;
 let results=[];
 let lastPan=null;
@@ -463,59 +543,59 @@ for(let i=0;i<ssqData.length;i++){
     const rec=ssqData[i];
     const pan=qiMenZhuanPan(rec.date,rec.shi);
     calcShengZiScore(pan.palaceData,pan.gz,pan.hourGan,pan.zhiFuGong);
-    const pool=collectNumbers(pan.palaceData,useXT,pan.kongGongList);
-    const poolSet=new Set(pool);
+    const pools=collectNumbers(pan.palaceData,useXT,pan.kongGongList,cfg);
+    const frontSet=new Set(pools.front);
     let hits=0;
     const hitNums=[];
     const missNums=[];
-    rec.nums.forEach(n=>{if(poolSet.has(n)){hits++;hitNums.push(n);}else{missNums.push(n);}});
+    rec.nums.forEach(n=>{if(frontSet.has(n)){hits++;hitNums.push(n);}else{missNums.push(n);}});
     results.push({
         idx:i+1,
         date:rec.date,
-        pool:pool,
-        poolSize:pool.length,
+        frontPool:pools.front,
+        backPool:pools.back,
+        frontSize:pools.front.length,
+        backSize:pools.back.length,
         actual:rec.nums,
         blue:rec.blue,
         hits:hits,
         hitNums:hitNums,
-        missNums:missNums
+        missNums:missNums,
+        coverage:hits/6
     });
     lastPan=pan;
 }
 
-// 统计
 let totalHits=0,hitDist=[0,0,0,0,0,0,0],totalPoolSize=0;
 results.forEach(r=>{
     totalHits+=r.hits;
     hitDist[r.hits]++;
-    totalPoolSize+=r.poolSize;
+    totalPoolSize+=r.frontSize;
 });
 const avgHit=(totalHits/100).toFixed(2);
 const avgCov=(totalHits/(100*6)*100).toFixed(1);
 const avgPool=(totalPoolSize/100).toFixed(1);
 
-// 随机基准
-const randExp=(16/33*6).toFixed(2);
-const randCov=(16/33*100).toFixed(1);
+const randExp=(18/33*6).toFixed(2);
+const randCov=(18/33*100).toFixed(1);
 const excessHit=(avgHit-randExp).toFixed(2);
 const excessCov=(avgCov-randCov).toFixed(1);
 
 let html=`<strong>===== 100期回测结果 =====</strong><br><br>
 <strong>平均命中：</strong>${avgHit} / 6<br>
 <strong>平均覆盖率：</strong>${avgCov}%<br>
-<strong>平均号码池大小：</strong>${avgPool} 个<br><br>
+<strong>平均前区池大小：</strong>${avgPool} 个<br><br>
 <strong>命中分布：</strong><br>
 中0：${hitDist[0]}期 | 中1：${hitDist[1]}期 | 中2：${hitDist[2]}期 | 中3：${hitDist[3]}期 | 中4：${hitDist[4]}期 | 中5：${hitDist[5]}期 | 中6：${hitDist[6]}期<br><br>
-<strong>随机基准对比（16号池）：</strong><br>
+<strong>随机基准对比（18号池）：</strong><br>
 随机期望命中：${randExp} | 随机期望覆盖率：${randCov}%<br>
 超额命中：${excessHit} | 超额覆盖率：${excessCov}%`;
 resultDom.innerHTML=html;
 
-// 渲染最后一期盘面
 if(lastPan){
     renderJiuGong(lastPan.palaceData,lastPan);
     const lastPool=results[results.length-1];
-    document.getElementById("poolInfo").innerHTML=`<strong>第${lastPool.idx}期 (${lastPool.date})</strong><br>号码池(${lastPool.poolSize}个)：${lastPool.pool.join(", ")}<br>开奖号：${lastPool.actual.join(" ")}+${lastPool.blue}<br>命中：${lastPool.hits}个 [${lastPool.hitNums.join(",")||"无"}] 遗漏：[${lastPool.missNums.join(",")||"无"}]`;
+    document.getElementById("poolInfo").innerHTML=`<strong>第${lastPool.idx}期 (${lastPool.date})</strong><br>前区池(${lastPool.frontSize}个)：${lastPool.frontPool.join(", ")}<br>后区池(${lastPool.backSize}个)：${lastPool.backPool.join(", ")}<br>开奖号：${lastPool.actual.join(" ")}+${lastPool.blue}<br>前区命中：${lastPool.hits}个 [${lastPool.hitNums.join(",")||"无"}] 遗漏：[${lastPool.missNums.join(",")||"无"}]`;
 }
 },100);
 }
@@ -527,28 +607,27 @@ const shiIdx=Number(document.getElementById("calcShiChen").value);
 const awardStr=document.getElementById("awardNum").value.trim();
 const useXT=document.getElementById("useXianTian").checked;
 if(!dateStr){alert("请选择日期");return;}
+const cfg=GAME_CFG[currentGame];
 const pan=qiMenZhuanPan(dateStr,shiIdx);
 calcShengZiScore(pan.palaceData,pan.gz,pan.hourGan,pan.zhiFuGong);
 renderJiuGong(pan.palaceData,pan);
-const pool=collectNumbers(pan.palaceData,useXT,pan.kongGongList);
-let poolHtml=`<strong>号码池(${pool.length}个)：</strong>${pool.join(", ")}`;
+const pools=collectNumbers(pan.palaceData,useXT,pan.kongGongList,cfg);
+let poolHtml=`<strong>前区池(${pools.front.length}个)：</strong>${pools.front.join(", ")}<br><strong>后区池(${pools.back.length}个)：</strong>${pools.back.join(", ")}`;
 
-// 单期复盘
 let reviewHtml="";
 if(awardStr){
     const sp=awardStr.replace("+"," ").split(/\s+/).map(Number).filter(n=>!isNaN(n));
-    const reds=sp.slice(0,6);
-    const poolSet=new Set(pool);
+    const reds=sp.slice(0,cfg.frontPick);
+    const frontSet=new Set(pools.front);
     let hits=0,hitNums=[],missNums=[];
-    reds.forEach(n=>{if(poolSet.has(n)){hits++;hitNums.push(n);}else{missNums.push(n);}});
-    reviewHtml=`<br><br><strong>复盘：</strong>开奖 ${reds.join(" ")}<br>命中 <span class="hit">${hits}/6</span> [${hitNums.join(",")||"无"}] 遗漏 <span class="miss">[${missNums.join(",")||"无"}]</span>`;
+    reds.forEach(n=>{if(frontSet.has(n)){hits++;hitNums.push(n);}else{missNums.push(n);}});
+    reviewHtml=`<br><br><strong>复盘：</strong>开奖 ${reds.join(" ")}<br>前区命中 <span class="hit">${hits}/${cfg.frontPick}</span> [${hitNums.join(",")||"无"}] 遗漏 <span class="miss">[${missNums.join(",")||"无"}]</span>`;
 }
 
 document.getElementById("poolInfo").innerHTML=poolHtml;
 const sr=document.getElementById("singleResult");
 sr.style.display="block";
 
-// 显示各宫得分
 let scoreHtml="<strong>各宫得分：</strong><br>";
 GONG_BASE.forEach(g=>{
     if(g===5)return;
@@ -567,9 +646,36 @@ sr.innerHTML=scoreHtml+reviewHtml;
 document.getElementById("runSingleBtn").onclick=runSingle;
 document.getElementById("runBatchBtn").onclick=runBacktest;
 
+// 游戏切换
+document.querySelectorAll(".game-tab").forEach(tab=>{
+    tab.onclick=function(){
+        document.querySelectorAll(".game-tab").forEach(t=>t.classList.remove("active"));
+        this.classList.add("active");
+        currentGame=this.dataset.game;
+        document.getElementById("calcDate").value=getNextDrawDate();
+        document.getElementById("fetchStatus").textContent="";
+        document.getElementById("singleResult").style.display="none";
+        fetchAndFillLatest();
+    };
+});
+
+// 日期变更自动获取开奖号
+document.getElementById("calcDate").addEventListener("change",async function(){
+    const dateStr=this.value;if(!dateStr)return;
+    document.getElementById("singleResult").style.display="none";
+    const today=new Date();today.setHours(0,0,0,0);
+    const selected=new Date(dateStr);selected.setHours(0,0,0,0);
+    if(selected>today){document.getElementById("fetchStatus").textContent="该日期尚未开奖";return;}
+    await fetchAndFillLatest();
+});
+
 // 初始化
-document.getElementById("calcDate").value="2026-11-01";
-window.onload=function(){runBacktest();};
+document.getElementById("calcDate").value=getNextDrawDate();
+window.onload=function(){
+    fetchAndFillLatest();
+    runBacktest();
+};
+
 </script>
 </body>
 </html>
