@@ -154,6 +154,7 @@ function gregorianToJD(y,m,d){
     return JD;
 }
 
+// ========== 重点修复这里：旬首取法，只取戊己庚辛壬癸 ==========
 function calcDiPan(y,m,d){
     const baseDay = 10957;
     const date = new Date(y,m-1,d);
@@ -161,8 +162,9 @@ function calcDiPan(y,m,d){
     dayNum = dayNum < 0 ? dayNum + 6000 : dayNum;
     let dayGanIdx = dayNum % 10;
     let dayGan = ganArr[dayGanIdx];
-    let xunShouIdx = dayGanIdx;
-    let xunShou = ganArr[xunShouIdx];
+    // 拆补法旬首：甲0戊，乙1己，丙2庚，丁3辛，戊4壬，己5癸，庚6戊，辛7己，壬8庚，癸9辛
+    const xunShouMap = ["戊","己","庚","辛","壬","癸","戊","己","庚","辛"];
+    let xunShou = xunShouMap[dayGanIdx];
     const diGanRule = {
         "戊":[1,2,3,4,5,6,7,8,9],
         "己":[2,3,4,5,6,7,8,9,1],
@@ -175,7 +177,7 @@ function calcDiPan(y,m,d){
     let diPan = {};
     for(let i=0;i<9;i++){
         let g = gongIndex[i];
-        diPan[g] = ganArr[baseList[i]];
+        diPan[g] = ganArr[baseList[i]-1];
     }
     return {diPan, dayGan, xunShou};
 }
