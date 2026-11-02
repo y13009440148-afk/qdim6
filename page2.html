@@ -4,620 +4,490 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘｜稳定拉取版【日期联动开奖修复】</title>
+<title>QDIM拆补转盘奇门 · 手机真盘版（五宫参与取号）</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
-body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
-.ctrlBox{border:1px solid #334;border-radius:8px;padding:12px;margin-bottom:10px;background:#171b24;}
-.ctrlBox>div{margin:6px 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px;}
-input,select,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-size:14px;}
-input,select{background:#222836;color:#fff;}
-button{background:#2374d1;color:#fff;cursor:pointer;width:100%;margin-top:6px;padding:9px;}
-button:active{background:#1958a0;}
-.btn-green{background:#188047;margin-bottom:4px;}
-.tipBar{background:#1a442b;color:#8cf9a7;padding:8px;border-radius:6px;margin-bottom:8px;text-align:center;}
-.wrap{display:flex;gap:10px;flex-wrap:wrap;}
-#plateBox{width:100%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;aspect-ratio:1/1;}
-.gong{border:1px solid #445;background:#1c222f;padding:4px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-radius:6px;font-size:12px;}
-.gong strong{color:#7cf;font-size:14px;}
-.gong small{color:#aab;margin-top:2px;}
-.score{color:#fd9;font-weight:bold;}
-#logBox{width:100%;border:1px solid #334;border-radius:8px;padding:10px;background:#171b24;white-space:pre-wrap;color:#9cf;line-height:1.6;font-size:12px;min-height:180px;}
-.resultBlock{border:1px solid #366;border-radius:8px;padding:10px;margin-top:10px;background:#161d2b;}
-.poolTitle{color:#7cf;font-weight:bold;font-size:15px;margin-bottom:6px;}
-.ballRed{display:inline-block;width:26px;height:26px;border-radius:50%;background:#c22;color:#fff;text-align:center;line-height:26px;margin:2px;font-size:12px;}
-.ballBlue{display:inline-block;width:26px;height:26px;border-radius:50%;background:#228;color:#fff;text-align:center;line-height:26px;margin:2px;font-size:12px;}
-.ballHit{border:2px solid #0f0;box-shadow:0 0 5px #0f0;}
-.note{color:#aaa;font-size:12px;margin-top:4px;}
-.statText{color:#fe9;font-weight:bold;margin-top:6px;line-height:1.6;font-size:13px;}
-table{border-collapse:collapse;width:100%;margin-top:8px;color:#eee;font-size:11px;}
-th,td{border:1px solid #446;padding:4px;text-align:center;}
-th{background:#202b40;color:#7cf;}
-textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft YaHei",system-ui,sans-serif}
+body{background:#0f172a;color:#e2e8f0;padding:10px;font-size:14px}
+.wrap{max-width:520px;margin:0 auto}
+h1{text-align:center;color:#facc15;font-size:17px;margin-bottom:6px}
+.sub{text-align:center;color:#64748b;font-size:11px;margin-bottom:10px}
+.panel{background:#1e293b;border-radius:10px;padding:12px;margin-bottom:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+label{display:block;margin-bottom:3px;color:#cbd5e1;font-size:13px}
+input,select{width:100%;padding:8px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:14px}
+button{padding:9px 10px;border-radius:6px;border:none;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;margin:3px 2px;font-size:14px}
+button:active{background:#1d4ed8}
+.btn-group{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.jiugong{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:10px 0}
+.gong-cell{background:#0f172a;border:1px solid #475569;border-radius:6px;padding:5px;text-align:center;min-height:96px;display:flex;flex-direction:column;justify-content:center}
+.gong-cell.zhong{background:#1a2436;border-color:#facc15}
+.shen{color:#93c5fd;font-size:11px}
+.star{color:#f472b6;font-size:12px}
+.men{color:#34d399;font-size:12px;font-weight:bold}
+.tian{color:#facc15;font-size:12px}
+.di{color:#fb923c;font-size:11px}
+.gong-no{color:#9ca3af;font-size:10.5px}
+.tags{font-size:9.5px;line-height:1.3}
+.score-line{color:#ff8882;font-size:11px;margin-top:1px;font-weight:bold}
+#infoBox{white-space:pre-wrap;padding:10px;background:#0f172a;border-radius:8px;overflow:auto;font-size:12px;color:#93c5fd;line-height:1.5}
+#resultBox{white-space:pre-wrap;padding:10px;background:#12263f;border-radius:8px;overflow:auto;font-size:12px;color:#facc15;line-height:1.5;margin-top:8px;max-height:340px}
+#logBox{white-space:pre-wrap;padding:10px;background:#0f172a;border-radius:8px;max-height:180px;overflow:auto;font-size:11px;color:#a5b4fc}
+table.his{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.his th,.his td{border:1px solid #334155;padding:4px;text-align:center}
+.his th{color:#facc15}
 </style>
 </head>
 <body>
-<div class="tipBar" id="tipBar">加载中...</div>
-<div class="ctrlBox">
-    <div>
-        <span>彩种：</span>
-        <select id="lotType">
-            <option value="ssq">双色球（二/四/日）</option>
-            <option value="dlt">大乐透（一/三/六）</option>
-        </select>
-    </div>
-    <div>
-        <span>经度：</span><input id="lng" value="122.98" size="6">
-        <span>纬度：</span><input id="lat" value="39.70" size="6">
-    </div>
-    <div>
-        <span>公历日期：</span><input id="dateInput" type="date">
-        <span>北京时间：</span><input id="timeInput" type="time">
-    </div>
-    <div>
-        <span>开奖红球：</span><input id="hitRedInput" placeholder="空格隔开6个号" size="14">
-        <span>蓝球：</span><input id="hitBlueInput" placeholder="09" size="4">
-    </div>
-    <button onclick="runQiMen()">单期排盘 | 生成总池 | 精选5注 | 比对开奖</button>
-</div>
-
-<div class="resultBlock">
-    <div class="poolTitle">🔹 批量历史回测（联网拉取）</div>
-    <button class="btn-green" onclick="fetchSSQ100()">联网拉取最新100期双色球</button>
-    <textarea id="batchInput" placeholder="拉取后自动填充，无需手动填写"></textarea>
-    <button onclick="runBatchTest()">开始批量回测</button>
-    <div id="batchResult"></div>
-</div>
-
 <div class="wrap">
-    <div id="plateBox"></div>
-    <div id="logBox"></div>
+<h1>QDIM · 拆补转盘真盘（五宫参与取号）</h1>
+<div class="sub">星宫生克 + 伏吟翻倍 + 五行旺行六字诀加权 · 中五含0/5尾数</div>
+<div class="panel">
+<div class="form-row">
+<div><label>日期</label><input type="date" id="inpDate"></div>
+<div><label>北京时间</label><input type="time" id="inpTime"></div>
+</div>
+<div class="form-row">
+<div><label>经度（庄河122.98）</label><input type="number" id="inpLng" value="122.98" step="0.001"></div>
+<div><label>取号宫数</label>
+<select id="inpTop">
+<option value="3">前3宫</option>
+<option value="2">前2宫</option>
+<option value="4">前4宫</option>
+</select></div>
+</div>
+<div class="form-row">
+<div><label>强制局数(0=自动)</label><input type="number" id="inpManualJu" value="0"></div>
+<div><label></label>
+<div class="btn-group">
+<button onclick="runCalc()">起局排盘</button>
+<button onclick="saveRecord()">保存</button>
+<button onclick="clearLog()">清日志</button>
+</div></div>
+</div>
 </div>
 
-<div class="resultBlock">
-    <div class="poolTitle">🔹 奇门总池（奇门打分筛选：16红 + 6蓝）</div>
-    <div id="poolOut"></div>
-    <div id="poolStat" class="statText"></div>
+<div class="panel">
+<div class="jiugong" id="jiugongBox"></div>
+<div id="infoBox"></div>
+<div id="resultBox"></div>
 </div>
 
-<div class="resultBlock">
-    <div class="poolTitle">🔹 🔹 精选5注（总池内再按和值/跨度/奇偶/大小过滤）</div>
-    <div id="final5"></div>
-    <div class="note">提示：本工具仅为奇门数据推演研究，不构成购彩建议</div>
+<div class="panel">
+<h3>历史记录</h3>
+<table class="his" id="hisTable"><thead>
+<tr><th>时间</th><th>局数</th><th>备注</th></tr>
+</thead><tbody></tbody></table>
+</div>
+
+<div class="panel">
+<h3>运行日志</h3>
+<div id="logBox"></div>
+</div>
 </div>
 
 <script>
-// 新增全局变量（仅追加，无删减）
-let lastRedPool = [];
-let lastBluePool = [];
-let lastFive = [];
-
-// ============【开奖历史库：日期字符串 => 开奖数据】============
-const HISTORY_MAP = {
-    "2026-10-25":{lot:"ssq", period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
+const TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const GAN_WX={"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"};
+const GONG_WX={1:"水",2:"土",3:"木",4:"木",5:"土",6:"金",7:"金",8:"土",9:"火"};
+const GONG_NAME={1:"坎",2:"坤",3:"震",4:"巽",5:"中",6:"乾",7:"兑",8:"艮",9:"离"};
+const BAXING=["天蓬","天芮","天冲","天辅","天禽","天心","天柱","天任","天英"];
+const XING_WX={"天蓬":"水","天芮":"土","天冲":"木","天辅":"木","天禽":"土","天心":"金","天柱":"金","天任":"土","天英":"火"};
+const XING_GONG={1:0,2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8};
+const BAMEN=["休","生","伤","杜","景","死","惊","开"];
+const MEN_WX={"休":"水","生":"土","伤":"木","杜":"木","景":"火","死":"土","惊":"金","开":"金"};
+const GONG_MEN={1:"休",8:"生",3:"伤",4:"杜",9:"景",2:"死",7:"惊",6:"开"};
+const BASHEN=["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
+const LIUYI=["戊","己","庚","辛","壬","癸","丁","丙","乙"];
+const LIUJIA=[
+    {name:"甲子旬",shou:0,yi:"戊",kong:[10,11]},
+    {name:"甲戌旬",shou:10,yi:"己",kong:[8,9]},
+    {name:"甲申旬",shou:8,yi:"庚",kong:[6,7]},
+    {name:"甲午旬",shou:6,yi:"辛",kong:[4,5]},
+    {name:"甲辰旬",shou:4,yi:"壬",kong:[2,3]},
+    {name:"甲寅旬",shou:2,yi:"癸",kong:[0,1]}
+];
+const RING=[1,8,3,4,9,2,7,6];
+const RING_IDX={1:0,8:1,3:2,4:3,9:4,2:5,7:6,6:7};
+const ZHI_TO_GONG={0:1,1:1,2:8,3:8,4:4,5:4,6:9,7:9,8:7,9:7,10:6,11:6};
+const JIEQI_JU={
+    "冬至":[1,7,4],"小寒":[2,8,5],"大寒":[3,9,6],
+    "立春":[8,5,2],"雨水":[9,6,3],"惊蛰":[1,7,4],
+    "春分":[3,9,6],"清明":[4,1,7],"谷雨":[5,2,8],
+    "立夏":[4,1,7],"小满":[5,2,8],"芒种":[6,3,9],
+    "夏至":[9,3,6],"小暑":[8,2,5],"大暑":[7,1,4],
+    "立秋":[2,5,8],"处暑":[1,4,7],"白露":[9,3,6],
+    "秋分":[7,1,4],"寒露":[6,9,3],"霜降":[5,8,2],
+    "立冬":[6,9,3],"小雪":[5,8,2],"大雪":[4,7,1]
 };
-// ============【这里更新最近一期默认】============
-const RECENT_DATA = {
-    ssq:{period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
-    dlt:{period:"26120", red:["01","05","14","18","25","30"], blue:"11"}
+const JIEQI_WX={
+ "立春":"木","雨水":"木","惊蛰":"木","春分":"木","清明":"木","谷雨":"木",
+ "立夏":"火","小满":"火","芒种":"火","夏至":"火","小暑":"火","大暑":"火",
+ "立秋":"金","处暑":"金","白露":"金","秋分":"金","寒露":"金","霜降":"金",
+ "立冬":"水","小雪":"水","大雪":"水","冬至":"水","小寒":"水","大寒":"水"
 };
-// 开奖周期规则：getDay() 0=周日,1=周一,2=周二,3=周三,4=周四,5=周五,6=周六
-const RULES = {
-    ssq:{week:[2,4,0], openTime:"21:15", name:"双色球"},
-    dlt:{week:[1,3,6], openTime:"21:25", name:"大乐透"}
-};
-// ================================================
+const YIN_JIEQI=new Set(["夏至","小暑","大暑","立秋","处暑","白露","秋分","寒露","霜降","立冬","小雪","大雪"]);
+const LIUZI={zi:1.0, mu:1.5, ke:-1.5, keWo:-1.0, tong:-0.5};
+const sheng={"木":"火","火":"土","土":"金","金":"水","水":"木"};
+const ke={"木":"土","土":"水","水":"火","火":"金","金":"木"};
 
-const ganArr    = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-const baShenStd = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
-const jiuXingStd= ["蓬","芮","冲","辅","禽","心","柱","任","英"];
-const baMenStd  = ["休","死","伤","杜","中","开","惊","生","景"];
-const xunShouList = ["戊","己","庚","辛","壬","癸"];
-const gongIndex = [1,2,3,4,5,6,7,8,9];
-const gongWuxing = {1:"水",2:"土",3:"木",4:"木",5:"土",6:"金",7:"金",8:"土",9:"火"};
-const ganWuxing  = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"};
-const xingWuxing = {"蓬":"水","芮":"土","冲":"木","辅":"木","禽":"土","心":"金","柱":"金","任":"土","英":"火"};
-const menWuxing  = {"休":"水","死":"土","伤":"木","杜":"木","开":"金","惊":"金","生":"土","景":"火"};
+let historyList=JSON.parse(localStorage.getItem("qdim_history")||"[]");
+let lastJuData=null;
 
-const wxBallMap = {
-    "土":[5,15,25,8,20,33],
-    "木":[4,14,24,3,13,24,31],
-    "火":[9,19,29,2,12,22,30],
-    "金":[1,11,21,7,17,27],
-    "水":[6,16,26,10,18,28,32]
-};
-const wxBlueMap = {
-    "土":[5,8,15],
-    "木":[3,4,13],
-    "火":[2,9,12],
-    "金":[1,7,11],
-    "水":[6,10,16]
-};
-
-// 宫顺排：1坎,2坤,3震,4巽,5中,6乾,7兑,8艮,9离
-const gongNext = {1:2,2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:1};
-
-function getNextOpenDate(lotKey){
-    const rule = RULES[lotKey];
-    let now = new Date();
-    let target = new Date(now);
-    for(let i=0;i<8;i++){
-        let w = target.getDay();
-        if(rule.week.includes(w)){
-            return target;
-        }
-        target.setDate(target.getDate()+1);
-    }
-    return target;
-}
-
-// ======【重点新增：日期变更自动填充开奖号码】======
-function fillByDate(dateStr){
-    const lotKey = document.getElementById("lotType").value;
-    const rule = RULES[lotKey];
-    const hit = HISTORY_MAP[dateStr];
-    if(hit && hit.lot === lotKey){
-        document.getElementById("hitRedInput").value = hit.red.join(" ");
-        document.getElementById("hitBlueInput").value = hit.blue;
-        document.getElementById("tipBar").innerText = `✅匹配到【${dateStr}】开奖期号${hit.period}，已自动填入开奖号码`;
-    }else{
-        document.getElementById("hitRedInput").value = "";
-        document.getElementById("hitBlueInput").value = "";
-        document.getElementById("tipBar").innerText = `⚠️【${dateStr}】在本地库无记录，请手动填写开奖号码`;
-    }
-    document.getElementById("timeInput").value = rule.openTime;
-}
-
-function fillAuto(){
-    const lotKey = document.getElementById("lotType").value;
-    const rule = RULES[lotKey];
-    const recent = RECENT_DATA[lotKey];
-    document.getElementById("hitRedInput").value = recent.red.join(" ");
-    document.getElementById("hitBlueInput").value = recent.blue;
-    let nextDay = getNextOpenDate(lotKey);
-    let y = nextDay.getFullYear();
-    let m = String(nextDay.getMonth()+1).padStart(2,"0");
-    let d = String(nextDay.getDate()).padStart(2,"0");
-    document.getElementById("dateInput").value = `${y}-${m}-${d}`;
-    document.getElementById("timeInput").value = rule.openTime;
-    document.getElementById("tipBar").innerText =
-        `${rule.name}:最近一期【${recent.period}】已自动填入；下一期开奖：${y}-${m}-${d} ${rule.openTime}`;
-}
-
-function getFuYuanGong(diPan){
-    let fuYuanGong = null;
-    for(let k in diPan){
-        if(xunShouList.includes(diPan[k])){
-            fuYuanGong = Number(k);
-            break;
-        }
-    }
-    return fuYuanGong;
-}
-
-function getHourGan(dayGan, si){
-    let dayGanIdx = ganArr.indexOf(dayGan);
-    if(si === 0){
-        dayGanIdx = (dayGanIdx + 1) % 10;
-    }
-    const hourGanIdx = (dayGanIdx * 2 + si) % 10;
-    return ganArr[hourGanIdx];
-}
-
-function trueSolarTime(y,m,d,hh,mm,lng){
-    const tz = 8;
-    let JD = gregorianToJD(y,m,d);
-    let T = (JD - 2451545.0)/36525;
-    let L0 = 280.46646 + 36000.76983*T + 0.0003032*T*T;
-    L0 = L0 % 360;
-    let g = 357.52911 + 35999.05029*T - 0.0001537*T*T;
-    g = g % 360;
-    let e = 23 + (26 + (21.448 - 46.8150*T - 0.00059*T*T + 0.001813*T*T*T)/60)/60;
-    let obliq = e;
-    let sunLon = L0 + 1.914602*Math.sin(g*Math.PI/180)+0.019993*Math.sin(2*g*Math.PI/180)+0.000289*Math.sin(3*g*Math.PI/180);
-    sunLon %= 360;
-    let eqTime = 4*(-Math.atan2(Math.cos(obliq*Math.PI/180)*Math.sin(sunLon*Math.PI/180), Math.cos(sunLon*Math.PI/180))*180/Math.PI + sunLon);
-    let lonOffset = (lng - tz*15)/15 * 60;
-    let bjdMin = hh*60 + mm;
-    let tsMin = bjdMin + eqTime + lonOffset;
-    if(tsMin<0) tsMin += 1440;
-    if(tsMin>=1440) tsMin -=1440;
-    let tsh = Math.floor(tsMin/60);
-    let tsm = Math.round(tsMin % 60);
-    let si = Math.floor((tsh + 1)/2) %12;
-    return {tsHour:tsh, tsMin:tsm, si:si, eq:eqTime, lonOff:lonOffset};
-}
-function gregorianToJD(y,m,d){
+function date2Jdn(y,m,d,h,mi,s){
     if(m<=2){y--;m+=12;}
-    let A = Math.floor(y/100);
-    let B = 2 - A + Math.floor(A/4);
-    let JD = Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + B - 1524.5;
-    return JD;
+    let A=Math.floor(y/100),B=2-A+Math.floor(A/4);
+    let jd=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+    jd+=(h+mi/60+s/3600)/24;
+    return jd;
+}
+const JDN_ANCHOR=2451544.5;
+function jdn2GanZhi(jdn){
+    let off=Math.floor(jdn-JDN_ANCHOR);
+    let g=(4+off)%10;if(g<0)g+=10;
+    let z=(6+off)%12;if(z<0)z+=12;
+    return [g,z];
 }
 
-function calcDiPan(y,m,d){
-    const baseDay = 10957;
-    const date = new Date(y,m-1,d);
-    let dayNum = Math.floor(date.getTime() / 86400000) - baseDay;
-    dayNum = dayNum < 0 ? dayNum + 6000 : dayNum;
-    let dayGanIdx = dayNum % 10;
-    let dayGan = ganArr[dayGanIdx];
-    const xunShouMap = ["戊","己","庚","辛","壬","癸","戊","己","庚","辛"];
-    let xunShou = xunShouMap[dayGanIdx];
-    const diGanRule = {
-        "戊":[1,2,3,4,5,6,7,8,9],
-        "己":[2,3,4,5,6,7,8,9,1],
-        "庚":[3,4,5,6,7,8,9,1,2],
-        "辛":[4,5,6,7,8,9,1,2,3],
-        "壬":[5,6,7,8,9,1,2,3,4],
-        "癸":[6,7,8,9,1,2,3,4,5]
-    };
-    let baseList = diGanRule[xunShou];
-    let diPan = {};
+function eqTime(jdn){
+    let D=(jdn-2451545.0)/365.25*360;
+    let r=Math.PI/180;
+    return -7.659*Math.sin(D*r)+9.863*Math.sin(2*D*r+3.5932*r);
+}
+function trueSolar(dateStr,tmStr,lng){
+    let dt=new Date(dateStr+"T"+tmStr);
+    let jdn=date2Jdn(dt.getFullYear(),dt.getMonth()+1,dt.getDate(),dt.getHours(),dt.getMinutes(),0);
+    let eq=eqTime(jdn);
+    let lonOff=(lng-120)*4;
+    let [h,m]=tmStr.split(":").map(Number);
+    let total=h*60+m+lonOff+eq;
+    let dayAdd=Math.floor(total/(24*60));
+    total=((total%(24*60))+24*60)%(24*60);
+    return {hour:Math.floor(total/60),min:Math.round(total%60),eq,lonOff,dayAdd};
+}
+
+function solarLon(jde){
+    let T=(jde-2451545.0)/36525;
+    let L=(280.46646+36000.76983*T+0.0003032*T*T)%360;
+    let M=(357.52911+35999.05029*T-0.0001537*T*T)%360;
+    let C=(1.914602-0.004817*T)*Math.sin(M*Math.PI/180)
+        +(0.019993-0.000101*T)*Math.sin(2*M*Math.PI/180)
+        +0.000289*Math.sin(3*M*Math.PI/180);
+    return (L+C+360)%360;
+}
+const JIEQI_LON=[
+    [270,"冬至"],[285,"小寒"],[300,"大寒"],
+    [315,"立春"],[330,"雨水"],[345,"惊蛰"],
+    [0,"春分"],[15,"清明"],[30,"谷雨"],
+    [45,"立夏"],[60,"小满"],[75,"芒种"],
+    [90,"夏至"],[105,"小暑"],[120,"大暑"],
+    [135,"立秋"],[150,"处暑"],[165,"白露"],
+    [180,"秋分"],[195,"寒露"],[210,"霜降"],
+    [225,"立冬"],[240,"小雪"],[255,"大雪"]
+];
+function currentJieqi(jde){
+    let lon=solarLon(jde);
+    let best=null,bd=999;
+    for(let i=0;i<JIEQI_LON.length;i++){
+        let [L,n]=JIEQI_LON[i];
+        let nxt=JIEQI_LON[(i+1)%JIEQI_LON.length];
+        let seg=(nxt[0]-L+360)%360;
+        let dd=(lon-L+360)%360;
+        if(dd<seg&&dd<bd){bd=dd;best={name:n};}
+    }
+    return best;
+}
+
+function findFuTou(jdn){
+    for(let i=0;i<15;i++){
+        let [g,z]=jdn2GanZhi(jdn-i);
+        if(g===0||g===5) return {jdn:jdn-i,gan:g,zhi:z};
+    }
+    return null;
+}
+function yuanOf(zhi){
+    if([0,6,4,10].includes(zhi)) return 0;
+    if([2,8,5,11].includes(zhi)) return 1;
+    return 2;
+}
+
+function getXun(shiGan,shiZhi){
+    let shou=((shiZhi-shiGan)%12+12)%12;
+    return LIUJIA.find(x=>x.shou===shou);
+}
+function wuShuDun(riGan,shiZhi){
+    const tab=[0,2,4,6,8,0,2,4,6,8];
+    return (tab[riGan]+shiZhi)%10;
+}
+
+function buildDiPan(ju,isYin){
+    let di={};
+    let seq=isYin?[9,8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8,9];
+    let start=seq.indexOf(ju);
     for(let i=0;i<9;i++){
-        let g = gongIndex[i];
-        diPan[g] = ganArr[baseList[i]-1];
+        let gong=seq[(start+i)%9];
+        di[gong]=LIUYI[i];
     }
-    return {diPan, dayGan, xunShou};
+    return di;
 }
+function findGongByGan(diPan,gan){
+    for(let g=1;g<=9;g++) if(diPan[g]===gan) return g;
+    return -1;
+}
+function buildZhenFeiPan(juNum,isYin,gzShi,diPan){
+    let shiGan=TIANGAN.indexOf(gzShi[0]);
+    let shiZhi=DIZHI.indexOf(gzShi[1]);
+    let xun=getXun(shiGan,shiZhi);
+    let xunYiGong=findGongByGan(diPan,xun.yi);
+    if(xunYiGong===5) xunYiGong=2;
 
-function rotatePlateCorrect(diPan, fuYuanGong, si){
-    let tianPan = {};
-    let jiuXingMap = {};
-    let baMenMap  = {};
-    let baShenMap = {};
+    let xunXingIdx=XING_GONG[xunYiGong];
+    let zhiFuXing=BAXING[xunXingIdx];
 
-    const baseGongOrder = [1,2,3,4,5,6,7,8,9];
-    const baseXing = {"1":"蓬","2":"芮","3":"冲","4":"辅","5":"禽","6":"心","7":"柱","8":"任","9":"英"};
-    const baseMen  = {"1":"休","2":"死","3":"伤","4":"杜","5":"中","6":"开","7":"惊","8":"生","9":"景"};
-    const baseShen = {"1":"值符","2":"螣蛇","3":"太阴","4":"六合","5":"白虎","6":"玄武","7":"九地","8":"九天","9":"九天"};
+    let shiGanGong=findGongByGan(diPan,TIANGAN[shiGan]);
+    if(shiGanGong===5) shiGanGong=2;
 
-    let fuGong = fuYuanGong;
-    for(let s=0;s<si;s++){
-        fuGong = gongNext[fuGong];
-    }
+    let xingMap={};
+    let starPos=RING_IDX[shiGanGong];
+    RING.forEach((g,i)=>{
+        let k=(i-starPos)%8; if(k<0)k+=8;
+        xingMap[g]=BAXING[(xunXingIdx+k)%9];
+    });
+    xingMap[5]="天禽";
 
-    const offsetGong = {};
-    let src = fuYuanGong;
-    let dst = fuGong;
-    for(let i=0;i<9;i++){
-        offsetGong[src] = dst;
-        src = gongNext[src];
-        dst = gongNext[dst];
-    }
+    let zhiShiMen=GONG_MEN[xunYiGong]||"死";
+    let stepsFromJia=((shiZhi-xun.shou)%12+12)%12;
+    let dir=isYin?-1:1;
+    let menPos=((RING_IDX[xunYiGong]+dir*stepsFromJia)%8+8)%8;
+    let zhiShiGong=RING[menPos];
+    let menMap={};
+    RING.forEach((g,i)=>{
+        let k=(i-menPos)%8; if(k<0)k+=8;
+        menMap[g]=BAMEN[(BAMEN.indexOf(zhiShiMen)+k)%8];
+    });
+    menMap[5]="";
 
+    let shenMap={};
+    let zfPos=RING_IDX[shiGanGong];
+    RING.forEach((g,i)=>{
+        let k=(i-zfPos)%8; if(k<0)k+=8;
+        let si=(dir>0?k:-k)%8; if(si<0)si+=8;
+        shenMap[g]=BASHEN[si];
+    });
+    shenMap[5]="";
+
+    let tianPan={};
     for(let g=1;g<=9;g++){
-        let srcG = null;
-        for(let k in offsetGong){
-            if(offsetGong[k]==g) srcG = Number(k);
-        }
-        tianPan[g] = diPan[srcG];
-        jiuXingMap[g] = baseXing[srcG];
-        baMenMap[g] = baseMen[srcG];
-        baShenMap[g] = baseShen[srcG];
+        let star=xingMap[g];
+        let src=(star==="天禽")?2:Object.keys(XING_GONG).find(gg=>BAXING[XING_GONG[gg]]===star);
+        tianPan[g]=diPan[Number(src)];
     }
-    return {tianPan,jiuXingMap,baMenMap,baShenMap,fuGong};
-}
+    tianPan[5]=tianPan[2];
 
-function calcScore(gongNo, tianGan, xing, men){
-    let score = 50;
-    let gWx = gongWuxing[gongNo];
-    let tWx = ganWuxing[tianGan];
-    let xWx = xingWuxing[xing];
-    let mWx = menWuxing[men];
-    function getDelta(src, target){
-        if(src === target) return +3;
-        if( (src=="木"&&target=="火") || (src=="火"&&target=="土") || (src=="土"&&target=="金") || (src=="金"&&target=="水") || (src=="水"&&target=="木") ) return +6;
-        if( (src=="木"&&target=="土") || (src=="土"&&target=="水") || (src=="水"&&target=="火") || (src=="火"&&target=="金") || (src=="金"&&target=="木") ) return -6;
-        return 0;
-    }
-    score += getDelta(gWx, tWx);
-    score += getDelta(gWx, xWx);
-    score += getDelta(gWx, mWx);
-    score += getDelta(xWx, gWx);
-    score += getDelta(mWx, gWx);
-    return Math.max(0, Math.min(100, score));
-}
-
-function buildQiMenPool(plateData){
-    let gongScoreList = [];
+    let kongGong=[...new Set(xun.kong.map(z=>ZHI_TO_GONG[z]))];
+    let flag={};
     for(let g=1;g<=9;g++){
-        gongScoreList.push({gong:g, score:plateData[g].score, wx:gongWuxing[g]});
-    }
-    gongScoreList.sort((a,b)=>b.score - a.score);
-    let redSet = new Set();
-    let blueSet = new Set();
-    for(let item of gongScoreList){
-        let wx = item.wx;
-        let redArr = wxBallMap[wx];
-        for(let r of redArr){
-            if(redSet.size <16) redSet.add(r);
-        }
-        let blueArr = wxBlueMap[wx];
-        for(let b of blueArr){
-            if(blueSet.size <6) blueSet.add(b);
-        }
-    }
-    let redPool = Array.from(redSet).sort((a,b)=>a-b);
-    let bluePool = Array.from(blueSet).sort((a,b)=>a-b);
-    return {redPool, bluePool};
-}
-
-function filterFinal5(redPool, bluePool){
-    let allComb = [];
-    function comb(arr, k){
-        let res = [];
-        function dfs(start, path){
-            if(path.length === k){res.push([...path]);return;}
-            for(let i=start;i<arr.length;i++){
-                path.push(arr[i]);
-                dfs(i+1,path);
-                path.pop();
-            }
-        }
-        dfs(0,[]);
-        return res;
-    }
-    let red6List = comb(redPool,6);
-    for(let r6 of red6List){
-        for(let b of bluePool){
-            allComb.push({red:r6, blue:b});
-        }
-    }
-    function checkRule(red){
-        let sum = red.reduce((a,b)=>a+b,0);
-        let span = red[5] - red[0];
-        let ji = red.filter(x=>x%2===1).length;
-        let big = red.filter(x=>x>16).length;
-        if(sum <60 || sum>130) return false;
-        if(span <18 || span>30) return false;
-        if(ji<2 || ji>4) return false;
-        if(big<2 || big>4) return false;
-        let lian = 0;
-        let maxLian =0;
-        for(let i=1;i<6;i++){
-            if(red[i]-red[i-1]===1){lian++;maxLian=Math.max(maxLian,lian);}else lian=0;
-        }
-        if(maxLian >=2) return false;
-        return true;
-    }
-    let pass = allComb.filter(x=>checkRule(x.red));
-    shuffle(pass);
-    let out5 = pass.slice(0,5);
-    return out5;
-}
-function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-        let j = Math.floor(Math.random()*(i+1));
-        [arr[i],arr[j]] = [arr[j],arr[i]];
-    }
-}
-
-function renderBalls(arr, isRed, hitSet){
-    let html = "";
-    for(let n of arr){
-        let hitClass = hitSet.has(n) ? "ballHit" : "";
-        html += `<span class="${isRed?'ballRed':'ballBlue'} ${hitClass}">${n}</span>`;
-    }
-    return html;
-}
-
-function renderPlate(plateData){
-    const box = document.getElementById("plateBox");
-    box.innerHTML = "";
-    const order = [4,9,2,3,5,7,8,1,6];
-    for(let g of order){
-        let item = plateData[g];
-        let div = document.createElement("div");
-        div.className = "gong";
-        div.innerHTML = `
-            <strong>${g}宫(${gongWuxing[g]})</strong>
-            <div>地:${item.diGan} 天:${item.tianGan}</div>
-            <div>⭐${item.xing} 🚪${item.men}</div>
-            <div>👻${item.shen}</div>
-            <div class="score">得分：${item.score}</div>
-        `;
-        box.appendChild(div);
-    }
-}
-
-function runQiMen(){
-    // 【新增清空代码，仅此一段，其余全部保留原版】
-    lastRedPool = [];
-    lastBluePool = [];
-    lastFive = [];
-    // 清空DOM残留
-    document.getElementById("plateBox").innerHTML = "";
-    document.getElementById("logBox").innerText = "";
-    document.getElementById("poolOut").innerHTML = "";
-    document.getElementById("poolStat").innerText = "";
-    document.getElementById("final5").innerHTML = "";
-    // 以上为新增内容，下面所有代码一字不动
-
-    try{
-        const dateStr = document.getElementById("dateInput").value;
-        const timeStr = document.getElementById("timeInput").value;
-        const lng = Number(document.getElementById("lng").value);
-        const hitRedStr = document.getElementById("hitRedInput").value.trim();
-        const hitBlueStr = document.getElementById("hitBlueInput").value.trim();
-        if(!dateStr){alert("请选择日期");return;}
-
-        let hitRedArr = hitRedStr.split(/\s+/).filter(x=>x!="").map(Number);
-        let hitBlue = hitBlueStr ? Number(hitBlueStr) : null;
-        let hitRedSet = new Set(hitRedArr);
-
-        let [y,m,d] = dateStr.split("-").map(Number);
-        let [hh,mm] = timeStr.split(":").map(Number);
-
-        let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
-        let si = tsObj.si;
-
-        let resDi = calcDiPan(y,m,d);
-        let diPan = resDi.diPan;
-        let dayGan = resDi.dayGan;
-        let xunShou = resDi.xunShou;
-        let fuYuanGong = getFuYuanGong(diPan);
-        let hourGan = getHourGan(dayGan, si);
-        let rot = rotatePlateCorrect(diPan, fuYuanGong, si);
-
-        let plateData = {};
-        for(let g of gongIndex){
-            let dg = diPan[g];
-            let tg = rot.tianPan[g];
-            let xing = rot.jiuXingMap[g];
-            let men = rot.baMenMap[g];
-            let shen = rot.baShenMap[g];
-            let sc = calcScore(g, tg, xing, men);
-            plateData[g] = {diGan:dg, tianGan:tg, xing, men, shen, score:sc};
-        }
-        renderPlate(plateData);
-
-        let pool = buildQiMenPool(plateData);
-        let five = filterFinal5(pool.redPool, pool.bluePool);
-
-        let poolHitRed = pool.redPool.filter(r=>hitRedSet.has(r));
-        let poolHitBlue = hitBlue && pool.bluePool.includes(hitBlue);
-        let hitCount = poolHitRed.length;
-        let totalOpenRed = hitRedArr.length;
-        let coverRate = totalOpenRed>0 ? (hitCount / totalOpenRed *100).toFixed(1) : 0;
-
-        let log = "";
-        log += "==== 拆补奇门真盘 | 真太阳时校正 ====\n";
-        log += `北京时间：${y}-${m}-${d} ${hh}:${mm}\n`;
-        log += `真太阳时：${tsObj.tsHour}:${tsObj.tsMin} 时辰序号=${si}\n`;
-        log += `日干：${dayGan} | 旬首：${xunShou}\n`;
-        log += `时干：${hourGan}\n`;
-        log += `值符原点宫：${fuYuanGong}，值符落宫：${rot.fuGong}\n`;
-        log += "\n【宫得分清单】\n";
-        for(let g of [1,2,3,4,5,6,7,8,9]){
-            let o = plateData[g];
-            log += `${g}宫(${gongWuxing[g]}) 九星${o.xing}，八门${o.men}，八神${o.shen}，得分：${o.score}\n`;
-        }
-        document.getElementById("logBox").innerText = log;
-
-        document.getElementById("poolOut").innerHTML = `
-            红球总池：${renderBalls(pool.redPool,true,hitRedSet)}<br>
-            蓝球总池：${renderBalls(pool.bluePool,false,new Set(hitBlue?[hitBlue]:[]))}
-        `;
-        document.getElementById("poolStat").innerText = `
-【总池比对统计】
-开奖红球：${hitRedArr.join(",")||"未填写"}
-开奖蓝球：${hitBlue??"未填写"}
-总池命中红球：${poolHitRed.join(",")||"无"}  命中数量：${hitCount}
-总池蓝球命中：${poolHitBlue?"✅命中":"❌未命中"}
-红球覆盖率：${coverRate}%（命中数/开奖红球总数）
-        `;
-
-        let fiveHtml = "";
-        if(five.length ===0){
-            fiveHtml = "<span style='color:#f88'>没有满足过滤条件的组合，请放宽过滤条件</span>";
+        if(g===5){
+            flag[g]={fuyin:false,fanyin:false};
         }else{
-            for(let i=0;i<five.length;i++){
-                let item = five[i];
-                let zhRedHit = item.red.filter(x=>hitRedSet.has(x));
-                let zhBlueHit = hitBlue===item.blue;
-                fiveHtml += `第${i+1}注：${renderBalls(item.red,true,hitRedSet)} + ${renderBalls([item.blue],false,new Set(hitBlue?[hitBlue]:[]))}
-                <span style="color:#adf"> | 本注命中红球：${zhRedHit.join(",")||"无"}，蓝球：${zhBlueHit?"✅中":"❌不中"}</span><br><br>`;
-            }
+            let starIdx=RING_IDX[g];
+            flag[g]={
+                fuyin:xingMap[g]===BAXING[XING_GONG[g]],
+                fanyin:xingMap[g]===BAXING[XING_GONG[(10-g)%9||9]]
+            };
         }
-        document.getElementById("final5").innerHTML = fiveHtml;
-    }catch(e){
-        alert("脚本出错："+e.message);
-        console.error(e);
     }
+    return {
+        juNum:juNum,xun:xun.name,xunYi:xun.yi,xunGong:xunYiGong,
+        shiGan:TIANGAN[shiGan],shiGanGong:shiGanGong,
+        fuXing:zhiFuXing,shiGong:zhiShiGong,shiMen:zhiShiMen,
+        diPan,tianPan,xingMap,menMap,shenMap,flag,kongGong,isYin
+    };
 }
 
-async function runBatchTest(){
-    try{
-        const lng = Number(document.getElementById("lng").value);
-        const lines = document.getElementById("batchInput").value.trim().split("\n").filter(x=>x.trim()!="");
-        let tableHtml = `<table><tr><th>期号</th><th>开奖</th><th>命中红</th><th>个数</th><th>覆盖率</th><th>蓝</th></tr>`;
-        let sumRate = 0;
-        let validCnt = 0;
-
-        for(let line of lines){
-            await new Promise(resolve=>setTimeout(resolve,10));
-            let arr = line.trim().split(/\s+/);
-            if(arr.length <8) continue;
-            let qh = arr[0];
-            let redOpen = arr.slice(1,7).map(Number);
-            let blueOpen = Number(arr[7]);
-            let hitRedSet = new Set(redOpen);
-            let y = parseInt(qh.substr(0,4));
-            let m = parseInt(qh.substr(4,2));
-            let d = parseInt(qh.substr(6,2));
-            let hh = 21, mm =15;
-            let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
-            let si = tsObj.si;
-            let resDi = calcDiPan(y,m,d);
-            let diPan = resDi.diPan;
-            let fuYuanGong = getFuYuanGong(diPan);
-            let rot = rotatePlateCorrect(diPan, fuYuanGong, si);
-            let plateData = {};
-            for(let g of gongIndex){
-                let dg = diPan[g];
-                let tg = rot.tianPan[g];
-                let xing = rot.jiuXingMap[g];
-                let men = rot.baMenMap[g];
-                let shen = rot.baShenMap[g];
-                let sc = calcScore(g, tg, xing, men);
-                plateData[g] = {diGan:dg, tianGan:tg, xing, men, shen, score:sc};
-            }
-            let pool = buildQiMenPool(plateData);
-            let hitRed = pool.redPool.filter(r=>hitRedSet.has(r));
-            let hitBlue = pool.bluePool.includes(blueOpen);
-            let rate = (hitRed.length / 6 *100).toFixed(1);
-            sumRate += Number(rate);
-            validCnt +=1;
-            tableHtml += `<tr>
-                <td>${qh}</td>
-                <td>${redOpen.join(" ")}+${blueOpen}</td>
-                <td>${hitRed.join(",")||"-"}</td>
-                <td>${hitRed.length}</td>
-                <td>${rate}%</td>
-                <td>${hitBlue?"✅":"❌"}</td>
-            </tr>`;
-        }
-        let avgRate = validCnt>0 ? (sumRate / validCnt).toFixed(1):0;
-        tableHtml += `</table><div style="margin-top:8px;color:#fd9">一共${validCnt}期，平均红球覆盖率：${avgRate}%</div>`;
-        document.getElementById("batchResult").innerHTML = tableHtml;
-    }catch(e){
-        alert("批量回测出错："+e.message);
+function getWangXing(juData,jieqi){
+    let cnt={"木":0,"火":0,"土":0,"金":0,"水":0};
+    [1,2,3,4,6,7,8,9].forEach(g=>{
+        let star=juData.xingMap[g];
+        if(star) cnt[XING_WX[star]]+=1;
+        let men=juData.menMap[g];
+        if(men&&MEN_WX[men]) cnt[MEN_WX[men]]+=1;
+        let tian=juData.tianPan[g];
+        if(tian) cnt[GAN_WX[tian]]+=2;
+        let di=juData.diPan[g];
+        if(di) cnt[GAN_WX[di]]+=1;
+    });
+    let max=-1,wang=JIEQI_WX[jieqi]||"木";
+    for(let wx of ["木","火","土","金","水"]){
+        if(cnt[wx]>max){max=cnt[wx];wang=wx;}
     }
+    return {wang,cnt};
 }
 
-// ========== 【你原来稳定版拉取函数，保留不变】 ==========
-async function fetchSSQ100(){
-    const proxyUrl = "https://corsproxy.io/?";
-    const targetApi = "https://www.caijiapi.com/api/ssq?limit=100";
-    const url = proxyUrl + encodeURIComponent(targetApi);
-    document.getElementById("tipBar").innerText = "正在联网拉取双色球100期，请稍等...";
-    try{
-        const resp = await fetch(url);
-        if(!resp.ok) throw new Error("接口返回异常");
-        const json = await resp.json();
-        if(!json.data || !Array.isArray(json.data)) throw new Error("数据格式不对");
-        let lines = [];
-        for(let item of json.data){
-            let qh = item.code;
-            let red = item.red.split(",").join(" ");
-            let blue = item.blue;
-            lines.push(`${qh} ${red} ${blue}`);
-        }
-        document.getElementById("batchInput").value = lines.join("\n");
-        document.getElementById("tipBar").innerText = `✅拉取成功，一共${lines.length}期，现在可以点【开始批量回测】`;
-    }catch(err){
-        document.getElementById("tipBar").innerText = "❌拉取失败："+err.message;
-        alert("拉取失败："+err.message+"\n公共CORS代理不稳定，换个时间重试");
-    }
+function liuZiScore(wang,g,juData){
+    let sw=XING_WX[juData.xingMap[g]];
+    if(!sw) return {pt:0,rel:"—"};
+    if(sheng[sw]===wang) return {pt:LIUZI.zi,rel:"子(我生)"};
+    if(sheng[wang]===sw) return {pt:LIUZI.mu,rel:"母(生我)"};
+    if(ke[wang]===sw) return {pt:LIUZI.ke,rel:"克物"};
+    if(ke[sw]===wang) return {pt:LIUZI.keWo,rel:"克我"};
+    if(wang===sw) return {pt:LIUZI.tong,rel:"同我"};
+    return {pt:0,rel:"—"};
 }
 
-// ======【监听：切换彩种 + 修改日期】======
-document.getElementById("lotType").addEventListener("change", fillAuto);
-document.getElementById("dateInput").addEventListener("change", function(){
-    fillByDate(this.value);
-});
-document.addEventListener('DOMContentLoaded', fillAuto);
+function gongWeight(juData,wang){
+    let w={};
+    for(let g=1;g<=9;g++){
+        let sw=XING_WX[juData.xingMap[g]],gw=GONG_WX[g];
+        let base=0;
+        if(ke[sw]===gw) base-=1;
+        else if(sheng[sw]===gw) base+=1;
+        if(juData.flag[g].fuyin) base*=2;
+        let {pt,rel}=liuZiScore(wang,g,juData);
+        w[g]={base,liuzi:pt,total:base+pt,rel};
+    }
+    return w;
+}
+
+function poolOf(gong,max){
+    let a=[];
+    for(let n=1;n<=max;n++){
+        let t=n%10;
+        if(t===(gong%10)||(gong===5&&t===0)) a.push(n);
+    }
+    return a;
+}
+function qdimPick(juData,w,topN){
+    let sorted=[];for(let g=1;g<=9;g++)sorted.push(g);
+    sorted.sort((a,b)=>((w[b].total||0)-(w[a].total||0)));
+    let top=sorted.slice(0,topN);
+    let red=[],blue=[];
+    top.forEach(g=>{
+        red=red.concat(poolOf(g,33));
+        blue=blue.concat(poolOf(g,16));
+    });
+    return {
+        weight:w,sorted,top,
+        red:[...new Set(red)],blue:[...new Set(blue)],
+        detail:top.map(g=>`${g}宫(${GONG_NAME[g]}·${juData.xingMap[g]}) ${w[g].total.toFixed(1)}`).join(" → ")
+    };
+}
+
+function renderJiugong(juData,w){
+    const box=document.getElementById("jiugongBox");
+    box.innerHTML="";
+    [4,9,2,3,5,7,8,1,6].forEach(g=>{
+        let cell=document.createElement("div");
+        cell.className="gong-cell"+(g===5?" zhong":"");
+        let tags="";
+        if(juData.kongGong.includes(g)) tags+=`⚡空亡 `;
+        if(juData.flag[g].fuyin) tags+=`◆伏吟 `;
+        if(juData.flag[g].fanyin) tags+=`◇反吟 `;
+        if(juData.xingMap[g]===juData.fuXing) tags+=`★值符 `;
+        if(juData.menMap[g]===juData.shiMen) tags+=`▲值使`;
+        let sc="";
+        if(w[g]){
+            sc=`<div class="score-line">基${w[g].base} 六${w[g].liuzi} 总${w[g].total.toFixed(1)}</div>`;
+        }
+        cell.innerHTML=`
+            <div class="gong-no">${g}宫${GONG_NAME[g]}</div>
+            <div class="shen">${juData.shenMap[g]||""}</div>
+            <div class="star">${juData.xingMap[g]||""}</div>
+            <div class="men">${juData.menMap[g]||"—"}</div>
+            <div class="tian">天盘：${juData.tianPan[g]||""}</div>
+            <div class="di">地盘：${juData.diPan[g]||""}</div>
+            <div class="tags">${tags}</div>
+            ${sc}
+        `;
+        box.appendChild(cell);
+    });
+}
+
+function runCalc(){
+    const d=document.getElementById("inpDate").value;
+    const t=document.getElementById("inpTime").value;
+    const lng=parseFloat(document.getElementById("inpLng").value);
+    const manualJu=parseInt(document.getElementById("inpManualJu").value);
+    const topN=parseInt(document.getElementById("inpTop").value);
+    if(!d||!t){alert("请填写日期和北京时间");return;}
+
+    const ts=trueSolar(d,t,lng);
+    const bj=new Date(d+"T"+t);
+    const bjJdn=date2Jdn(bj.getFullYear(),bj.getMonth()+1,bj.getDate(),bj.getHours(),bj.getMinutes(),0);
+    const jq=currentJieqi(bjJdn);
+    const isYin=YIN_JIEQI.has(jq.name);
+    const juArr=JIEQI_JU[jq.name];
+    const fu=findFuTou(Math.floor(bjJdn));
+    const yuan=yuanOf(fu.zhi);
+    const ju=manualJu>0?manualJu:juArr[yuan];
+
+    let jdnDay=Math.floor(bjJdn)+ts.dayAdd;
+    let [rg,rz]=jdn2GanZhi(jdnDay);
+    let shiZhi=Math.floor(((ts.hour+1)%24)/2);
+    let shiGan=wuShuDun(rg,shiZhi);
+    let gzShi=TIANGAN[shiGan]+DIZHI[shiZhi];
+
+    let diPan=buildDiPan(ju,isYin);
+    let juData=buildZhenFeiPan(ju,isYin,gzShi,diPan);
+    lastJuData=juData;
+
+    let {wang,cnt}=getWangXing(juData,jq.name);
+    let w=gongWeight(juData,wang);
+    let pick=qdimPick(juData,w,topN);
+    renderJiugong(juData,w);
+
+    let info=`【真太阳时】经度${lng}° 经度差${ts.lonOff.toFixed(1)}′ 均时差${ts.eq.toFixed(1)}′ 跨日${ts.dayAdd>=0?'+':''}${ts.dayAdd}\n`;
+    info+=`【北京时间】${d} ${t}\n`;
+    info+=`【真太阳时】${String(ts.hour).padStart(2,'0')}:${String(ts.min).padStart(2,'0')}（${DIZHI[shiZhi]}时）\n`;
+    info+=`【节气】${jq.name}｜${isYin?'阴遁':'阳遁'}${ju}局｜${['上元','中元','下元'][yuan]}（符头${TIANGAN[fu.gan]}${DIZHI[fu.zhi]}）\n`;
+    info+=`【日柱】${TIANGAN[rg]}${DIZHI[rz]}｜【时柱】${gzShi}\n`;
+    info+=`【旬首】${juData.xun}（${juData.xunYi}）｜空亡：${juData.kongGong.map(g=>GONG_NAME[g]).join('、')}宫\n`;
+    info+=`【值符】${juData.fuXing}落${juData.shiGanGong}宫｜【值使】${juData.shiMen}落${juData.shiGong}宫\n`;
+    info+=`【六字诀·旺行】${wang}（能量：木${cnt["木"]} 火${cnt["火"]} 土${cnt["土"]} 金${cnt["金"]} 水${cnt["水"]}）\n`;
+    info+=`【各宫得分】`+[1,2,3,4,5,6,7,8,9].map(g=>`${g}宫${w[g].total.toFixed(1)}`).join(" | ");
+    document.getElementById("infoBox").innerText=info;
+
+    let res=`【QDIM 六字诀加权取号】旺行=${wang}\n`;
+    res+=`出球宫排序：${pick.detail}\n\n`;
+    res+=`红球候选（${pick.red.length}个）：${pick.red.join(' ')}\n`;
+    res+=`蓝球候选（${pick.blue.length}个）：${pick.blue.join(' ')}\n\n`;
+    res+=`【6+1 精选】红：${pick.red.slice(0,6).join(' ')} 蓝：${pick.blue[0]||'01'}\n`;
+    res+=`【7+1 备选】红：${pick.red.slice(0,7).join(' ')} 蓝：${pick.blue[1]||pick.blue[0]||'01'}\n`;
+    document.getElementById("resultBox").innerText=res;
+    addLog(info+"\n"+res);
+    refreshTable();
+}
+
+function saveRecord(){
+    if(!lastJuData){alert("请先起局");return;}
+    historyList.unshift({
+        datetime:document.getElementById("inpDate").value+" "+document.getElementById("inpTime").value,
+        ju:lastJuData.juNum,
+        note:`${lastJuData.xun}｜值符${lastJuData.fuXing}${lastJuData.shiGanGong}宫`
+    });
+    localStorage.setItem("qdim_history",JSON.stringify(historyList));
+    refreshTable();alert("本局已保存");
+}
+function refreshTable(){
+    const tb=document.querySelector("#hisTable tbody");
+    tb.innerHTML="";
+    historyList.forEach(r=>{
+        let tr=document.createElement("tr");
+        tr.innerHTML=`<td>${r.datetime}</td><td>${r.ju}</td><td>${r.note}</td>`;
+        tb.appendChild(tr);
+    });
+}
+function addLog(txt){
+    document.getElementById("logBox").innerText=`[${new Date().toLocaleString()}]\n${txt}\n\n`+document.getElementById("logBox").innerText;
+}
+function clearLog(){document.getElementById("logBox").innerText="";}
+
+window.onload=function(){
+    let now=new Date();
+    document.getElementById("inpDate").value=now.toISOString().slice(0,10);
+    document.getElementById("inpTime").value=now.toTimeString().slice(0,5);
+    refreshTable();
+};
 </script>
 </body>
 </html>
