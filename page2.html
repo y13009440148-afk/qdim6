@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>QDIM拆补转盘奇门 · 真实开奖号自动对比</title>
+<title>QDIM拆补转盘奇门 · 历史期次抓取对比</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Microsoft YaHei",system-ui,sans-serif}
 body{background:#0f172a;color:#e2e8f0;padding:10px;font-size:14px}
@@ -16,8 +16,6 @@ label{display:block;margin-bottom:3px;color:#cbd5e1;font-size:13px}
 input,select{width:100%;padding:8px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:14px}
 button{padding:9px 10px;border-radius:6px;border:none;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer;margin:3px 2px;font-size:14px}
 button:active{background:#1d4ed8}
-button:disabled{background:#475569;color:#94a3b8}
-.btn-group{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .game-group{display:flex;gap:6px;margin-bottom:8px}
 .game-group button{flex:1;background:#334155}
 .game-group button.active{background:#16a34a}
@@ -41,13 +39,23 @@ table.his{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
 .hit{color:#4ade80;font-weight:bold}
 .miss{color:#64748b}
 .bet{font-family:monospace;font-size:12.5px;line-height:1.7}
-#nextTip{color:#fbbf24;font-size:12px;margin-top:4px}
+#nextTip{color:#fbbf24;font-size:12px;margin:6px 0}
+.draw-btn{width:100%;background:#1e40af}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:99;padding:16px}
+.modal{background:#1e293b;width:100%;max-width:400px;border-radius:12px;padding:14px;max-height:80vh;overflow:auto}
+.modal h3{text-align:center;color:#facc15;margin-bottom:10px;font-size:15px}
+.modal ul{list-style:none}
+.modal li{padding:12px 6px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.modal li:active{background:#334155}
+.modal li.disabled{color:#64748b}
+.modal li.disabled:active{background:transparent}
+.close-btn{text-align:center;margin-top:12px;color:#f87171;font-weight:bold;padding:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>QDIM · 拆补转盘真盘（真实开奖号对比）</h1>
-<div class="sub">起局时间自动锁定开奖时刻 · 选期次自动抓真实开奖号 · 逐注对比命中</div>
+<h1>QDIM · 拆补转盘真盘（历史期次抓取对比）</h1>
+<div class="sub">只列已开奖期次 · 选中自动抓真实开奖号 · 逐注命中分析</div>
 <div class="panel">
 <div class="game-group">
 <button id="btnSSQ" class="active" onclick="setGame('ssq')">双色球</button>
@@ -57,13 +65,13 @@ table.his{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
 <div><label>起盘日期</label><input type="date" id="inpDate"></div>
 <div><label>起盘时间</label><input type="time" id="inpTime"></div>
 </div>
-<div class="form-row">
-<div><label>历史期次（选后自动抓真实开奖号）</label>
-<select id="inpDraw" onchange="onDrawChange()"></select></div>
-<div><label id="lblLast">本期开奖号码</label><input type="text" id="inpLast" placeholder="自动抓取，也可手填"></div>
+<div id="nextTip"></div>
+<button class="draw-btn" onclick="openDrawModal()">— 选择期次（只列已开奖）—</button>
+<div class="form-row" style="margin-top:10px">
+<div><label id="lblLast">历史开奖号码</label><input type="text" id="inpLast" placeholder="选中期次后自动抓取" readonly></div>
+<div><label>经度（庄河122.98）</label><input type="number" id="inpLng" value="122.98" step="0.001"></div>
 </div>
 <div class="form-row">
-<div><label>经度（庄河122.98）</label><input type="number" id="inpLng" value="122.98" step="0.001"></div>
 <div><label>取宫模式</label>
 <select id="inpTop">
 <option value="auto" selected>自动(70%覆盖)</option>
@@ -72,22 +80,16 @@ table.his{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
 <option value="4">前4宫</option>
 <option value="all">全部9宫</option>
 </select></div>
-</div>
-<div class="form-row">
 <div><label>强制局数(0=自动)</label><input type="number" id="inpManualJu" value="0"></div>
-<div><label></label>
-<div class="btn-group">
+</div>
+<div>
 <button onclick="runCalc()">起局排盘</button>
 <button onclick="checkBet()">对比校验</button>
 <button onclick="saveRecord()">保存</button>
 <button onclick="clearLog()">清日志</button>
-</div></div>
 </div>
-<div id="nextTip"></div>
 </div>
-
-<div class="panel">
-<div class="jiugong" id="jiugongBox"></div>
+<div id="jiugongBox"></div>
 <div id="infoBox"></div>
 <div id="resultBox"></div>
 </div>
@@ -103,13 +105,19 @@ table.his{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
 <h3>运行日志</h3>
 <div id="logBox"></div>
 </div>
+
+<div class="modal-bg" id="drawModal">
+<div class="modal">
+<h3>已开奖期次（点击自动抓真实开奖号）</h3>
+<ul id="drawList"></ul>
+<div class="close-btn" onclick="closeDrawModal()">关闭</div>
+</div>
+</div>
 </div>
 
 <script>
-// ===================== Worker 代理地址（改成你自己的）=====================
-const PROXY = "https://你的-worker.workers.dev";
+const PROXY="https://你的-worker.workers.dev"; // 改成你的 Worker 地址
 
-// ===================== 常量 =====================
 const TIANGAN=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const DIZHI=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 const GAN_WX={"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"};
@@ -124,50 +132,40 @@ const GONG_MEN={1:"休",8:"生",3:"伤",4:"杜",9:"景",2:"死",7:"惊",6:"开"}
 const BASHEN=["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
 const LIUYI=["戊","己","庚","辛","壬","癸","丁","丙","乙"];
 const LIUJIA=[
-    {name:"甲子旬",shou:0,yi:"戊",kong:[10,11]},
-    {name:"甲戌旬",shou:10,yi:"己",kong:[8,9]},
-    {name:"甲申旬",shou:8,yi:"庚",kong:[6,7]},
-    {name:"甲午旬",shou:6,yi:"辛",kong:[4,5]},
-    {name:"甲辰旬",shou:4,yi:"壬",kong:[2,3]},
-    {name:"甲寅旬",shou:2,yi:"癸",kong:[0,1]}
+    {name:"甲子旬",shou:0,yi:"戊",kong:[10,11]},{name:"甲戌旬",shou:10,yi:"己",kong:[8,9]},
+    {name:"甲申旬",shou:8,yi:"庚",kong:[6,7]},{name:"甲午旬",shou:6,yi:"辛",kong:[4,5]},
+    {name:"甲辰旬",shou:4,yi:"壬",kong:[2,3]},{name:"甲寅旬",shou:2,yi:"癸",kong:[0,1]}
 ];
 const RING=[1,8,3,4,9,2,7,6];
 const RING_IDX={1:0,8:1,3:2,4:3,9:4,2:5,7:6,6:7};
 const ZHI_TO_GONG={0:1,1:1,2:8,3:8,4:4,5:4,6:9,7:9,8:7,9:7,10:6,11:6};
 const JIEQI_JU={
-    "冬至":[1,7,4],"小寒":[2,8,5],"大寒":[3,9,6],
-    "立春":[8,5,2],"雨水":[9,6,3],"惊蛰":[1,7,4],
-    "春分":[3,9,6],"清明":[4,1,7],"谷雨":[5,2,8],
-    "立夏":[4,1,7],"小满":[5,2,8],"芒种":[6,3,9],
-    "夏至":[9,3,6],"小暑":[8,2,5],"大暑":[7,1,4],
-    "立秋":[2,5,8],"处暑":[1,4,7],"白露":[9,3,6],
-    "秋分":[7,1,4],"寒露":[6,9,3],"霜降":[5,8,2],
-    "立冬":[6,9,3],"小雪":[5,8,2],"大雪":[4,7,1]
+    "冬至":[1,7,4],"小寒":[2,8,5],"大寒":[3,9,6],"立春":[8,5,2],"雨水":[9,6,3],"惊蛰":[1,7,4],
+    "春分":[3,9,6],"清明":[4,1,7],"谷雨":[5,2,8],"立夏":[4,1,7],"小满":[5,2,8],"芒种":[6,3,9],
+    "夏至":[9,3,6],"小暑":[8,2,5],"大暑":[7,1,4],"立秋":[2,5,8],"处暑":[1,4,7],"白露":[9,3,6],
+    "秋分":[7,1,4],"寒露":[6,9,3],"霜降":[5,8,2],"立冬":[6,9,3],"小雪":[5,8,2],"大雪":[4,7,1]
 };
 const JIEQI_WX={
- "立春":"木","雨水":"木","惊蛰":"木","春分":"木","清明":"木","谷雨":"木",
- "立夏":"火","小满":"火","芒种":"火","夏至":"火","小暑":"火","大暑":"火",
- "立秋":"金","处暑":"金","白露":"金","秋分":"金","寒露":"金","霜降":"金",
- "立冬":"水","小雪":"水","大雪":"水","冬至":"水","小寒":"水","大寒":"水"
+ "立春":"木","雨水":"木","惊蛰":"木","春分":"木","清明":"木","谷雨":"木","立夏":"火","小满":"火","芒种":"火","夏至":"火","小暑":"火","大暑":"火",
+ "立秋":"金","处暑":"金","白露":"金","秋分":"金","寒露":"金","霜降":"金","立冬":"水","小雪":"水","大雪":"水","冬至":"水","小寒":"水","大寒":"水"
 };
 const YIN_JIEQI=new Set(["夏至","小暑","大暑","立秋","处暑","白露","秋分","寒露","霜降","立冬","小雪","大雪"]);
-const LIUZI={zi:1.0, mu:1.5, ke:-1.5, keWo:-1.0, tong:-0.5};
+const LIUZI={zi:1.0,mu:1.5,ke:-1.5,keWo:-1.0,tong:-0.5};
 const sheng={"木":"火","火":"土","土":"金","金":"水","水":"木"};
 const ke={"木":"土","土":"水","水":"火","火":"金","金":"木"};
-
 const GAME_CFG={
-    ssq:{name:"双色球",days:[0,2,4], hh:21, mm:15, redMax:33, redN:6, blueMax:16, blueN:1},
-    dlt:{name:"大乐透",days:[1,3,6], hh:21, mm:25, redMax:35, redN:5, blueMax:12, blueN:2}
+    ssq:{name:"双色球",days:[0,2,4],hh:21,mm:15,redMax:33,redN:6,blueMax:16,blueN:1},
+    dlt:{name:"大乐透",days:[1,3,6],hh:21,mm:25,redMax:35,redN:5,blueMax:12,blueN:2}
 };
 let currentGame="ssq";
 let historyList=JSON.parse(localStorage.getItem("qdim_history")||"[]");
-let lastJuData=null, lastPick=null, lastDrawDate="";
+let lastJuData=null,lastPick=null,lastDrawDate="";
 
 function localDateStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function localTimeStr(d){return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function pad2(n){return String(n).padStart(2,'0');}
-
-// ===================== 开奖时刻 =====================
+function weekCn(d){return ["日","一","二","三","四","五","六"][d.getDay()];}
+function drawTimeOf(gameKey,d){let cfg=GAME_CFG[gameKey],t=new Date(d);t.setHours(cfg.hh,cfg.mm,0,0);return t;}
 function nextDrawDate(gameKey,fromDate){
     let cfg=GAME_CFG[gameKey],d=new Date(fromDate);
     for(let add=0;add<=7;add++){
@@ -183,21 +181,12 @@ function nextDrawDateTime(gameKey){
     if(day<=now){day=nextDrawDate(gameKey,new Date(now.getFullYear(),now.getMonth(),now.getDate()+1));day.setHours(cfg.hh,cfg.mm,0,0);}
     return day;
 }
-function listUpcomingDraws(gameKey,n){
-    let cfg=GAME_CFG[gameKey],out=[],d=new Date();
-    for(let add=0;add<=30&&out.length<n;add++){
-        let t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+add);
-        if(cfg.days.includes(t.getDay())) out.push(t);
-    }
-    return out;
-}
 
-// ===================== 真实开奖号抓取 =====================
 async function fetchResult(game,date){
     let u=date?`${PROXY}/?game=${game}&mode=date&date=${date}`:`${PROXY}/?game=${game}&mode=latest`;
     let r=await fetch(u);
     let j=await r.json();
-    if(!j.ok) throw new Error(j.error&&j.error.message||"抓取失败");
+    if(!j.ok) throw new Error((j.error&&j.error.message)||"抓取失败");
     return j.data;
 }
 function fmtResult(data){
@@ -210,47 +199,61 @@ function setGame(gameKey){
     currentGame=gameKey;
     document.getElementById("btnSSQ").classList.toggle("active",gameKey==="ssq");
     document.getElementById("btnDLT").classList.toggle("active",gameKey==="dlt");
-    document.getElementById("lblLast").innerText=`${GAME_CFG[gameKey].name}开奖号码`;
-    document.getElementById("inpLast").placeholder="自动抓取真实开奖号，也可手填";
-    refreshDrawList();
+    document.getElementById("lblLast").innerText=`${GAME_CFG[gameKey].name}历史开奖号`;
+    document.getElementById("inpLast").placeholder="选中期次后自动抓取";
+    document.getElementById("inpLast").value="";
+    lastDrawDate="";
     let nd=nextDrawDateTime(gameKey);
     document.getElementById("inpDate").value=localDateStr(nd);
     document.getElementById("inpTime").value=localTimeStr(nd);
-    document.getElementById("nextTip").innerText=`下一期${GAME_CFG[gameKey].name}：${localDateStr(nd)} ${localTimeStr(nd)}`;
-    lastDrawDate="";
-    document.getElementById("inpLast").value="";
-    // 打开即拉一次最新开奖号
+    document.getElementById("nextTip").innerHTML=
+        `下一期${GAME_CFG[gameKey].name}：<b>${localDateStr(nd)}（${weekCn(nd)}）${localTimeStr(nd)}</b><br>开奖后方可抓取，可先选已开奖的历史期次核对`;
+    document.getElementById("inpLast").value="抓取最新开奖号中...";
     fetchResult(gameKey).then(d=>{
         document.getElementById("inpLast").value=fmtResult(d);
-        document.getElementById("nextTip").innerText+=`　（已载入最新开奖号：${fmtResult(d)}）`;
-    }).catch(()=>{});
+        document.getElementById("nextTip").innerText+=`　（已载入最新一期开奖号）`;
+    }).catch(()=>{document.getElementById("inpLast").value="";});
 }
-function refreshDrawList(){
-    let sel=document.getElementById("inpDraw");
-    let draws=listUpcomingDraws(currentGame,4);
-    sel.innerHTML=`<option value="">— 选择期次（自动抓真实开奖号）—</option>`;
-    draws.forEach(d=>{
-        let v=localDateStr(d);
-        let opt=document.createElement("option");
-        opt.value=v; opt.innerText=`${GAME_CFG[currentGame].name} ${v}（${["日","一","二","三","四","五","六"][d.getDay()]}）`;
-        sel.appendChild(opt);
-    });
+
+// 弹窗：从今天往前找已开奖期次
+function openDrawModal(){
+    let now=new Date(),cfg=GAME_CFG[currentGame];
+    let list=document.getElementById("drawList");
+    list.innerHTML="";
+    let shown=0;
+    for(let i=0;i<120&&shown<12;i++){
+        let d=new Date(now.getFullYear(),now.getMonth(),now.getDate()-i);
+        if(!cfg.days.includes(d.getDay())) continue;
+        let dt=drawTimeOf(currentGame,d);
+        let li=document.createElement("li");
+        if(now>=dt){
+            li.innerHTML=`<span>${cfg.name} ${localDateStr(d)}（${weekCn(d)}）</span><span style="color:#4ade80">点击抓取</span>`;
+            li.onclick=()=>selectDraw(localDateStr(d));
+            list.appendChild(li);shown++;
+        }else{
+            li.className="disabled";
+            li.innerHTML=`<span>${cfg.name} ${localDateStr(d)}（${weekCn(d)}）</span><span>未开奖</span>`;
+            list.appendChild(li);
+        }
+    }
+    if(shown===0) list.innerHTML=`<li class="disabled">暂无可抓取的历史期次</li>`;
+    document.getElementById("drawModal").style.display="flex";
 }
-async function onDrawChange(){
-    let v=document.getElementById("inpDraw").value;
-    if(!v){return;}
+function closeDrawModal(){document.getElementById("drawModal").style.display="none";}
+async function selectDraw(dateStr){
+    closeDrawModal();
+    document.getElementById("inpLast").value="抓取中...";
     try{
-        let d=await fetchResult(currentGame,v);
+        let d=await fetchResult(currentGame,dateStr);
         document.getElementById("inpLast").value=fmtResult(d);
-        lastDrawDate=v;
-        document.getElementById("nextTip").innerText=`已载入 ${v} 期真实开奖号：${fmtResult(d)}`;
+        lastDrawDate=dateStr;
+        document.getElementById("nextTip").innerText=`已抓取 ${dateStr} 真实开奖号：${fmtResult(d)}`;
     }catch(e){
         document.getElementById("inpLast").value="";
-        document.getElementById("nextTip").innerText=`抓取失败：${e.message}（可手动填写）`;
+        document.getElementById("nextTip").innerText=`抓取失败：${e.message}`;
     }
 }
 
-// ===================== 历法 =====================
 function date2Jdn(y,m,d,h,mi,s){
     if(m<=2){y--;m+=12;}
     let A=Math.floor(y/100),B=2-A+Math.floor(A/4);
@@ -321,7 +324,6 @@ function buildDiPan(ju,isYin){
 }
 function findGongByGan(diPan,gan){for(let g=1;g<=9;g++) if(diPan[g]===gan) return g;return -1;}
 
-// ===================== 排盘 =====================
 function buildZhenFeiPan(juNum,isYin,gzShi,diPan){
     let shiGan=TIANGAN.indexOf(gzShi[0]),shiZhi=DIZHI.indexOf(gzShi[1]);
     let xun=getXun(shiGan,shiZhi),xunYiGong=findGongByGan(diPan,xun.yi);
@@ -372,7 +374,6 @@ function buildZhenFeiPan(juNum,isYin,gzShi,diPan){
         fuXing:zhiFuXing,shiGong:zhiShiGong,shiMen:zhiShiMen,diPan,tianPan,xingMap,menMap,shenMap,flag,kongGong,isYin};
 }
 
-// ===================== 旺行 + 六字诀 =====================
 function getWangXing(juData,jieqi){
     let cnt={"木":0,"火":0,"土":0,"金":0,"水":0};
     [1,2,3,4,6,7,8,9].forEach(g=>{
@@ -409,7 +410,6 @@ function gongWeight(juData,wang){
     return w;
 }
 
-// ===================== 纳数与取号 =====================
 function poolOf(gong,max){
     let a=[];
     for(let n=1;n<=max;n++){
@@ -418,20 +418,29 @@ function poolOf(gong,max){
     }
     return a;
 }
+// 总池：累加正权重宫至覆盖90%，至少4个宫，红池至少13、蓝池至少6
 function buildPool(juData,w,cfg){
     let sorted=[1,2,3,4,5,6,7,8,9].slice().sort((a,b)=>(w[b].total||0)-(w[a].total||0));
-    let posSum=sorted.reduce((s,g)=>s+Math.max(0,w[g].total||0),0);
+    let posArr=sorted.filter(g=>w[g].total>0);
+    let posSum=posArr.reduce((s,g)=>s+w[g].total,0);
     let acc=0,cut=[];
     for(let g of sorted){
         if((w[g].total||0)<=0) break;
         cut.push(g); acc+=w[g].total;
-        if(posSum>0&&acc>=posSum*0.80) break;
+        if(cut.length>=4 && posSum>0 && acc>=posSum*0.90) break;
+    }
+    // 兜底：池子不够就把剩余正权重宫全部纳入
+    if(cut.length<4){
+        posArr.forEach(g=>{if(!cut.includes(g))cut.push(g);});
     }
     let red=[],blue=[];
     cut.forEach(g=>{red=red.concat(poolOf(g,cfg.redMax));blue=blue.concat(poolOf(g,cfg.blueMax));});
-    return {red:[...new Set(red)].sort((a,b)=>a-b).slice(0,16),
-            blue:[...new Set(blue)].sort((a,b)=>a-b).slice(0,6),
-            topGong:cut};
+    red=[...new Set(red)].sort((a,b)=>a-b);
+    blue=[...new Set(blue)].sort((a,b)=>a-b);
+    // 二次兜底：号码数不足则按号码顺序补足
+    for(let n=1;n<=cfg.redMax&&red.length<13;n++) if(!red.includes(n)) red.push(n);
+    for(let n=1;n<=cfg.blueMax&&blue.length<6;n++) if(!blue.includes(n)) blue.push(n);
+    return {red:red.slice(0,Math.max(13,red.length)),blue:blue.slice(0,Math.max(6,blue.length)),topGong:cut};
 }
 function fillUp(arr,from,to,need){
     for(let n=from;n<=to&&arr.length<need;n++) if(!arr.includes(n)) arr.push(n);
@@ -463,7 +472,34 @@ function buildBets(pool,cfg,w){
     return bets;
 }
 
-// ===================== 起局 =====================
+function renderJiugong(juData,w){
+    const box=document.getElementById("jiugongBox");
+    box.innerHTML="";
+    [4,9,2,3,5,7,8,1,6].forEach(g=>{
+        let cell=document.createElement("div");
+        cell.className="gong-cell"+(g===5?" zhong":"");
+        let tags="";
+        if(juData.kongGong.includes(g)) tags+=`⚡空亡 `;
+        if(juData.flag[g].fuyin) tags+=`◆伏吟 `;
+        if(juData.flag[g].fanyin) tags+=`◇反吟 `;
+        if(juData.xingMap[g]===juData.fuXing) tags+=`★值符 `;
+        if(juData.menMap[g]===juData.shiMen) tags+=`▲值使`;
+        let sc="";
+        if(w[g]) sc=`<div class="score-line">基${w[g].base} 六${w[g].liuzi} 总${w[g].total.toFixed(1)}</div>`;
+        cell.innerHTML=`
+            <div class="gong-no">${g}宫${GONG_NAME[g]}</div>
+            <div class="shen">${juData.shenMap[g]||""}</div>
+            <div class="star">${juData.xingMap[g]||""}</div>
+            <div class="men">${juData.menMap[g]||"—"}</div>
+            <div class="tian">天盘：${juData.tianPan[g]||""}</div>
+            <div class="di">地盘：${juData.diPan[g]||""}</div>
+            <div class="tags">${tags}</div>
+            ${sc}
+        `;
+        box.appendChild(cell);
+    });
+}
+
 function runCalc(){
     const d=document.getElementById("inpDate").value;
     const t=document.getElementById("inpTime").value;
@@ -500,8 +536,7 @@ function runCalc(){
     renderJiugong(juData,w);
 
     let info=`【真太阳时】经度${lng}° 经度差${ts.lonOff.toFixed(1)}′ 均时差${ts.eq.toFixed(1)}′ 跨日${ts.dayAdd>=0?'+':''}${ts.dayAdd}\n`;
-    info+=`【北京时间】${d} ${t}\n`;
-    info+=`【真太阳时】${pad2(ts.hour)}:${pad2(ts.min)}（${DIZHI[shiZhi]}时）\n`;
+    info+=`【北京时间】${d} ${t}\n【真太阳时】${pad2(ts.hour)}:${pad2(ts.min)}（${DIZHI[shiZhi]}时）\n`;
     info+=`【玩法】${cfg.name}｜节气${jq.name}｜${isYin?'阴遁':'阳遁'}${ju}局｜${['上元','中元','下元'][yuan]}（符头${TIANGAN[fu.gan]}${DIZHI[fu.zhi]}）\n`;
     info+=`【日柱】${TIANGAN[rg]}${DIZHI[rz]}｜【时柱】${gzShi}\n`;
     info+=`【旬首】${juData.xun}（${juData.xunYi}）｜空亡：${juData.kongGong.map(g=>GONG_NAME[g]).join('、')}宫\n`;
@@ -522,7 +557,6 @@ function runCalc(){
     refreshTable();
 }
 
-// ===================== 对比校验 =====================
 function parseLast(txt){
     let parts=(txt||"").split(/\s*[\/|，,]\s*/);
     let red=[],blue=[];
@@ -533,8 +567,9 @@ function parseLast(txt){
 function checkBet(){
     if(!lastPick){alert("请先起局排盘");return;}
     let txt=document.getElementById("inpLast").value.trim();
-    if(!txt){alert("请先选择期次或填写开奖号码");return;}
+    if(!txt||txt.indexOf("抓取")>=0){alert("请先选择已开奖的历史期次抓取号码");return;}
     let {red:hitRed,blue:hitBlue}=parseLast(txt);
+    if(hitRed.length===0){alert("开奖号格式有误");return;}
     let setRed=new Set(hitRed),setBlue=new Set(hitBlue);
     let cfg=lastPick.cfg;
     let totalRed=0,totalBlue=0;
@@ -545,15 +580,9 @@ function checkBet(){
         let hb=bet.blue.filter(n=>setBlue.has(n)).sort((a,b)=>a-b);
         let lb=bet.blue.filter(n=>!setBlue.has(n)).sort((a,b)=>a-b);
         totalRed+=hr.length; totalBlue+=hb.length;
-        let line=`第${i+1}注：红${hr.length}中 `;
-        line+=`<span class="hit">${hr.map(pad2).join(' ')||'—'}</span>`;
-        line+=` <span class="miss">漏 ${lr.map(pad2).join(' ')||'—'}</span>`;
-        line+=`　${cfg.blueN===1?'蓝':'后区'}${hb.length}中 `;
-        line+=`<span class="hit">${hb.map(pad2).join(' ')||'—'}</span>`;
-        line+=` <span class="miss">漏 ${lb.map(pad2).join(' ')||'—'}</span>`;
-        lines.push(line);
+        lines.push(`第${i+1}注：红${hr.length}中 <span class="hit">${hr.map(pad2).join(' ')||'—'}</span> <span class="miss">漏 ${lr.map(pad2).join(' ')||'—'}</span>　${cfg.blueN===1?'蓝':'后区'}${hb.length}中 <span class="hit">${hb.map(pad2).join(' ')||'—'}</span> <span class="miss">漏 ${lb.map(pad2).join(' ')||'—'}</span>`);
     });
-    let summary=`【对比校验】开奖号 ${hitRed.map(pad2).join(' ')} / ${hitBlue.map(pad2).join(' ')}\n`;
+    let summary=`【对比校验】开奖号 红 ${hitRed.map(pad2).join(' ')} / ${cfg.blueN===1?'蓝':'后区'} ${hitBlue.map(pad2).join(' ')}\n`;
     summary+=`5注合计：红中${totalRed}个  ${cfg.blueN===1?'蓝':'后区'}中${totalBlue}个\n\n`;
     document.getElementById("resultBox").innerHTML=summary+`<div class="bet">${lines.join('<br>')}</div>`;
     addLog(summary+lines.map(l=>l.replace(/<[^>]+>/g,'')).join('\n'));
@@ -563,7 +592,7 @@ function saveRecord(){
     if(!lastJuData){alert("请先起局");return;}
     let hit="";
     let txt=document.getElementById("inpLast").value.trim();
-    if(lastPick&&txt){
+    if(lastPick&&txt&&txt.indexOf("抓取")<0){
         let {red:hitRed}=parseLast(txt);
         let setRed=new Set(hitRed);
         let max=Math.max(...lastPick.bets.map(b=>b.red.filter(n=>setRed.has(n)).length));
@@ -571,10 +600,8 @@ function saveRecord(){
     }
     historyList.unshift({
         datetime:document.getElementById("inpDate").value+" "+document.getElementById("inpTime").value,
-        game:GAME_CFG[currentGame].name,
-        ju:lastJuData.juNum,
-        hit:hit,
-        note:`${lastPick?lastPick.pool.red.length+'红池/'+lastPick.pool.blue.length+'蓝池':'—'}`
+        game:GAME_CFG[currentGame].name,ju:lastJuData.juNum,hit:hit,
+        note:(lastPick?lastPick.pool.red.length+'红池/'+lastPick.pool.blue.length+'蓝池':'—')+(lastDrawDate?` 核验${lastDrawDate}`:'')
     });
     localStorage.setItem("qdim_history",JSON.stringify(historyList));
     refreshTable();alert("已保存"+(hit?"（最高"+hit+"）":""));
@@ -592,34 +619,6 @@ function addLog(txt){
     document.getElementById("logBox").innerText=`[${new Date().toLocaleString()}]\n${txt}\n\n`+document.getElementById("logBox").innerText;
 }
 function clearLog(){document.getElementById("logBox").innerText="";}
-
-function renderJiugong(juData,w){
-    const box=document.getElementById("jiugongBox");
-    box.innerHTML="";
-    [4,9,2,3,5,7,8,1,6].forEach(g=>{
-        let cell=document.createElement("div");
-        cell.className="gong-cell"+(g===5?" zhong":"");
-        let tags="";
-        if(juData.kongGong.includes(g)) tags+=`⚡空亡 `;
-        if(juData.flag[g].fuyin) tags+=`◆伏吟 `;
-        if(juData.flag[g].fanyin) tags+=`◇反吟 `;
-        if(juData.xingMap[g]===juData.fuXing) tags+=`★值符 `;
-        if(juData.menMap[g]===juData.shiMen) tags+=`▲值使`;
-        let sc="";
-        if(w[g]) sc=`<div class="score-line">基${w[g].base} 六${w[g].liuzi} 总${w[g].total.toFixed(1)}</div>`;
-        cell.innerHTML=`
-            <div class="gong-no">${g}宫${GONG_NAME[g]}</div>
-            <div class="shen">${juData.shenMap[g]||""}</div>
-            <div class="star">${juData.xingMap[g]||""}</div>
-            <div class="men">${juData.menMap[g]||"—"}</div>
-            <div class="tian">天盘：${juData.tianPan[g]||""}</div>
-            <div class="di">地盘：${juData.diPan[g]||""}</div>
-            <div class="tags">${tags}</div>
-            ${sc}
-        `;
-        box.appendChild(cell);
-    });
-}
 
 window.onload=function(){
     let now=new Date();
