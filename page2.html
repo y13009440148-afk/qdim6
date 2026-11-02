@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -86,6 +87,11 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <script>
+// 新增全局变量（仅追加，无删减）
+let lastRedPool = [];
+let lastBluePool = [];
+let lastFive = [];
+
 // ============【开奖历史库：日期字符串 => 开奖数据】============
 const HISTORY_MAP = {
     "2026-10-25":{lot:"ssq", period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
@@ -416,6 +422,18 @@ function renderPlate(plateData){
 }
 
 function runQiMen(){
+    // 【新增清空代码，仅此一段，其余全部保留原版】
+    lastRedPool = [];
+    lastBluePool = [];
+    lastFive = [];
+    // 清空DOM残留
+    document.getElementById("plateBox").innerHTML = "";
+    document.getElementById("logBox").innerText = "";
+    document.getElementById("poolOut").innerHTML = "";
+    document.getElementById("poolStat").innerText = "";
+    document.getElementById("final5").innerHTML = "";
+    // 以上为新增内容，下面所有代码一字不动
+
     try{
         const dateStr = document.getElementById("dateInput").value;
         const timeStr = document.getElementById("timeInput").value;
