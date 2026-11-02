@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘 真太阳时+总池+精选+开奖比对+批量回测</title>
+<title>奇门统计 拆补真盘 真太阳时+自动开奖填充</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
 .ctrlBox{border:1px solid #334;border-radius:8px;padding:12px;margin-bottom:10px;background:#171b24;}
 .ctrlBox>div{margin:6px 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px;}
-input,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-size:14px;}
-input{background:#222836;color:#fff;}
+input,select,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-size:14px;}
+input,select{background:#222836;color:#fff;}
 button{background:#2374d1;color:#fff;cursor:pointer;width:100%;margin-top:6px;padding:9px;}
 button:active{background:#1958a0;}
+.tipBar{background:#1a442b;color:#8cf9a7;padding:8px;border-radius:6px;margin-bottom:8px;text-align:center;}
 .wrap{display:flex;gap:10px;flex-wrap:wrap;}
 #plateBox{width:100%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;aspect-ratio:1/1;}
 .gong{border:1px solid #445;background:#1c222f;padding:4px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-radius:6px;font-size:12px;}
@@ -34,14 +35,22 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </style>
 </head>
 <body>
+<div class="tipBar" id="tipBar">加载中...</div>
 <div class="ctrlBox">
+    <div>
+        <span>彩种：</span>
+        <select id="lotType">
+            <option value="ssq">双色球（二/四/日）</option>
+            <option value="dlt">大乐透（一/三/六）</option>
+        </select>
+    </div>
     <div>
         <span>经度：</span><input id="lng" value="122.98" size="6">
         <span>纬度：</span><input id="lat" value="39.70" size="6">
     </div>
     <div>
         <span>公历日期：</span><input id="dateInput" type="date">
-        <span>北京时间：</span><input id="timeInput" type="time" value="00:00">
+        <span>北京时间：</span><input id="timeInput" type="time">
     </div>
     <div>
         <span>开奖红球：</span><input id="hitRedInput" placeholder="空格隔开6个号" size="14">
@@ -77,6 +86,18 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <script>
+// ============【这里更新最新开奖号码】============
+const RECENT_DATA = {
+    ssq:{period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
+    dlt:{period:"26120", red:["01","05","14","18","25","30"], blue:"11"}
+};
+// 开奖周期规则 0=周一
+const RULES = {
+    ssq:{week:[1,3,0], openTime:"21:15", name:"双色球"},
+    dlt:{week:[0,2,5], openTime:"21:25", name:"大乐透"}
+};
+// ================================================
+
 const ganArr    = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const zhiFuShen = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
 const jiuXing   = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
@@ -102,6 +123,39 @@ const wxBlueMap = {
     "金":[1,7,11],
     "水":[6,10,16]
 };
+
+function getNextOpenDate(lotKey){
+    const rule = RULES[lotKey];
+    let now = new Date();
+    let target = new Date(now);
+    for(let i=0;i<8;i++){
+        let w = target.getDay();
+        if(rule.week.includes(w)){
+            return target;
+        }
+        target.setDate(target.getDate()+1);
+    }
+    return target;
+}
+
+function fillAuto(){
+    const lotKey = document.getElementById("lotType").value;
+    const rule = RULES[lotKey];
+    const recent = RECENT_DATA[lotKey];
+    //填开奖号码
+    document.getElementById("hitRedInput").value = recent.red.join(" ");
+    document.getElementById("hitBlueInput").value = recent.blue;
+    //自动填日期时间
+    let nextDay = getNextOpenDate(lotKey);
+    let y = nextDay.getFullYear();
+    let m = String(nextDay.getMonth()+1).padStart(2,"0");
+    let d = String(nextDay.getDate()).padStart(2,"0");
+    document.getElementById("dateInput").value = `${y}-${m}-${d}`;
+    document.getElementById("timeInput").value = rule.openTime;
+    //提示
+    document.getElementById("tipBar").innerText =
+        `${rule.name}:最近一期【${recent.period}】已自动填入；下一期开奖：${y}-${m}-${d} ${rule.openTime}`;
+}
 
 function getFuYuanGong(diPan){
     let fuYuanGong = null;
@@ -154,7 +208,6 @@ function gregorianToJD(y,m,d){
     return JD;
 }
 
-// ========== 重点修复这里：旬首取法，只取戊己庚辛壬癸 ==========
 function calcDiPan(y,m,d){
     const baseDay = 10957;
     const date = new Date(y,m-1,d);
@@ -162,7 +215,6 @@ function calcDiPan(y,m,d){
     dayNum = dayNum < 0 ? dayNum + 6000 : dayNum;
     let dayGanIdx = dayNum % 10;
     let dayGan = ganArr[dayGanIdx];
-    // 拆补法旬首：甲0戊，乙1己，丙2庚，丁3辛，戊4壬，己5癸，庚6戊，辛7己，壬8庚，癸9辛
     const xunShouMap = ["戊","己","庚","辛","壬","癸","戊","己","庚","辛"];
     let xunShou = xunShouMap[dayGanIdx];
     const diGanRule = {
@@ -477,13 +529,8 @@ function runBatchTest(){
     }
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-    let today = new Date();
-    let y = today.getFullYear();
-    let m = String(today.getMonth()+1).padStart(2,'0');
-    let d = String(today.getDate()).padStart(2,'0');
-    document.getElementById("dateInput").value = `${y}-${m}-${d}`;
-});
+document.getElementById("lotType").addEventListener("change", fillAuto);
+document.addEventListener('DOMContentLoaded', fillAuto);
 </script>
 </body>
 </html>
