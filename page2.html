@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘｜稳定联网拉取100期回测版</title>
+<title>奇门统计 拆补真盘｜稳定拉取版</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
@@ -547,52 +547,30 @@ async function runBatchTest(){
     }
 }
 
+// ========== 【你原来稳定版拉取函数，已替换完成】 ==========
 async function fetchSSQ100(){
-    document.getElementById("tipBar").innerText = "正在拉取双色球100期，正在尝试接口1...";
-    const apiList = [
-        "https://api.istero.com/resource/v1/fucai/ssq/query?limit=100",
-        "https://cn.apihz.cn/api/caipiao/shuangseqiu.php?limit=100",
-        "https://www.caijiapi.com/api/ssq?limit=100"
-    ];
-    const proxyList = [
-        "https://corsproxy.io/?",
-        "https://cors-anywhere.herokuapp.com/"
-    ];
-
-    let resultData = null;
-    for(let api of apiList){
-        for(let proxy of proxyList){
-            try{
-                const url = proxy + encodeURIComponent(api);
-                const resp = await fetch(url, {signal: AbortSignal.timeout(8000)});
-                if(!resp.ok) continue;
-                const json = await resp.json();
-                if(json.data && Array.isArray(json.data)){
-                    resultData = json.data;
-                    break;
-                }
-            }catch(err){
-                continue;
-            }
-        }
-        if(resultData) break;
-    }
-
-    if(resultData){
+    const proxyUrl = "https://corsproxy.io/?";
+    const targetApi = "https://www.caijiapi.com/api/ssq?limit=100";
+    const url = proxyUrl + encodeURIComponent(targetApi);
+    document.getElementById("tipBar").innerText = "正在联网拉取双色球100期，请稍等...";
+    try{
+        const resp = await fetch(url);
+        if(!resp.ok) throw new Error("接口返回异常");
+        const json = await resp.json();
+        if(!json.data || !Array.isArray(json.data)) throw new Error("数据格式不对");
         let lines = [];
-        for(let item of resultData){
+        for(let item of json.data){
             let qh = item.code;
             let red = item.red.split(",").join(" ");
             let blue = item.blue;
             lines.push(`${qh} ${red} ${blue}`);
         }
         document.getElementById("batchInput").value = lines.join("\n");
-        document.getElementById("tipBar").innerText = `✅拉取成功，共${lines.length}期，可开始批量回测`;
-        return;
+        document.getElementById("tipBar").innerText = `✅拉取成功，一共${lines.length}期，现在可以点【开始批量回测】`;
+    }catch(err){
+        document.getElementById("tipBar").innerText = "❌拉取失败："+err.message;
+        alert("拉取失败："+err.message+"\n公共CORS代理不稳定，换个时间重试");
     }
-
-    document.getElementById("tipBar").innerText = "❌所有网络接口均失效！请手动粘贴100期历史文本到输入框";
-    alert("网络拉取失败，你可以去彩票网站复制历史开奖文本，粘贴到文本框中执行回测！\n格式示例：2026120 03 07 12 16 22 29 09");
 }
 
 document.getElementById("lotType").addEventListener("change", fillAuto);
