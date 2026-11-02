@@ -51,10 +51,10 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <div class="resultBlock">
-    <div class="poolTitle">🔹 批量历史回测（一行一期：期号 红1~红6 + 蓝）</div>
+    <div class="poolTitle">🔹 批量历史回测（一行一期：期号 红1~红6 蓝）</div>
     <textarea id="batchInput" placeholder="示例：
-20261101 03 07 12 16 22 29 + 09
-20261102 01 05 14 18 25 30 + 11"></textarea>
+20261101 03 07 12 16 22 29 09
+20261102 01 05 14 18 25 30 11"></textarea>
     <button onclick="runBatchTest()">开始批量回测</button>
     <div id="batchResult"></div>
 </div>
@@ -385,7 +385,7 @@ function runQiMen(){
     let log = "";
     log += "==== 拆补奇门真盘｜真太阳时校正 ====\n";
     log += `北京时间：${y}-${m}-${d} ${hh}:${mm}\n`;
-    log += `真太阳时：${tsObj.tsHour}:${tsObj.tsMin} 时辰序号si=${si}\n`;
+    log += `真太阳时：${tsObj.tsHour}:${tsObj.tsMin} 时辰si=${si}\n`;
     log += `日干：${dayGan} ｜ 旬首：${xunShou}\n`;
     log += `时干：${hourGan}\n`;
     log += `值符原点宫：${fuYuanGong}\n`;
@@ -436,7 +436,7 @@ function runBatchTest(){
         if(arr.length <8) continue;
         let qh = arr[0];
         let redOpen = arr.slice(1,7).map(Number);
-        let blueOpen = Number(arr[8]);
+        let blueOpen = Number(arr[7]);
         let hitRedSet = new Set(redOpen);
         let y = parseInt(qh.substr(0,4));
         let m = parseInt(qh.substr(4,2));
