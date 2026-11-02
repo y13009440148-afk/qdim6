@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘 修复undefined版</title>
+<title>奇门统计 拆补真盘 最终修复undefined</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
@@ -99,9 +99,9 @@ const RULES = {
 // ================================================
 
 const ganArr    = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-const zhiFuShen = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
-const jiuXing   = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
-const baMen     = ["休","死","伤","杜","中","开","惊","生","景"];
+const baShenStd = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
+const jiuXingStd= ["蓬","芮","冲","辅","禽","心","柱","任","英"];
+const baMenStd  = ["休","死","伤","杜","中","开","惊","生","景"];
 const xunShouList = ["戊","己","庚","辛","壬","癸"];
 const gongIndex = [1,2,3,4,5,6,7,8,9];
 const gongWuxing = {1:"水",2:"土",3:"木",4:"木",5:"土",6:"金",7:"金",8:"土",9:"火"};
@@ -111,7 +111,7 @@ const menWuxing  = {"休":"水","死":"土","伤":"木","杜":"木","开":"金",
 
 const wxBallMap = {
     "土":[5,15,25,8,20,33],
-    "木":[4,14,24,3,13,23,31],
+    "木":[4,14,24,3,13,24,31],
     "火":[9,19,29,2,12,22,30],
     "金":[1,11,21,7,17,27],
     "水":[6,16,26,10,18,28,32]
@@ -123,6 +123,9 @@ const wxBlueMap = {
     "金":[1,7,11],
     "水":[6,10,16]
 };
+
+// 宫顺排：1坎,2坤,3震,4巽,5中,6乾,7兑,8艮,9离
+const gongNext = {1:2,2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:1};
 
 function getNextOpenDate(lotKey){
     const rule = RULES[lotKey];
@@ -142,17 +145,14 @@ function fillAuto(){
     const lotKey = document.getElementById("lotType").value;
     const rule = RULES[lotKey];
     const recent = RECENT_DATA[lotKey];
-    //填开奖号码
     document.getElementById("hitRedInput").value = recent.red.join(" ");
     document.getElementById("hitBlueInput").value = recent.blue;
-    //自动填日期时间
     let nextDay = getNextOpenDate(lotKey);
     let y = nextDay.getFullYear();
     let m = String(nextDay.getMonth()+1).padStart(2,"0");
     let d = String(nextDay.getDate()).padStart(2,"0");
     document.getElementById("dateInput").value = `${y}-${m}-${d}`;
     document.getElementById("timeInput").value = rule.openTime;
-    //提示
     document.getElementById("tipBar").innerText =
         `${rule.name}:最近一期【${recent.period}】已自动填入；下一期开奖：${y}-${m}-${d} ${rule.openTime}`;
 }
@@ -234,30 +234,47 @@ function calcDiPan(y,m,d){
     return {diPan, dayGan, xunShou};
 }
 
-// ==========【修复重点：重写旋转函数，按宫号一一对应，不再undefined】==========
-function rotatePlate(diPan, fuYuanGong, si){
+// =========【核心修复：拆补转盘：值符顺移si步，九星八门八神跟着值符走】=========
+function rotatePlateCorrect(diPan, fuYuanGong, si){
     let tianPan = {};
     let jiuXingMap = {};
     let baMenMap  = {};
     let baShenMap = {};
-    // 标准九宫顺序：坎1、坤2、震3、巽4、中5、乾6、兑7、艮8、离9
-    const stdGong = [1,2,3,4,5,6,7,8,9];
-    // 原点排盘基础序列
-    let baseGan = [diPan[1],diPan[2],diPan[3],diPan[4],diPan[5],diPan[6],diPan[7],diPan[8],diPan[9]];
-    let baseXing = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
-    let baseMen  = ["休","死","伤","杜","中","开","惊","生","景"];
-    let baseShen = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天","值符"];
 
-    let shift = si;
-    for(let i=0;i<9;i++){
-        let srcIdx = (i - shift +9) %9;
-        let g = stdGong[i];
-        tianPan[g] = baseGan[srcIdx];
-        jiuXingMap[g] = baseXing[srcIdx];
-        baMenMap[g]  = baseMen[srcIdx];
-        baShenMap[g] = baseShen[srcIdx];
+    // 原点基础排布（旬首宫原位）
+    const baseGongOrder = [1,2,3,4,5,6,7,8,9];
+    const baseXing = {"1":"蓬","2":"芮","3":"冲","4":"辅","5":"禽","6":"心","7":"柱","8":"任","9":"英"};
+    const baseMen  = {"1":"休","2":"死","3":"伤","4":"杜","5":"中","6":"开","7":"惊","8":"生","9":"景"};
+    const baseShen = {"1":"值符","2":"螣蛇","3":"太阴","4":"六合","5":"白虎","6":"玄武","7":"九地","8":"九天","9":""};
+
+    // 1.先算出值符落宫：从旬首原点顺走 si 步
+    let fuGong = fuYuanGong;
+    for(let s=0;s<si;s++){
+        fuGong = gongNext[fuGong];
     }
-    return {tianPan,jiuXingMap,baMenMap,baShenMap};
+
+    // 2. 九星、八门、八神，以fuYuanGong对应fuGong整体平移
+    const offsetGong = {};
+    let src = fuYuanGong;
+    let dst = fuGong;
+    for(let i=0;i<9;i++){
+        offsetGong[src] = dst;
+        src = gongNext[src];
+        dst = gongNext[dst];
+    }
+
+    // 3.填充所有宫
+    for(let g=1;g<=9;g++){
+        let srcG = null;
+        for(let k in offsetGong){
+            if(offsetGong[k]==g) srcG = Number(k);
+        }
+        tianPan[g] = diPan[srcG];
+        jiuXingMap[g] = baseXing[srcG];
+        baMenMap[g] = baseMen[srcG];
+        baShenMap[g] = baseShen[srcG] || "九天";
+    }
+    return {tianPan,jiuXingMap,baMenMap,baShenMap,fuGong};
 }
 
 function calcScore(gongNo, tianGan, xing, men){
@@ -408,7 +425,7 @@ function runQiMen(){
         let xunShou = resDi.xunShou;
         let fuYuanGong = getFuYuanGong(diPan);
         let hourGan = getHourGan(dayGan, si);
-        let rot = rotatePlate(diPan, fuYuanGong, si);
+        let rot = rotatePlateCorrect(diPan, fuYuanGong, si);
 
         let plateData = {};
         for(let g of gongIndex){
@@ -437,11 +454,11 @@ function runQiMen(){
         log += `真太阳时：${tsObj.tsHour}:${tsObj.tsMin} 时辰序号=${si}\n`;
         log += `日干：${dayGan} | 旬首：${xunShou}\n`;
         log += `时干：${hourGan}\n`;
-        log += `值符原点宫：${fuYuanGong}\n`;
+        log += `值符原点宫：${fuYuanGong}，值符落宫：${rot.fuGong}\n`;
         log += "\n【宫得分清单】\n";
         for(let g of [1,2,3,4,5,6,7,8,9]){
             let o = plateData[g];
-            log += `${g}宫(${gongWuxing[g]}) 九星${o.xing}，八门${o.men}，得分：${o.score}\n`;
+            log += `${g}宫(${gongWuxing[g]}) 九星${o.xing}，八门${o.men}，八神${o.shen}，得分：${o.score}\n`;
         }
         document.getElementById("logBox").innerText = log;
 
@@ -494,13 +511,13 @@ function runBatchTest(){
             let y = parseInt(qh.substr(0,4));
             let m = parseInt(qh.substr(4,2));
             let d = parseInt(qh.substr(6,2));
-            let hh = 0, mm =0;
+            let hh = 21, mm =15;
             let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
             let si = tsObj.si;
             let resDi = calcDiPan(y,m,d);
             let diPan = resDi.diPan;
             let fuYuanGong = getFuYuanGong(diPan);
-            let rot = rotatePlate(diPan, fuYuanGong, si);
+            let rot = rotatePlateCorrect(diPan, fuYuanGong, si);
             let plateData = {};
             for(let g of gongIndex){
                 let dg = diPan[g];
