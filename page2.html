@@ -1,40 +1,64 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>奇门统计｜拆补真盘｜真太阳时+总池+精选5注</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>奇门统计｜拆补真盘｜真太阳时+总池+精选+开奖比对+批量回测</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
-body{background:#0f1218;color:#e8edf3;padding:12px;font-size:14px;}
-.ctrlBox{border:1px solid #334;border-radius:8px;padding:14px;margin-bottom:12px;background:#171b24;}
-.ctrlBox>div{margin:6px 0;}
-input,select,button{padding:6px 9px;margin:0 4px;border-radius:4px;border:none;font-size:14px;}
-button{background:#2374d1;color:#fff;cursor:pointer;}
+body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
+.ctrlBox{border:1px solid #334;border-radius:8px;padding:12px;margin-bottom:10px;background:#171b24;}
+.ctrlBox>div{margin:6px 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px;}
+input,select,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-size:14px;}
+input{background:#222836;color:#fff;}
+button{background:#2374d1;color:#fff;cursor:pointer;width:100%;margin-top:6px;padding:9px;}
 button:active{background:#1958a0;}
-.wrap{display:flex;gap:14px;flex-wrap:wrap;}
-#plateBox{width:460px;height:460px;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;}
-.gong{border:1px solid #445;background:#1c222f;padding:6px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-radius:6px;}
-.gong strong{color:#7cf;font-size:16px;}
+.wrap{display:flex;gap:10px;flex-wrap:wrap;}
+#plateBox{width:100%;aspect-ratio:1/1;max-width:420px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;}
+.gong{border:1px solid #445;background:#1c222f;padding:4px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-radius:6px;font-size:12px;}
+.gong strong{color:#7cf;font-size:14px;}
 .gong small{color:#aab;margin-top:2px;}
 .score{color:#fd9;font-weight:bold;}
-#logBox{flex:1;min-width:320px;border:1px solid #334;border-radius:8px;padding:12px;background:#171b24;white-space:pre-wrap;color:#9cf;line-height:1.6;}
-.resultBlock{border:1px solid #366;border-radius:8px;padding:12px;margin-top:12px;background:#161d2b;}
+#logBox{width:100%;border:1px solid #334;border-radius:8px;padding:10px;background:#171b24;white-space:pre-wrap;color:#9cf;line-height:1.6;font-size:12px;min-height:180px;}
+.resultBlock{border:1px solid #366;border-radius:8px;padding:10px;margin-top:10px;background:#161d2b;}
 .poolTitle{color:#7cf;font-weight:bold;font-size:15px;margin-bottom:6px;}
-.ballRed{display:inline-block;width:28px;height:28px;border-radius:50%;background:#c22;color:#fff;text-align:center;line-height:28px;margin:2px;font-size:13px;}
-.ballBlue{display:inline-block;width:28px;height:28px;border-radius:50%;background:#228;color:#fff;text-align:center;line-height:28px;margin:2px;font-size:13px;}
-.note{color:#aaa;font-size:13px;margin-top:4px;}
+.ballRed{display:inline-block;width:26px;height:26px;border-radius:50%;background:#c22;color:#fff;text-align:center;line-height:26px;margin:2px;font-size:12px;}
+.ballBlue{display:inline-block;width:26px;height:26px;border-radius:50%;background:#228;color:#fff;text-align:center;line-height:26px;margin:2px;font-size:12px;}
+.ballHit{border:2px solid #0f0;box-shadow:0 0 5px #0f0;}
+.note{color:#aaa;font-size:12px;margin-top:4px;}
+.statText{color:#fe9;font-weight:bold;margin-top:6px;line-height:1.6;font-size:13px;}
+table{border-collapse:collapse;width:100%;margin-top:8px;color:#eee;font-size:11px;}
+th,td{border:1px solid #446;padding:4px;text-align:center;}
+th{background:#202b40;color:#7cf;}
+textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </style>
 </head>
 <body>
 <div class="ctrlBox">
-    经度：<input id="lng" value="122.98" size="6">
-    纬度：<input id="lat" value="39.70" size="6">
-    公历日期：<input id="dateInput" type="date">
-    北京时间：<input id="timeInput" type="time" value="00:00">
-    <button onclick="runQiMen()">排盘｜生成总池｜精选5注</button>
+    <div>
+        <span>经度：</span><input id="lng" value="122.98" size="6">
+        <span>纬度：</span><input id="lat" value="39.70" size="6">
+    </div>
+    <div>
+        <span>公历日期：</span><input id="dateInput" type="date">
+        <span>北京时间：</span><input id="timeInput" type="time" value="00:00">
+    </div>
+    <div>
+        <span>开奖红球：</span><input id="hitRedInput" placeholder="空格隔开6个号" size="14">
+        <span>蓝球：</span><input id="hitBlueInput" placeholder="09" size="4">
+    </div>
+    <button onclick="runQiMen()">单期排盘｜生成总池｜精选5注｜比对开奖</button>
 </div>
+
+<div class="resultBlock">
+    <div class="poolTitle">🔹 批量历史回测（一行一期：期号 红1~红6 + 蓝）</div>
+    <textarea id="batchInput" placeholder="示例：
+20261101 03 07 12 16 22 29 + 09
+20261102 01 05 14 18 25 30 + 11"></textarea>
+    <button onclick="runBatchTest()">开始批量回测</button>
+    <div id="batchResult"></div>
+</div>
+
 <div class="wrap">
     <div id="plateBox"></div>
     <div id="logBox"></div>
@@ -43,6 +67,7 @@ button:active{background:#1958a0;}
 <div class="resultBlock">
     <div class="poolTitle">🔹 奇门总池（奇门打分筛选：16红 + 6蓝）</div>
     <div id="poolOut"></div>
+    <div id="poolStat" class="statText"></div>
 </div>
 
 <div class="resultBlock">
@@ -64,7 +89,7 @@ const ganWuxing  = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土",
 const xingWuxing = {"蓬":"水","芮":"土","冲":"木","辅":"木","禽":"土","心":"金","柱":"金","任":"土","英":"火"};
 const menWuxing  = {"休":"水","死":"土","伤":"木","杜":"木","开":"金","惊":"金","生":"土","景":"火"};
 
-// 五行对应号码库（你沿用的这套）
+// 五行对应号码库
 const wxBallMap = {
     "土":[5,15,25,8,20,33],
     "木":[4,14,24,3,13,23,31],
@@ -80,7 +105,6 @@ const wxBlueMap = {
     "水":[6,10,16]
 };
 
-// ========== Bug1 查找旬首 ==========
 function getFuYuanGong(diPan){
     let fuYuanGong = null;
     for(let k in diPan){
@@ -92,7 +116,6 @@ function getFuYuanGong(diPan){
     return fuYuanGong;
 }
 
-// ========== Bug2 五鼠遁 时干（子时跨旬校正） ==========
 function getHourGan(dayGan, si){
     let dayGanIdx = ganArr.indexOf(dayGan);
     if(si === 0){
@@ -102,21 +125,8 @@ function getHourGan(dayGan, si){
     return ganArr[hourGanIdx];
 }
 
-// ========== Bug3 号码边界过滤 ==========
-function getNumPool(wx, backMax){
-    let pool = [];
-    if(wx === "土") pool = [5,15,25];
-    if(wx === "木") pool = [4,14,24];
-    if(wx === "火") pool = [9,19,29];
-    if(wx === "金") pool = [1,11,21];
-    if(wx === "水") pool = [2,12,22];
-    pool = pool.filter(n => n <= backMax);
-    return pool;
-}
-
 // ========== 真太阳时校正模块 ==========
 function trueSolarTime(y,m,d,hh,mm,lng){
-    // 时区东八区 +8
     const tz = 8;
     let JD = gregorianToJD(y,m,d);
     let T = (JD - 2451545.0)/36525;
@@ -227,7 +237,6 @@ function buildQiMenPool(plateData){
     gongScoreList.sort((a,b)=>b.score - a.score);
     let redSet = new Set();
     let blueSet = new Set();
-    // 高分宫优先拿球
     for(let item of gongScoreList){
         let wx = item.wx;
         let redArr = wxBallMap[wx];
@@ -244,10 +253,9 @@ function buildQiMenPool(plateData){
     return {redPool, bluePool};
 }
 
-// ========== 【精选过滤：和值、跨度、奇偶、大小、连号】从总池组合，输出5注 ==========
+// ========== 【精选过滤：和值、跨度、奇偶、大小、连号】 ==========
 function filterFinal5(redPool, bluePool){
     let allComb = [];
-    // 组合：从总红球池任选6红 + 蓝池任选1蓝
     function comb(arr, k){
         let res = [];
         function dfs(start, path){
@@ -267,20 +275,15 @@ function filterFinal5(redPool, bluePool){
             allComb.push({red:r6, blue:b});
         }
     }
-    // 过滤条件
     function checkRule(red){
         let sum = red.reduce((a,b)=>a+b,0);
         let span = red[5] - red[0];
         let ji = red.filter(x=>x%2===1).length;
-        let ou = 6 - ji;
         let big = red.filter(x=>x>16).length;
-        let small = 6 - big;
-        // 和值区间、跨度区间、奇偶均衡、大小均衡（可调）
         if(sum <60 || sum>130) return false;
         if(span <18 || span>30) return false;
         if(ji<2 || ji>4) return false;
         if(big<2 || big>4) return false;
-        // 禁止三连及以上
         let lian = 0;
         let maxLian =0;
         for(let i=1;i<6;i++){
@@ -290,7 +293,6 @@ function filterFinal5(redPool, bluePool){
         return true;
     }
     let pass = allComb.filter(x=>checkRule(x.red));
-    // 打乱取5注
     shuffle(pass);
     let out5 = pass.slice(0,5);
     return out5;
@@ -300,6 +302,16 @@ function shuffle(arr){
         let j = Math.floor(Math.random()*(i+1));
         [arr[i],arr[j]] = [arr[j],arr[i]];
     }
+}
+
+// ========== 渲染球 ==========
+function renderBalls(arr, isRed, hitSet){
+    let html = "";
+    for(let n of arr){
+        let hitClass = hitSet.has(n) ? "ballHit" : "";
+        html += `<span class="${isRed?'ballRed':'ballBlue'} ${hitClass}">${n}</span>`;
+    }
+    return html;
 }
 
 // ========== 渲染九宫 ==========
@@ -322,30 +334,25 @@ function renderPlate(plateData){
     }
 }
 
-// ========== 渲染球 ==========
-function renderBalls(arr, isRed){
-    let html = "";
-    for(let n of arr){
-        html += `<span class="${isRed?'ballRed':'ballBlue'}">${n}</span>`;
-    }
-    return html;
-}
-
-// ========== 主入口 ==========
+// ========== 单期主入口 ==========
 function runQiMen(){
     const dateStr = document.getElementById("dateInput").value;
     const timeStr = document.getElementById("timeInput").value;
     const lng = Number(document.getElementById("lng").value);
-    const lat = Number(document.getElementById("lat").value);
+    const hitRedStr = document.getElementById("hitRedInput").value.trim();
+    const hitBlueStr = document.getElementById("hitBlueInput").value.trim();
     if(!dateStr){alert("请选择日期");return;}
+
+    let hitRedArr = hitRedStr.split(/\s+/).filter(x=>x!="").map(Number);
+    let hitBlue = hitBlueStr ? Number(hitBlueStr) : null;
+    let hitRedSet = new Set(hitRedArr);
+
     let [y,m,d] = dateStr.split("-").map(Number);
     let [hh,mm] = timeStr.split(":").map(Number);
 
-    // 真太阳时校正
     let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
     let si = tsObj.si;
 
-    // 地盘
     let resDi = calcDiPan(y,m,d);
     let diPan = resDi.diPan;
     let dayGan = resDi.dayGan;
@@ -354,7 +361,6 @@ function runQiMen(){
     let hourGan = getHourGan(dayGan, si);
     let rot = rotatePlate(diPan, fuYuanGong, si);
 
-    // 组装全盘+打分
     let plateData = {};
     for(let g of gongIndex){
         let dg = diPan[g];
@@ -367,12 +373,15 @@ function runQiMen(){
     }
     renderPlate(plateData);
 
-    // 生成奇门总池
     let pool = buildQiMenPool(plateData);
-    // 精选5注
     let five = filterFinal5(pool.redPool, pool.bluePool);
 
-    // 日志
+    let poolHitRed = pool.redPool.filter(r=>hitRedSet.has(r));
+    let poolHitBlue = hitBlue && pool.bluePool.includes(hitBlue);
+    let hitCount = poolHitRed.length;
+    let totalOpenRed = hitRedArr.length;
+    let coverRate = totalOpenRed>0 ? (hitCount / totalOpenRed *100).toFixed(1) : 0;
+
     let log = "";
     log += "==== 拆补奇门真盘｜真太阳时校正 ====\n";
     log += `北京时间：${y}-${m}-${d} ${hh}:${mm}\n`;
@@ -387,22 +396,88 @@ function runQiMen(){
     }
     document.getElementById("logBox").innerText = log;
 
-    // 输出总池
     document.getElementById("poolOut").innerHTML = `
-        红球总池：${renderBalls(pool.redPool,true)}<br>
-        蓝球总池：${renderBalls(pool.bluePool,false)}
+        红球总池：${renderBalls(pool.redPool,true,hitRedSet)}<br>
+        蓝球总池：${renderBalls(pool.bluePool,false,new Set(hitBlue?[hitBlue]:[]))}
     `;
-    // 输出5注
+    document.getElementById("poolStat").innerText = `
+【总池比对统计】
+开奖红球：${hitRedArr.join(",")||"未填写"}
+开奖蓝球：${hitBlue??"未填写"}
+总池命中红球：${poolHitRed.join(",")||"无"}  命中数量：${hitCount}
+总池蓝球命中：${poolHitBlue?"✅命中":"❌未命中"}
+红球覆盖率：${coverRate}%（命中数/开奖红球总数）
+    `;
+
     let fiveHtml = "";
     if(five.length ===0){
         fiveHtml = "<span style='color:#f88'>没有满足过滤条件的组合，请放宽过滤条件</span>";
     }else{
         for(let i=0;i<five.length;i++){
-            fiveHtml += `第${i+1}注：${renderBalls(five[i].red,true)} + ${renderBalls([five[i].blue],false)}<br><br>`;
+            let item = five[i];
+            let zhRedHit = item.red.filter(x=>hitRedSet.has(x));
+            let zhBlueHit = hitBlue===item.blue;
+            fiveHtml += `第${i+1}注：${renderBalls(item.red,true,hitRedSet)} + ${renderBalls([item.blue],false,new Set(hitBlue?[hitBlue]:[]))}
+            <span style="color:#adf">｜本注命中红球：${zhRedHit.join(",")||"无"}，蓝球：${zhBlueHit?"✅中":"❌不中"}</span><br><br>`;
         }
     }
     document.getElementById("final5").innerHTML = fiveHtml;
 }
+
+// ========== 批量回测 ==========
+function runBatchTest(){
+    const lng = Number(document.getElementById("lng").value);
+    const lines = document.getElementById("batchInput").value.trim().split("\n").filter(x=>x.trim()!="");
+    let tableHtml = `<table><tr><th>期号</th><th>开奖</th><th>命中红</th><th>个数</th><th>覆盖率</th><th>蓝</th></tr>`;
+    let sumRate = 0;
+    let validCnt = 0;
+    for(let line of lines){
+        let arr = line.trim().split(/\s+/);
+        if(arr.length <8) continue;
+        let qh = arr[0];
+        let redOpen = arr.slice(1,7).map(Number);
+        let blueOpen = Number(arr[8]);
+        let hitRedSet = new Set(redOpen);
+        let y = parseInt(qh.substr(0,4));
+        let m = parseInt(qh.substr(4,2));
+        let d = parseInt(qh.substr(6,2));
+        let hh = 0, mm =0;
+        let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
+        let si = tsObj.si;
+        let resDi = calcDiPan(y,m,d);
+        let diPan = resDi.diPan;
+        let fuYuanGong = getFuYuanGong(diPan);
+        let rot = rotatePlate(diPan, fuYuanGong, si);
+        let plateData = {};
+        for(let g of gongIndex){
+            let dg = diPan[g];
+            let tg = rot.tianPan[g];
+            let xing = rot.jiuXingMap[g];
+            let men = rot.baMenMap[g];
+            let shen = rot.baShenMap[g];
+            let sc = calcScore(g, tg, xing, men);
+            plateData[g] = {diGan:dg, tianGan:tg, xing, men, shen, score:sc};
+        }
+        let pool = buildQiMenPool(plateData);
+        let hitRed = pool.redPool.filter(r=>hitRedSet.has(r));
+        let hitBlue = pool.bluePool.includes(blueOpen);
+        let rate = (hitRed.length / 6 *100).toFixed(1);
+        sumRate += Number(rate);
+        validCnt +=1;
+        tableHtml += `<tr>
+            <td>${qh}</td>
+            <td>${redOpen.join(" ")}+${blueOpen}</td>
+            <td>${hitRed.join(",")||"-"}</td>
+            <td>${hitRed.length}</td>
+            <td>${rate}%</td>
+            <td>${hitBlue?"✅":"❌"}</td>
+        </tr>`;
+    }
+    let avgRate = validCnt>0 ? (sumRate / validCnt).toFixed(1):0;
+    tableHtml += `</table><div style="margin-top:8px;color:#fd9">一共${validCnt}期，平均红球覆盖率：${avgRate}%</div>`;
+    document.getElementById("batchResult").innerHTML = tableHtml;
+}
+
 document.getElementById("dateInput").valueAsDate = new Date();
 </script>
 </body>
