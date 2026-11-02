@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘 最终修复undefined+开奖周期</title>
+<title>奇门统计 拆补真盘｜联网拉取100期回测版</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
@@ -13,6 +13,7 @@ input,select,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-
 input,select{background:#222836;color:#fff;}
 button{background:#2374d1;color:#fff;cursor:pointer;width:100%;margin-top:6px;padding:9px;}
 button:active{background:#1958a0;}
+.btn-green{background:#188047;margin-bottom:4px;}
 .tipBar{background:#1a442b;color:#8cf9a7;padding:8px;border-radius:6px;margin-bottom:8px;text-align:center;}
 .wrap{display:flex;gap:10px;flex-wrap:wrap;}
 #plateBox{width:100%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;aspect-ratio:1/1;}
@@ -60,10 +61,9 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <div class="resultBlock">
-    <div class="poolTitle">🔹 批量历史回测（一行一期：期号 红1~红6 蓝）</div>
-    <textarea id="batchInput" placeholder="示例：
-20261101 03 07 12 16 22 29 09
-20261102 01 05 14 18 25 30 11"></textarea>
+    <div class="poolTitle">🔹 批量历史回测（联网拉取）</div>
+    <button class="btn-green" onclick="fetchSSQ100()">联网拉取最新100期双色球</button>
+    <textarea id="batchInput" placeholder="拉取后自动填充，无需手动填写"></textarea>
     <button onclick="runBatchTest()">开始批量回测</button>
     <div id="batchResult"></div>
 </div>
@@ -80,7 +80,7 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <div class="resultBlock">
-    <div class="poolTitle">🔹 精选5注（总池内再按和值/跨度/奇偶/大小过滤）</div>
+    <div class="poolTitle">🔹 🔹 精选5注（总池内再按和值/跨度/奇偶/大小过滤）</div>
     <div id="final5"></div>
     <div class="note">提示：本工具仅为奇门数据推演研究，不构成购彩建议</div>
 </div>
@@ -234,26 +234,22 @@ function calcDiPan(y,m,d){
     return {diPan, dayGan, xunShou};
 }
 
-// =========【核心修复：拆补转盘：值符顺移si步，九星八门八神跟着值符走】=========
 function rotatePlateCorrect(diPan, fuYuanGong, si){
     let tianPan = {};
     let jiuXingMap = {};
     let baMenMap  = {};
     let baShenMap = {};
 
-    // 原点基础排布（旬首宫原位）
     const baseGongOrder = [1,2,3,4,5,6,7,8,9];
     const baseXing = {"1":"蓬","2":"芮","3":"冲","4":"辅","5":"禽","6":"心","7":"柱","8":"任","9":"英"};
     const baseMen  = {"1":"休","2":"死","3":"伤","4":"杜","5":"中","6":"开","7":"惊","8":"生","9":"景"};
     const baseShen = {"1":"值符","2":"螣蛇","3":"太阴","4":"六合","5":"白虎","6":"玄武","7":"九地","8":"九天","9":"九天"};
 
-    // 1.先算出值符落宫：从旬首原点顺走 si 步
     let fuGong = fuYuanGong;
     for(let s=0;s<si;s++){
         fuGong = gongNext[fuGong];
     }
 
-    // 2. 九星、八门、八神，以fuYuanGong对应fuGong整体平移
     const offsetGong = {};
     let src = fuYuanGong;
     let dst = fuGong;
@@ -263,7 +259,6 @@ function rotatePlateCorrect(diPan, fuYuanGong, si){
         dst = gongNext[dst];
     }
 
-    // 3.填充所有宫
     for(let g=1;g<=9;g++){
         let srcG = null;
         for(let k in offsetGong){
@@ -383,7 +378,6 @@ function renderBalls(arr, isRed, hitSet){
 function renderPlate(plateData){
     const box = document.getElementById("plateBox");
     box.innerHTML = "";
-    // 页面九宫排版顺序：巽4、离9、坤2｜震3、中5、兑7｜艮8、坎1、乾6
     const order = [4,9,2,3,5,7,8,1,6];
     for(let g of order){
         let item = plateData[g];
@@ -548,6 +542,32 @@ function runBatchTest(){
         document.getElementById("batchResult").innerHTML = tableHtml;
     }catch(e){
         alert("批量回测出错："+e.message);
+    }
+}
+
+// ========== 联网拉取双色球100期 ==========
+async function fetchSSQ100(){
+    const proxyUrl = "https://corsproxy.io/?";
+    const targetApi = "https://www.caijiapi.com/api/ssq?limit=100";
+    const url = proxyUrl + encodeURIComponent(targetApi);
+    document.getElementById("tipBar").innerText = "正在联网拉取双色球100期，请稍等...";
+    try{
+        const resp = await fetch(url);
+        if(!resp.ok) throw new Error("接口返回异常");
+        const json = await resp.json();
+        if(!json.data || !Array.isArray(json.data)) throw new Error("数据格式不对");
+        let lines = [];
+        for(let item of json.data){
+            let qh = item.code;
+            let red = item.red.split(",").join(" ");
+            let blue = item.blue;
+            lines.push(`${qh} ${red} ${blue}`);
+        }
+        document.getElementById("batchInput").value = lines.join("\n");
+        document.getElementById("tipBar").innerText = `✅拉取成功，一共${lines.length}期，现在可以点【开始批量回测】`;
+    }catch(err){
+        document.getElementById("tipBar").innerText = "❌拉取失败："+err.message;
+        alert("拉取失败："+err.message+"\n公共CORS代理不稳定，换个时间重试");
     }
 }
 
