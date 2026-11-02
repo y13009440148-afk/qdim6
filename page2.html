@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘｜稳定拉取版</title>
+<title>奇门统计 拆补真盘｜稳定拉取版【日期联动开奖修复】</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
@@ -86,7 +86,11 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <script>
-// ============【这里更新最新开奖号码】============
+// ============【开奖历史库：日期字符串 => 开奖数据】============
+const HISTORY_MAP = {
+    "2026-10-25":{lot:"ssq", period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
+};
+// ============【这里更新最近一期默认】============
 const RECENT_DATA = {
     ssq:{period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
     dlt:{period:"26120", red:["01","05","14","18","25","30"], blue:"11"}
@@ -139,6 +143,23 @@ function getNextOpenDate(lotKey){
         target.setDate(target.getDate()+1);
     }
     return target;
+}
+
+// ======【重点新增：日期变更自动填充开奖号码】======
+function fillByDate(dateStr){
+    const lotKey = document.getElementById("lotType").value;
+    const rule = RULES[lotKey];
+    const hit = HISTORY_MAP[dateStr];
+    if(hit && hit.lot === lotKey){
+        document.getElementById("hitRedInput").value = hit.red.join(" ");
+        document.getElementById("hitBlueInput").value = hit.blue;
+        document.getElementById("tipBar").innerText = `✅匹配到【${dateStr}】开奖期号${hit.period}，已自动填入开奖号码`;
+    }else{
+        document.getElementById("hitRedInput").value = "";
+        document.getElementById("hitBlueInput").value = "";
+        document.getElementById("tipBar").innerText = `⚠️【${dateStr}】在本地库无记录，请手动填写开奖号码`;
+    }
+    document.getElementById("timeInput").value = rule.openTime;
 }
 
 function fillAuto(){
@@ -547,7 +568,7 @@ async function runBatchTest(){
     }
 }
 
-// ========== 【你原来稳定版拉取函数，已替换完成】 ==========
+// ========== 【你原来稳定版拉取函数，保留不变】 ==========
 async function fetchSSQ100(){
     const proxyUrl = "https://corsproxy.io/?";
     const targetApi = "https://www.caijiapi.com/api/ssq?limit=100";
@@ -573,7 +594,11 @@ async function fetchSSQ100(){
     }
 }
 
+// ======【监听：切换彩种 + 修改日期】======
 document.getElementById("lotType").addEventListener("change", fillAuto);
+document.getElementById("dateInput").addEventListener("change", function(){
+    fillByDate(this.value);
+});
 document.addEventListener('DOMContentLoaded', fillAuto);
 </script>
 </body>
