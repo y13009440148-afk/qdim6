@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计｜拆补真盘｜真太阳时+总池+精选+开奖比对+批量回测</title>
+<title>奇门统计 拆补真盘 真太阳时+总池+精选+开奖比对+批量回测</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
 .ctrlBox{border:1px solid #334;border-radius:8px;padding:12px;margin-bottom:10px;background:#171b24;}
 .ctrlBox>div{margin:6px 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px;}
-input,select,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-size:14px;}
+input,button,textarea{padding:6px 8px;border-radius:4px;border:none;font-size:14px;}
 input{background:#222836;color:#fff;}
 button{background:#2374d1;color:#fff;cursor:pointer;width:100%;margin-top:6px;padding:9px;}
 button:active{background:#1958a0;}
 .wrap{display:flex;gap:10px;flex-wrap:wrap;}
-#plateBox{width:100%;aspect-ratio:1/1;max-width:420px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;}
+#plateBox{width:100%;max-width:420px;margin:10px auto;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;aspect-ratio:1/1;}
 .gong{border:1px solid #445;background:#1c222f;padding:4px;display:flex;flex-direction:column;justify-content:center;text-align:center;border-radius:6px;font-size:12px;}
 .gong strong{color:#7cf;font-size:14px;}
 .gong small{color:#aab;margin-top:2px;}
@@ -47,7 +47,7 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
         <span>开奖红球：</span><input id="hitRedInput" placeholder="空格隔开6个号" size="14">
         <span>蓝球：</span><input id="hitBlueInput" placeholder="09" size="4">
     </div>
-    <button onclick="runQiMen()">单期排盘｜生成总池｜精选5注｜比对开奖</button>
+    <button onclick="runQiMen()">单期排盘 | 生成总池 | 精选5注 | 比对开奖</button>
 </div>
 
 <div class="resultBlock">
@@ -77,7 +77,6 @@ textarea{width:100%;height:100px;background:#111827;color:#eee;margin:4px 0;}
 </div>
 
 <script>
-// ========== 基础常量【拆补奇门标准定义】 ==========
 const ganArr    = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const zhiFuShen = ["值符","螣蛇","太阴","六合","白虎","玄武","九地","九天"];
 const jiuXing   = ["蓬","芮","冲","辅","禽","心","柱","任","英"];
@@ -89,7 +88,6 @@ const ganWuxing  = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土",
 const xingWuxing = {"蓬":"水","芮":"土","冲":"木","辅":"木","禽":"土","心":"金","柱":"金","任":"土","英":"火"};
 const menWuxing  = {"休":"水","死":"土","伤":"木","杜":"木","开":"金","惊":"金","生":"土","景":"火"};
 
-// 五行对应号码库
 const wxBallMap = {
     "土":[5,15,25,8,20,33],
     "木":[4,14,24,3,13,23,31],
@@ -125,7 +123,6 @@ function getHourGan(dayGan, si){
     return ganArr[hourGanIdx];
 }
 
-// ========== 真太阳时校正模块 ==========
 function trueSolarTime(y,m,d,hh,mm,lng){
     const tz = 8;
     let JD = gregorianToJD(y,m,d);
@@ -157,7 +154,6 @@ function gregorianToJD(y,m,d){
     return JD;
 }
 
-// ========== 拆补地盘生成 ==========
 function calcDiPan(y,m,d){
     const baseDay = 10957;
     const date = new Date(y,m-1,d);
@@ -165,7 +161,7 @@ function calcDiPan(y,m,d){
     dayNum = dayNum < 0 ? dayNum + 6000 : dayNum;
     let dayGanIdx = dayNum % 10;
     let dayGan = ganArr[dayGanIdx];
-    let xunShouIdx = (dayGanIdx - dayGanIdx%10 +10)%10;
+    let xunShouIdx = dayGanIdx;
     let xunShou = ganArr[xunShouIdx];
     const diGanRule = {
         "戊":[1,2,3,4,5,6,7,8,9],
@@ -184,7 +180,6 @@ function calcDiPan(y,m,d){
     return {diPan, dayGan, xunShou};
 }
 
-// ========== 天盘九星八门八神转动 ==========
 function rotatePlate(diPan, fuYuanGong, si){
     let tianPan = {};
     let jiuXingMap = {};
@@ -207,7 +202,6 @@ function rotatePlate(diPan, fuYuanGong, si){
     return {tianPan,jiuXingMap,baMenMap,baShenMap};
 }
 
-// ========== 宫位生克打分 ==========
 function calcScore(gongNo, tianGan, xing, men){
     let score = 50;
     let gWx = gongWuxing[gongNo];
@@ -228,7 +222,6 @@ function calcScore(gongNo, tianGan, xing, men){
     return Math.max(0, Math.min(100, score));
 }
 
-// ========== 【奇门总池生成】按宫得分权重取球：16红，6蓝 ==========
 function buildQiMenPool(plateData){
     let gongScoreList = [];
     for(let g=1;g<=9;g++){
@@ -253,7 +246,6 @@ function buildQiMenPool(plateData){
     return {redPool, bluePool};
 }
 
-// ========== 【精选过滤：和值、跨度、奇偶、大小、连号】 ==========
 function filterFinal5(redPool, bluePool){
     let allComb = [];
     function comb(arr, k){
@@ -304,7 +296,6 @@ function shuffle(arr){
     }
 }
 
-// ========== 渲染球 ==========
 function renderBalls(arr, isRed, hitSet){
     let html = "";
     for(let n of arr){
@@ -314,7 +305,6 @@ function renderBalls(arr, isRed, hitSet){
     return html;
 }
 
-// ========== 渲染九宫 ==========
 function renderPlate(plateData){
     const box = document.getElementById("plateBox");
     box.innerHTML = "";
@@ -325,8 +315,8 @@ function renderPlate(plateData){
         div.className = "gong";
         div.innerHTML = `
             <strong>${g}宫(${gongWuxing[g]})</strong>
-            <div>地:${item.diGan}｜天:${item.tianGan}</div>
-            <div>⭐${item.xing}｜🚪${item.men}</div>
+            <div>地:${item.diGan} 天:${item.tianGan}</div>
+            <div>⭐${item.xing} 🚪${item.men}</div>
             <div>👻${item.shen}</div>
             <div class="score">得分：${item.score}</div>
         `;
@@ -334,120 +324,33 @@ function renderPlate(plateData){
     }
 }
 
-// ========== 单期主入口 ==========
 function runQiMen(){
-    const dateStr = document.getElementById("dateInput").value;
-    const timeStr = document.getElementById("timeInput").value;
-    const lng = Number(document.getElementById("lng").value);
-    const hitRedStr = document.getElementById("hitRedInput").value.trim();
-    const hitBlueStr = document.getElementById("hitBlueInput").value.trim();
-    if(!dateStr){alert("请选择日期");return;}
+    try{
+        const dateStr = document.getElementById("dateInput").value;
+        const timeStr = document.getElementById("timeInput").value;
+        const lng = Number(document.getElementById("lng").value);
+        const hitRedStr = document.getElementById("hitRedInput").value.trim();
+        const hitBlueStr = document.getElementById("hitBlueInput").value.trim();
+        if(!dateStr){alert("请选择日期");return;}
 
-    let hitRedArr = hitRedStr.split(/\s+/).filter(x=>x!="").map(Number);
-    let hitBlue = hitBlueStr ? Number(hitBlueStr) : null;
-    let hitRedSet = new Set(hitRedArr);
+        let hitRedArr = hitRedStr.split(/\s+/).filter(x=>x!="").map(Number);
+        let hitBlue = hitBlueStr ? Number(hitBlueStr) : null;
+        let hitRedSet = new Set(hitRedArr);
 
-    let [y,m,d] = dateStr.split("-").map(Number);
-    let [hh,mm] = timeStr.split(":").map(Number);
+        let [y,m,d] = dateStr.split("-").map(Number);
+        let [hh,mm] = timeStr.split(":").map(Number);
 
-    let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
-    let si = tsObj.si;
-
-    let resDi = calcDiPan(y,m,d);
-    let diPan = resDi.diPan;
-    let dayGan = resDi.dayGan;
-    let xunShou = resDi.xunShou;
-    let fuYuanGong = getFuYuanGong(diPan);
-    let hourGan = getHourGan(dayGan, si);
-    let rot = rotatePlate(diPan, fuYuanGong, si);
-
-    let plateData = {};
-    for(let g of gongIndex){
-        let dg = diPan[g];
-        let tg = rot.tianPan[g];
-        let xing = rot.jiuXingMap[g];
-        let men = rot.baMenMap[g];
-        let shen = rot.baShenMap[g];
-        let sc = calcScore(g, tg, xing, men);
-        plateData[g] = {diGan:dg, tianGan:tg, xing, men, shen, score:sc};
-    }
-    renderPlate(plateData);
-
-    let pool = buildQiMenPool(plateData);
-    let five = filterFinal5(pool.redPool, pool.bluePool);
-
-    let poolHitRed = pool.redPool.filter(r=>hitRedSet.has(r));
-    let poolHitBlue = hitBlue && pool.bluePool.includes(hitBlue);
-    let hitCount = poolHitRed.length;
-    let totalOpenRed = hitRedArr.length;
-    let coverRate = totalOpenRed>0 ? (hitCount / totalOpenRed *100).toFixed(1) : 0;
-
-    let log = "";
-    log += "==== 拆补奇门真盘｜真太阳时校正 ====\n";
-    log += `北京时间：${y}-${m}-${d} ${hh}:${mm}\n`;
-    log += `真太阳时：${tsObj.tsHour}:${tsObj.tsMin} 时辰si=${si}\n`;
-    log += `日干：${dayGan} ｜ 旬首：${xunShou}\n`;
-    log += `时干：${hourGan}\n`;
-    log += `值符原点宫：${fuYuanGong}\n`;
-    log += "\n【宫得分清单】\n";
-    for(let g of [1,2,3,4,5,6,7,8,9]){
-        let o = plateData[g];
-        log += `${g}宫(${gongWuxing[g]}) 九星${o.xing}，八门${o.men}，得分：${o.score}\n`;
-    }
-    document.getElementById("logBox").innerText = log;
-
-    document.getElementById("poolOut").innerHTML = `
-        红球总池：${renderBalls(pool.redPool,true,hitRedSet)}<br>
-        蓝球总池：${renderBalls(pool.bluePool,false,new Set(hitBlue?[hitBlue]:[]))}
-    `;
-    document.getElementById("poolStat").innerText = `
-【总池比对统计】
-开奖红球：${hitRedArr.join(",")||"未填写"}
-开奖蓝球：${hitBlue??"未填写"}
-总池命中红球：${poolHitRed.join(",")||"无"}  命中数量：${hitCount}
-总池蓝球命中：${poolHitBlue?"✅命中":"❌未命中"}
-红球覆盖率：${coverRate}%（命中数/开奖红球总数）
-    `;
-
-    let fiveHtml = "";
-    if(five.length ===0){
-        fiveHtml = "<span style='color:#f88'>没有满足过滤条件的组合，请放宽过滤条件</span>";
-    }else{
-        for(let i=0;i<five.length;i++){
-            let item = five[i];
-            let zhRedHit = item.red.filter(x=>hitRedSet.has(x));
-            let zhBlueHit = hitBlue===item.blue;
-            fiveHtml += `第${i+1}注：${renderBalls(item.red,true,hitRedSet)} + ${renderBalls([item.blue],false,new Set(hitBlue?[hitBlue]:[]))}
-            <span style="color:#adf">｜本注命中红球：${zhRedHit.join(",")||"无"}，蓝球：${zhBlueHit?"✅中":"❌不中"}</span><br><br>`;
-        }
-    }
-    document.getElementById("final5").innerHTML = fiveHtml;
-}
-
-// ========== 批量回测 ==========
-function runBatchTest(){
-    const lng = Number(document.getElementById("lng").value);
-    const lines = document.getElementById("batchInput").value.trim().split("\n").filter(x=>x.trim()!="");
-    let tableHtml = `<table><tr><th>期号</th><th>开奖</th><th>命中红</th><th>个数</th><th>覆盖率</th><th>蓝</th></tr>`;
-    let sumRate = 0;
-    let validCnt = 0;
-    for(let line of lines){
-        let arr = line.trim().split(/\s+/);
-        if(arr.length <8) continue;
-        let qh = arr[0];
-        let redOpen = arr.slice(1,7).map(Number);
-        let blueOpen = Number(arr[7]);
-        let hitRedSet = new Set(redOpen);
-        let y = parseInt(qh.substr(0,4));
-        let m = parseInt(qh.substr(4,2));
-        let d = parseInt(qh.substr(6,2));
-        let hh = 0, mm =0;
         let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
         let si = tsObj.si;
+
         let resDi = calcDiPan(y,m,d);
         let diPan = resDi.diPan;
+        let dayGan = resDi.dayGan;
+        let xunShou = resDi.xunShou;
         let fuYuanGong = getFuYuanGong(diPan);
+        let hourGan = getHourGan(dayGan, si);
         let rot = rotatePlate(diPan, fuYuanGong, si);
+
         let plateData = {};
         for(let g of gongIndex){
             let dg = diPan[g];
@@ -458,27 +361,127 @@ function runBatchTest(){
             let sc = calcScore(g, tg, xing, men);
             plateData[g] = {diGan:dg, tianGan:tg, xing, men, shen, score:sc};
         }
+        renderPlate(plateData);
+
         let pool = buildQiMenPool(plateData);
-        let hitRed = pool.redPool.filter(r=>hitRedSet.has(r));
-        let hitBlue = pool.bluePool.includes(blueOpen);
-        let rate = (hitRed.length / 6 *100).toFixed(1);
-        sumRate += Number(rate);
-        validCnt +=1;
-        tableHtml += `<tr>
-            <td>${qh}</td>
-            <td>${redOpen.join(" ")}+${blueOpen}</td>
-            <td>${hitRed.join(",")||"-"}</td>
-            <td>${hitRed.length}</td>
-            <td>${rate}%</td>
-            <td>${hitBlue?"✅":"❌"}</td>
-        </tr>`;
+        let five = filterFinal5(pool.redPool, pool.bluePool);
+
+        let poolHitRed = pool.redPool.filter(r=>hitRedSet.has(r));
+        let poolHitBlue = hitBlue && pool.bluePool.includes(hitBlue);
+        let hitCount = poolHitRed.length;
+        let totalOpenRed = hitRedArr.length;
+        let coverRate = totalOpenRed>0 ? (hitCount / totalOpenRed *100).toFixed(1) : 0;
+
+        let log = "";
+        log += "==== 拆补奇门真盘 | 真太阳时校正 ====\n";
+        log += `北京时间：${y}-${m}-${d} ${hh}:${mm}\n`;
+        log += `真太阳时：${tsObj.tsHour}:${tsObj.tsMin} 时辰序号=${si}\n`;
+        log += `日干：${dayGan} | 旬首：${xunShou}\n`;
+        log += `时干：${hourGan}\n`;
+        log += `值符原点宫：${fuYuanGong}\n`;
+        log += "\n【宫得分清单】\n";
+        for(let g of [1,2,3,4,5,6,7,8,9]){
+            let o = plateData[g];
+            log += `${g}宫(${gongWuxing[g]}) 九星${o.xing}，八门${o.men}，得分：${o.score}\n`;
+        }
+        document.getElementById("logBox").innerText = log;
+
+        document.getElementById("poolOut").innerHTML = `
+            红球总池：${renderBalls(pool.redPool,true,hitRedSet)}<br>
+            蓝球总池：${renderBalls(pool.bluePool,false,new Set(hitBlue?[hitBlue]:[]))}
+        `;
+        document.getElementById("poolStat").innerText = `
+【总池比对统计】
+开奖红球：${hitRedArr.join(",")||"未填写"}
+开奖蓝球：${hitBlue??"未填写"}
+总池命中红球：${poolHitRed.join(",")||"无"}  命中数量：${hitCount}
+总池蓝球命中：${poolHitBlue?"✅命中":"❌未命中"}
+红球覆盖率：${coverRate}%（命中数/开奖红球总数）
+        `;
+
+        let fiveHtml = "";
+        if(five.length ===0){
+            fiveHtml = "<span style='color:#f88'>没有满足过滤条件的组合，请放宽过滤条件</span>";
+        }else{
+            for(let i=0;i<five.length;i++){
+                let item = five[i];
+                let zhRedHit = item.red.filter(x=>hitRedSet.has(x));
+                let zhBlueHit = hitBlue===item.blue;
+                fiveHtml += `第${i+1}注：${renderBalls(item.red,true,hitRedSet)} + ${renderBalls([item.blue],false,new Set(hitBlue?[hitBlue]:[]))}
+                <span style="color:#adf"> | 本注命中红球：${zhRedHit.join(",")||"无"}，蓝球：${zhBlueHit?"✅中":"❌不中"}</span><br><br>`;
+            }
+        }
+        document.getElementById("final5").innerHTML = fiveHtml;
+    }catch(e){
+        alert("脚本出错："+e.message);
+        console.error(e);
     }
-    let avgRate = validCnt>0 ? (sumRate / validCnt).toFixed(1):0;
-    tableHtml += `</table><div style="margin-top:8px;color:#fd9">一共${validCnt}期，平均红球覆盖率：${avgRate}%</div>`;
-    document.getElementById("batchResult").innerHTML = tableHtml;
 }
 
-document.getElementById("dateInput").valueAsDate = new Date();
+function runBatchTest(){
+    try{
+        const lng = Number(document.getElementById("lng").value);
+        const lines = document.getElementById("batchInput").value.trim().split("\n").filter(x=>x.trim()!="");
+        let tableHtml = `<table><tr><th>期号</th><th>开奖</th><th>命中红</th><th>个数</th><th>覆盖率</th><th>蓝</th></tr>`;
+        let sumRate = 0;
+        let validCnt = 0;
+        for(let line of lines){
+            let arr = line.trim().split(/\s+/);
+            if(arr.length <8) continue;
+            let qh = arr[0];
+            let redOpen = arr.slice(1,7).map(Number);
+            let blueOpen = Number(arr[7]);
+            let hitRedSet = new Set(redOpen);
+            let y = parseInt(qh.substr(0,4));
+            let m = parseInt(qh.substr(4,2));
+            let d = parseInt(qh.substr(6,2));
+            let hh = 0, mm =0;
+            let tsObj = trueSolarTime(y,m,d,hh,mm,lng);
+            let si = tsObj.si;
+            let resDi = calcDiPan(y,m,d);
+            let diPan = resDi.diPan;
+            let fuYuanGong = getFuYuanGong(diPan);
+            let rot = rotatePlate(diPan, fuYuanGong, si);
+            let plateData = {};
+            for(let g of gongIndex){
+                let dg = diPan[g];
+                let tg = rot.tianPan[g];
+                let xing = rot.jiuXingMap[g];
+                let men = rot.baMenMap[g];
+                let shen = rot.baShenMap[g];
+                let sc = calcScore(g, tg, xing, men);
+                plateData[g] = {diGan:dg, tianGan:tg, xing, men, shen, score:sc};
+            }
+            let pool = buildQiMenPool(plateData);
+            let hitRed = pool.redPool.filter(r=>hitRedSet.has(r));
+            let hitBlue = pool.bluePool.includes(blueOpen);
+            let rate = (hitRed.length / 6 *100).toFixed(1);
+            sumRate += Number(rate);
+            validCnt +=1;
+            tableHtml += `<tr>
+                <td>${qh}</td>
+                <td>${redOpen.join(" ")}+${blueOpen}</td>
+                <td>${hitRed.join(",")||"-"}</td>
+                <td>${hitRed.length}</td>
+                <td>${rate}%</td>
+                <td>${hitBlue?"✅":"❌"}</td>
+            </tr>`;
+        }
+        let avgRate = validCnt>0 ? (sumRate / validCnt).toFixed(1):0;
+        tableHtml += `</table><div style="margin-top:8px;color:#fd9">一共${validCnt}期，平均红球覆盖率：${avgRate}%</div>`;
+        document.getElementById("batchResult").innerHTML = tableHtml;
+    }catch(e){
+        alert("批量回测出错："+e.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    let today = new Date();
+    let y = today.getFullYear();
+    let m = String(today.getMonth()+1).padStart(2,'0');
+    let d = String(today.getDate()).padStart(2,'0');
+    document.getElementById("dateInput").value = `${y}-${m}-${d}`;
+});
 </script>
 </body>
 </html>
