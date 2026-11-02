@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>奇门统计 拆补真盘 最终修复undefined</title>
+<title>奇门统计 拆补真盘 最终修复undefined+开奖周期</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
 body{background:#0f1218;color:#e8edf3;padding:10px;font-size:14px;}
@@ -91,10 +91,10 @@ const RECENT_DATA = {
     ssq:{period:"2026120", red:["03","07","12","16","22","29"], blue:"09"},
     dlt:{period:"26120", red:["01","05","14","18","25","30"], blue:"11"}
 };
-// 开奖周期规则 0=周一
+// 开奖周期规则：getDay() 0=周日,1=周一,2=周二,3=周三,4=周四,5=周五,6=周六
 const RULES = {
-    ssq:{week:[1,3,0], openTime:"21:15", name:"双色球"},
-    dlt:{week:[0,2,5], openTime:"21:25", name:"大乐透"}
+    ssq:{week:[2,4,0], openTime:"21:15", name:"双色球"},
+    dlt:{week:[1,3,6], openTime:"21:25", name:"大乐透"}
 };
 // ================================================
 
@@ -245,7 +245,7 @@ function rotatePlateCorrect(diPan, fuYuanGong, si){
     const baseGongOrder = [1,2,3,4,5,6,7,8,9];
     const baseXing = {"1":"蓬","2":"芮","3":"冲","4":"辅","5":"禽","6":"心","7":"柱","8":"任","9":"英"};
     const baseMen  = {"1":"休","2":"死","3":"伤","4":"杜","5":"中","6":"开","7":"惊","8":"生","9":"景"};
-    const baseShen = {"1":"值符","2":"螣蛇","3":"太阴","4":"六合","5":"白虎","6":"玄武","7":"九地","8":"九天","9":""};
+    const baseShen = {"1":"值符","2":"螣蛇","3":"太阴","4":"六合","5":"白虎","6":"玄武","7":"九地","8":"九天","9":"九天"};
 
     // 1.先算出值符落宫：从旬首原点顺走 si 步
     let fuGong = fuYuanGong;
@@ -272,7 +272,7 @@ function rotatePlateCorrect(diPan, fuYuanGong, si){
         tianPan[g] = diPan[srcG];
         jiuXingMap[g] = baseXing[srcG];
         baMenMap[g] = baseMen[srcG];
-        baShenMap[g] = baseShen[srcG] || "九天";
+        baShenMap[g] = baseShen[srcG];
     }
     return {tianPan,jiuXingMap,baMenMap,baShenMap,fuGong};
 }
