@@ -592,11 +592,16 @@ sr.innerHTML=scoreHtml+reviewHtml;
 document.getElementById("runSingleBtn").onclick=runSingle;
 document.getElementById("runBatchBtn").onclick=runBacktest;
 
-// ========== 自动定位到下一个开奖日 ==========
+// ========== 日期格式化 ==========
 function fmtDate(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+
+// ========== 自动定位到下一个开奖日 ==========
 function getNextDrawDate(){
 const cfg=GAME_CFG[currentGame];
 const today=new Date();today.setHours(0,0,0,0);
+if(cfg.drawDays.includes(today.getDay())){
+    return fmtDate(today);
+}
 let d=new Date(today);
 for(let i=0;i<7;i++){
     d.setDate(d.getDate()+1);
